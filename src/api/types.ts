@@ -170,3 +170,30 @@ export type Usuario = { id: string; nome: string; email: string; papel: "admin" 
 export type ListaUsuarios = { usuarios: Usuario[]; meta: MetaLista };
 export type Empresa = { id: string; nome: string; cnpj: string | null; status: StatusAtivo; isSteto: boolean; criadoEm: string };
 export type ListaEmpresas = { empresas: Empresa[]; meta: MetaLista };
+
+export type EventoAuditoria = {
+  id: number;
+  quando: string;
+  usuarioEmail: string | null;
+  tabela: string;
+  registroId: string | null;
+  acao: "criou" | "alterou" | "excluiu";
+  /** Nome legível do registro (razão social, nome, descrição…). */
+  alvo: string;
+  alteracoes: { campo: string; antes: unknown; depois: unknown }[];
+};
+export type ListaAuditoria = { eventos: EventoAuditoria[]; meta: MetaLista };
+
+export type Importacao = {
+  id: string;
+  tipo: import("@/lib/importacao/campos").TipoImportacao;
+  nomeArquivo: string;
+  totalLinhas: number;
+  importadas: number;
+  falhadas: number;
+  novosCadastros: number;
+  status: "sucesso" | "parcial" | "falha";
+  erros: { linha: number; erro: string }[];
+  criadoEm: string;
+};
+export type ListaImportacoes = { importacoes: Importacao[]; meta: MetaLista };

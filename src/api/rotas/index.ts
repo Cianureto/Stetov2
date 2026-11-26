@@ -10,3 +10,5 @@ import "@/api/rotas/categorias";
 import "@/api/rotas/painel";
 import "@/api/rotas/relatorios";
 import "@/api/rotas/usuarios";
+import "@/api/rotas/auditoria";
+import "@/api/rotas/importacao";

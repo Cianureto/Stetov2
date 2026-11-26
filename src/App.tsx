@@ -8,7 +8,10 @@ import { AppShell } from "@/components/layout/AppShell";
 import LoginPage from "@/pages/auth/LoginPage";
 import ClientesPage from "@/pages/clientes/ClientesPage";
 import ClientePage from "@/pages/clientes/formularios/ClientePage";
-import EmBreve from "@/pages/EmBreve";
+import ImportacaoPage from "@/pages/importacao/ImportacaoPage";
+import ImportarPlanilhaPage from "@/pages/importacao/ImportarPlanilhaPage";
+import ImportarXmlPage from "@/pages/importacao/ImportarXmlPage";
+import AuditoriaPage from "@/pages/auditoria/AuditoriaPage";
 import PerfilPage from "@/pages/perfil/PerfilPage";
 import AcessosPage from "@/pages/acessos/AcessosPage";
 import NovoUsuarioPage from "@/pages/acessos/NovoUsuarioPage";
@@ -67,14 +70,16 @@ export default function App() {
               <Route path="/empresas-contabeis/:id" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmpresaContabilPage /></ComPermissao>} />
               <Route path="/empresas-contabeis/:id/editar" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmpresaContabilFormPage /></ComPermissao>} />
 
-              <Route path="/importacao" element={<ComPermissao permissao="importacao.executar"><EmBreve itens={["Planilha com mapeamento de colunas", "XML de NFSe", "Histórico com erros por linha"]} /></ComPermissao>} />
+              <Route path="/importacao" element={<ComPermissao permissao="importacao.executar"><ImportacaoPage /></ComPermissao>} />
+              <Route path="/importacao/planilha" element={<ComPermissao permissao="importacao.executar"><ImportarPlanilhaPage /></ComPermissao>} />
+              <Route path="/importacao/xml" element={<ComPermissao permissao="importacao.executar"><ImportarXmlPage /></ComPermissao>} />
               <Route path="/acessos" element={<ComPermissao permissao="acessos.gerenciar"><AcessosPage /></ComPermissao>} />
               <Route path="/acessos/novo" element={<ComPermissao permissao="acessos.gerenciar"><NovoUsuarioPage /></ComPermissao>} />
               <Route path="/empresas" element={<ComPermissao permissao="empresas.gerenciar"><EmpresasPage /></ComPermissao>} />
               <Route path="/empresas/nova" element={<ComPermissao permissao="empresas.gerenciar"><NovaEmpresaPage /></ComPermissao>} />
               <Route path="/empresas/:empresaId/usuarios" element={<ComPermissao permissao="empresas.gerenciar"><AcessosPage /></ComPermissao>} />
               <Route path="/empresas/:empresaId/usuarios/novo" element={<ComPermissao permissao="empresas.gerenciar"><NovoUsuarioPage /></ComPermissao>} />
-              <Route path="/auditoria" element={<ComPermissao permissao="auditoria.ver"><EmBreve itens={["Quem fez o quê e quando"]} /></ComPermissao>} />
+              <Route path="/auditoria" element={<ComPermissao permissao="auditoria.ver"><AuditoriaPage /></ComPermissao>} />
               <Route path="/perfil" element={<PerfilPage />} />
             </Route>
           </Route>

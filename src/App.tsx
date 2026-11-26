@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { useAuth } from "@/context/useAuth";
@@ -30,7 +31,9 @@ import EmpresaContabilPage from "@/pages/empresas-contabeis/EmpresaContabilPage"
 import EmpresaContabilFormPage from "@/pages/empresas-contabeis/formularios/EmpresaContabilFormPage";
 import PrestadoresPage from "@/pages/prestadores/PrestadoresPage";
 import PrestadorPage from "@/pages/prestadores/formularios/PrestadorPage";
-import DesignSystemPage from "@/pages/design-system/DesignSystemPage";
+// Referência do design system: só em desenvolvimento (npm run dev). No build de produção a condição é falsa,
+// então a página nem entra no pacote publicado.
+const DesignSystemPage = import.meta.env.DEV ? lazy(() => import("@/pages/design-system/DesignSystemPage")) : null;
 
 function Home() {
   const { usuario, carregando } = useAuth();
@@ -49,7 +52,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
-              <Route path="/design-system" element={<DesignSystemPage />} />
+              {DesignSystemPage && <Route path="/design-system" element={<Suspense fallback={null}><DesignSystemPage /></Suspense>} />}
               <Route path="/painel" element={<ComPermissao permissao="painel.ver"><PainelPage /></ComPermissao>} />
               <Route path="/relatorios" element={<ComPermissao permissao="relatorios.ver"><RelatoriosPage /></ComPermissao>} />
               <Route path="/registros" element={<ComPermissao permissao="registros.ver"><RegistrosPage /></ComPermissao>} />

@@ -41,7 +41,7 @@ de outro formulário), `CampoMascara` para CPF/CNPJ/telefone/e-mail, `Seletor` (
 `EstadoCarga`, `useAcao` + toast em toda ação, imports absolutos `@/`, arquivos com menos de ~300 linhas, texto
 secundário em `text-foreground-muted`, alvos de toque de 44px.
 
-## Design system (tokens em `src/index.css`, referência viva em `/design-system`)
+## Design system (tokens em `src/index.css`; referência viva em `/design-system`, só no `npm run dev` — não vai para o site)
 
 - **Cores:** escalas `azul-50…950` (marca = 600) e `tinta-0…900` (neutros; texto nunca mais claro que 600). Estados: `--sucesso`, `--aviso`, `--danger`, `--info` com `-soft`. Use papéis (`marca`, `borda`, `foreground…`) ou as escalas; nada de hex solto em componente. Séries de gráfico: `--serie-1…5`, nessa ordem.
 - **Tipografia:** uma classe por papel — `texto-display`, `texto-titulo-1` (título da tela), `texto-titulo-2`, `texto-titulo-3` (título de cartão), `texto-corpo`, `texto-apoio`, `texto-legenda`, `texto-sobretitulo`, `numero-destaque` (número principal) e `numero-kpi`. Títulos em Bricolage; texto e números em Figtree.

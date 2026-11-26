@@ -181,7 +181,8 @@ export function TabelaDados<T>({ tabela, colunas, chaveLinha, onLinha, abrivel, 
                     aria-sort={ativa ? (tabela.ordem.startsWith("-") ? "descending" : "ascending") : undefined}
                     className={cn("whitespace-nowrap px-4 py-3 font-semibold", c.alinhar === "direita" && "text-right", c.className)}
                   >
-                    {ordenavel(c) ? <CabecalhoOrdenavel coluna={c} ordem={tabela.ordem} onOrdenar={() => tabela.alternar(c.chave, c.ordemInicial)} /> : <span className="sr-only">{c.titulo}</span>}
+                    {/* Steto: coluna de dado que não ordena (ex.: lista de vínculos) mostra o título; só "acoes" o esconde. */}
+                    {ordenavel(c) ? <CabecalhoOrdenavel coluna={c} ordem={tabela.ordem} onOrdenar={() => tabela.alternar(c.chave, c.ordemInicial)} /> : <span className={c.chave === "acoes" ? "sr-only" : undefined}>{c.titulo}</span>}
                   </th>
                 );
               })}

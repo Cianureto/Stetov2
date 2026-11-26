@@ -497,6 +497,7 @@ export type Database = {
         Row: {
           agencia: string | null
           banco: string | null
+          cadastro_completo: boolean | null
           chave_pix: string | null
           conta: string | null
           cpf: string
@@ -766,7 +767,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      salvar_prestador: {
+        Args: {
+          p_clientes: string[]
+          p_dados: Json
+          p_empresas_contabeis: string[]
+          p_id: string
+        }
+        Returns: string
+      }
     }
     Enums: {
       papel_usuario: "admin" | "usuario"

@@ -9,6 +9,8 @@ import LoginPage from "@/pages/auth/LoginPage";
 import ClientesPage from "@/pages/clientes/ClientesPage";
 import ClientePage from "@/pages/clientes/formularios/ClientePage";
 import EmBreve from "@/pages/EmBreve";
+import PrestadoresPage from "@/pages/prestadores/PrestadoresPage";
+import PrestadorPage from "@/pages/prestadores/formularios/PrestadorPage";
 
 function Home() {
   const { usuario, carregando } = useAuth();
@@ -38,8 +40,9 @@ export default function App() {
               <Route path="/clientes" element={<ComPermissao permissao="clientes.gerenciar"><ClientesPage /></ComPermissao>} />
               <Route path="/clientes/novo" element={<ComPermissao permissao="clientes.gerenciar"><ClientePage /></ComPermissao>} />
               <Route path="/clientes/:id" element={<ComPermissao permissao="clientes.gerenciar"><ClientePage /></ComPermissao>} />
-              <Route path="/prestadores" element={<ComPermissao permissao="prestadores.gerenciar"><EmBreve itens={["Lista com cadastro completo/incompleto", "Dados bancários e Pix", "Vínculos com clientes e empresas contábeis"]} /></ComPermissao>} />
-              <Route path="/prestadores/novo" element={<ComPermissao permissao="prestadores.gerenciar"><EmBreve itens={["Formulário de prestador em tela própria"]} /></ComPermissao>} />
+              <Route path="/prestadores" element={<ComPermissao permissao="prestadores.gerenciar"><PrestadoresPage /></ComPermissao>} />
+              <Route path="/prestadores/novo" element={<ComPermissao permissao="prestadores.gerenciar"><PrestadorPage /></ComPermissao>} />
+              <Route path="/prestadores/:id" element={<ComPermissao permissao="prestadores.gerenciar"><PrestadorPage /></ComPermissao>} />
               <Route path="/empresas-contabeis" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmBreve itens={["Empresas pelas quais as notas são emitidas", "Clientes e prestadores vinculados"]} /></ComPermissao>} />
 
               <Route path="/importacao" element={<ComPermissao permissao="importacao.executar"><EmBreve itens={["Planilha com mapeamento de colunas", "XML de NFSe", "Histórico com erros por linha"]} /></ComPermissao>} />

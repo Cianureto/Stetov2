@@ -1,120 +1,549 @@
+@import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
-
-/*
- * Tema Steto — padrão da empresa: azul e branco.
- * Primário azul #1D4ED8 (contraste 6,7:1 com branco). Superfícies brancas sobre fundo slate-50.
- * Sidebar em azul-marinho de marca. Foco sempre visível (anel azul de 2px).
- */
 :root {
-  --radius: 0.625rem;
+  /* Steto — padrão da empresa: azul e branco. Mesma estrutura de tokens do ConectaPRO (visitacao),
+     com azul da marca no lugar do petróleo e azul-céu no lugar da menta. Contrastes conferidos (WCAG AA). */
+  --background: #f3f6fb;
+  --foreground: #0b1b36;
+  --foreground-secondary: #364560;
+  /* 5,2:1 sobre o fundo e 5,7:1 sobre branco. Nunca use um cinza mais claro que este. */
+  --foreground-muted: #56647d;
 
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
+  /* Branco sobre --marca dá 6,7:1. */
+  --marca: #1d4ed8;
+  --marca-escuro: #1e3a8a;
+  --marca-claro: #dbe7ff;
+  --marca-500: #2563eb;
+  --marca-600: #1d4ed8;
+  --marca-glow: rgba(29, 78, 216, 0.32);
 
-  --primary: #1d4ed8;
-  --primary-hover: #1e40af;
-  --primary-foreground: #ffffff;
+  /* Realce sobre o escuro (barra lateral, cabeçalho hero): item ativo, anel do avatar. Nunca texto realce sobre branco. */
+  --realce: #7cc4ff;
+  --realce-suave: #e3f1ff;
+  --acafrao: #f2a922;
+  --acafrao-suave: #fdf0d3;
+  --coral: #e5484d;
 
-  --secondary: #eff4ff;
-  --secondary-foreground: #1e3a8a;
-  --muted: #f1f5f9;
-  --muted-foreground: #5b6b80;
-  --accent: #eff4ff;
-  --accent-foreground: #1e40af;
+  --areia: #f3f6fb;
+  --areia-card: #ffffff;
+  --borda: #dde4ef;
+  --borda-forte: rgba(11, 27, 54, 0.16);
 
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-  --success: #15803d;
-  --success-soft: #dcfce7;
-  --warning: #b45309;
-  --warning-soft: #fef3c7;
+  /* Barra lateral: azul-marinho profundo, item ativo em realce */
+  --sidebar-bg: #0b1b36;
+  --sidebar-fg: rgba(255, 255, 255, 0.7);
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-active-bg: rgba(124, 196, 255, 0.16);
+  --sidebar-hover-bg: #e9eef7;
+  --sidebar-dark-hover: rgba(255, 255, 255, 0.06);
 
-  --border: #e2e8f0;
-  --input: #cbd5e1;
-  --ring: #2563eb;
+  --header-bg: #0b1b36;
 
-  --sidebar: #0f2a6b;
-  --sidebar-foreground: #dbe5ff;
-  --sidebar-muted: #93a8d9;
-  --sidebar-accent: #1b3d8f;
-  --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #1f3b80;
-  --sidebar-primary: #ffffff;
-  --sidebar-primary-foreground: #0f2a6b;
+  --consultor-dark: #0f2a5c;
+  --consultor-glow-amber: rgba(242, 169, 34, 0.32);
+  --consultor-glow-mint: rgba(124, 196, 255, 0.38);
 
-  --chart-1: #1d4ed8;
-  --chart-2: #60a5fa;
-  --chart-3: #15803d;
-  --chart-4: #b45309;
-  --chart-5: #94a3b8;
+  --danger: #d0353a;
+  --danger-soft: #fde6e6;
+  --sucesso: #13894a;
+  --sucesso-soft: #dff5e8;
+  --aviso: #b07407;
+  --aviso-soft: #fdf0d3;
+  --info: #2a67d6;
+  --info-soft: #e5edfc;
+
+  --radius-sm: 0.5rem;
+  --radius: 0.75rem;
+  --radius-lg: 1.125rem;
+  --radius-xl: 1.5rem;
+
+  --shadow-xs: 0 1px 2px rgba(11, 27, 54, 0.06);
+  --shadow-sm: 0 1px 3px rgba(11, 27, 54, 0.07), 0 1px 2px rgba(11, 27, 54, 0.04);
+  --shadow-md: 0 6px 16px rgba(11, 27, 54, 0.08), 0 2px 4px rgba(11, 27, 54, 0.04);
+  --shadow-lg: 0 16px 40px rgba(11, 27, 54, 0.14), 0 4px 10px rgba(11, 27, 54, 0.05);
+  --shadow-glow: 0 8px 24px var(--marca-glow);
+
+  /* Motion: a mesma curva do GSAP (power2.inOut) em todo o app */
+  --ease-suave: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --dur-hover: 200ms;
 }
 
 @theme inline {
-  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: ui-monospace, 'SF Mono', Menlo, monospace;
-
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --color-card: var(--card);
-  --color-card-foreground: var(--card-foreground);
-  --color-popover: var(--popover);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-primary: var(--primary);
-  --color-primary-hover: var(--primary-hover);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-secondary: var(--secondary);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-muted: var(--muted);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-destructive: var(--destructive);
-  --color-destructive-foreground: var(--destructive-foreground);
-  --color-success: var(--success);
-  --color-success-soft: var(--success-soft);
-  --color-warning: var(--warning);
-  --color-warning-soft: var(--warning-soft);
-  --color-border: var(--border);
-  --color-input: var(--input);
-  --color-ring: var(--ring);
-  --color-sidebar: var(--sidebar);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar-muted: var(--sidebar-muted);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-chart-1: var(--chart-1);
-  --color-chart-2: var(--chart-2);
-  --color-chart-3: var(--chart-3);
-  --color-chart-4: var(--chart-4);
-  --color-chart-5: var(--chart-5);
+  --color-foreground-secondary: var(--foreground-secondary);
+  --color-foreground-muted: var(--foreground-muted);
+  --color-marca: var(--marca);
+  --color-marca-escuro: var(--marca-escuro);
+  --color-marca-claro: var(--marca-claro);
+  --color-areia: var(--areia);
+  --color-areia-card: var(--areia-card);
+  --color-borda: var(--borda);
+  --color-danger: var(--danger);
+  --color-sucesso: var(--sucesso);
+  --color-aviso: var(--aviso);
+  --color-info: var(--info);
+  --color-realce: var(--realce);
+  --color-realce-suave: var(--realce-suave);
+  --color-acafrao: var(--acafrao);
+  --color-acafrao-suave: var(--acafrao-suave);
+  --color-coral: var(--coral);
+  --font-titulo: "Bricolage Grotesque", "Figtree", sans-serif;
+  --font-texto: "Figtree", system-ui, sans-serif;
+
+  --animate-fade-in: fade-in 0.18s ease-out;
+  --animate-scale-in: scale-in 0.2s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --animate-slide-up: slide-up 0.3s cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  --animate-slide-down: slide-down 0.18s ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes scale-in {
+    from { opacity: 0; transform: scale(0.96) translateY(4px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slide-down {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
 }
 
+
+/* O Tailwind v4 deixou de usar cursor de mão em botões; no computador, botão com seta parece "não clicável". */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
+  button:not(:disabled), [role="button"]:not([aria-disabled="true"]), summary, label[for], select { cursor: pointer; }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  /* Toque: sem o atraso do toque duplo (zoom) e sem o flash cinza do iOS. */
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, .font-titulo {
+  font-family: var(--font-titulo);
+  letter-spacing: -0.02em;
+  font-optical-sizing: auto;
+}
+
+::selection {
+  background: var(--realce-suave);
+  color: var(--foreground);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
-  html {
-    font-feature-settings: 'cv11', 'ss01';
+}
+
+@layer components {
+  /* Status badges: soft tinted pill, dot kept for quick scanning */
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.2rem 0.6rem 0.2rem 0.5rem;
+    border-radius: 9999px;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1.3;
+    white-space: nowrap;
+    background: color-mix(in srgb, currentColor 13%, transparent);
   }
+  .badge::before {
+    content: "";
+    width: 5px;
+    height: 5px;
+    border-radius: 9999px;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .badge-confirmado { color: var(--info); }
+  .badge-realizado { color: var(--sucesso); }
+  .badge-pendente { color: var(--aviso); }
+  .badge-cancelado { color: var(--danger); }
+
+  .card {
+    background: var(--areia-card);
+    border: 1px solid var(--borda);
+    border-radius: var(--radius);
+    transition: box-shadow var(--dur-hover) var(--ease-suave), border-color var(--dur-hover) var(--ease-suave), transform var(--dur-hover) var(--ease-suave);
+  }
+
+  /* Hover só em dispositivos com mouse: no iPad o toque não deixa o estado "grudado" */
+  @media (hover: hover) {
+    .card-hover:hover,
+    .hover-lift:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--borda-forte);
+      transform: translateY(-2px);
+    }
+  }
+
+  .hover-lift {
+    transition: box-shadow var(--dur-hover) var(--ease-suave), border-color var(--dur-hover) var(--ease-suave), transform var(--dur-hover) var(--ease-suave);
+  }
+
+  /* Toque: o flash cinza do iOS está desligado (body) e o hover não existe no dedo. Para todo elemento
+     clicável responder ao toque (em menos de 100 ms, sem mexer no layout), ele fica um pouco mais claro
+     enquanto pressionado; cartões clicáveis também encolhem de leve. :where() não pesa na especificidade,
+     então componentes com estado pressionado próprio continuam valendo. */
+  @media (hover: none) {
+    :where(a, button, [role="button"], summary, label[for]):active:not(:disabled) {
+      opacity: 0.72;
+    }
+    .card-hover:active,
+    .hover-lift:active {
+      transform: scale(0.985);
+    }
+  }
+
+  /* Faixa de métricas: um bloco com linhas finas entre as células, sem buracos quando a última linha fica incompleta */
+  .faixa {
+    display: grid;
+    overflow: hidden;
+    background: var(--areia-card);
+    border: 1px solid var(--borda);
+    border-radius: var(--radius);
+  }
+  .faixa > * { box-shadow: 1px 0 0 0 var(--borda), 0 1px 0 0 var(--borda); }
+
+  /* Métricas em cards separados, com espaço entre eles */
+  .metricas-separadas { display: grid; gap: 0.5rem; }
+  @media (min-width: 768px) { .metricas-separadas { gap: 0.75rem; } }
+  .metricas-separadas > * {
+    background: var(--areia-card);
+    border: 1px solid var(--borda);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-xs);
+    transition: box-shadow var(--dur-hover) var(--ease-suave), border-color var(--dur-hover) var(--ease-suave), transform var(--dur-hover) var(--ease-suave);
+  }
+  /* Sobe um pouco ao passar o mouse (só com mouse: no iPad o toque não deixa o estado "grudado") */
+  @media (hover: hover) {
+    .metricas-separadas > *:hover {
+      box-shadow: var(--shadow-md);
+      border-color: var(--borda-forte);
+      transform: translateY(-3px);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .metricas-separadas > *:hover { transform: none; }
+  }
+
+  .surface-glass {
+    background: color-mix(in srgb, var(--areia-card) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    padding: 0.5rem 0.875rem;
+    transition: background-color var(--dur-hover) ease, border-color var(--dur-hover) ease, color var(--dur-hover) ease, box-shadow var(--dur-hover) ease, filter var(--dur-hover) ease, transform var(--dur-hover) var(--ease-suave);
+    white-space: nowrap;
+  }
+  .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+  @media (hover: hover) {
+    .btn-primary:hover:not(:disabled),
+    .btn-accent:hover:not(:disabled) { transform: translateY(-1px); }
+  }
+  .btn:active:not(:disabled) { transform: scale(0.97); transition-duration: 80ms; }
+  .btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px var(--marca-claro);
+  }
+
+  .btn-primary {
+    background: var(--foreground);
+    color: #fff;
+  }
+  .btn-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--foreground) 88%, white); }
+
+  .btn-accent {
+    background: var(--marca);
+    color: #fff;
+  }
+  .btn-accent:hover:not(:disabled) { background: var(--marca-escuro); }
+
+  .btn-secondary {
+    background: var(--areia-card);
+    color: var(--foreground);
+    border: 1px solid var(--borda-forte);
+  }
+  .btn-secondary:hover:not(:disabled) { background: var(--sidebar-hover-bg); border-color: color-mix(in srgb, var(--foreground) 28%, transparent); }
+
+  .btn-ghost {
+    background: transparent;
+    color: var(--foreground-secondary);
+  }
+  .btn-ghost:hover:not(:disabled) { background: var(--sidebar-hover-bg); color: var(--foreground); }
+
+  .btn-danger-ghost {
+    background: transparent;
+    color: var(--foreground-secondary);
+    border: 1px solid var(--borda-forte);
+  }
+  .btn-danger-ghost:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
+
+  /* Form controls */
+  .field-label {
+    display: block;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--foreground-secondary);
+    margin-bottom: 0.3rem;
+  }
+
+  .input {
+    width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--borda-forte);
+    background: var(--areia-card);
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    color: var(--foreground);
+    outline: none;
+    transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
+  }
+  @media (hover: hover) {
+    .input:hover:not(:focus):not(:disabled) { border-color: color-mix(in srgb, var(--foreground) 28%, transparent); }
+  }
+  .input:focus {
+    border-color: var(--marca);
+    box-shadow: 0 0 0 3px var(--marca-claro);
+  }
+  .input::placeholder { color: var(--foreground-muted); }
+
+  /* O Safari do iPhone/iPad dá zoom ao focar um campo com fonte menor que 16px.
+     16px em telas pequenas e em qualquer tela de toque (tablet incluído); com mouse fica compacto. */
+  @media (max-width: 767px), (pointer: coarse) {
+    .input {
+      font-size: 1rem;
+      padding: 0.625rem 0.75rem;
+    }
+  }
+
+  /* Segmented tab control */
+  .segmented {
+    display: inline-flex;
+    border-radius: 0.5rem;
+    border: 1px solid var(--borda);
+    background: var(--areia-card);
+    padding: 2px;
+  }
+  .segmented-item {
+    border-radius: 0.4rem;
+    padding: 0.4rem 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--foreground-secondary);
+    transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease;
+  }
+  @media (hover: hover) {
+    .segmented-item:not(.active):not([data-state="active"]):hover {
+      background: var(--sidebar-hover-bg);
+      color: var(--foreground);
+    }
+  }
+  .segmented-item.active {
+    background: var(--marca);
+    color: #fff;
+    box-shadow: var(--shadow-xs);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c3cedf;
+  border-radius: 8px;
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes shimmer {
+  0% { background-position: -300px 0; }
+  100% { background-position: 300px 0; }
+}
+.skeleton {
+  background: linear-gradient(90deg, var(--borda) 25%, #eef2f9 37%, var(--borda) 63%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* Marcador de "agora" no pulso do dia */
+@keyframes pulso-agora {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--realce) 55%, transparent); }
+  70% { box-shadow: 0 0 0 8px transparent; }
+  100% { box-shadow: 0 0 0 0 transparent; }
+}
+.pulso-agora { animation: pulso-agora 2.2s ease-out infinite; }
+
+/* ── Toque (celular e tablet) ────────────────────────────────────────────────
+   Fora das camadas do Tailwind de propósito: vence as classes utilitárias (ex.: text-sm). */
+@media (pointer: coarse) {
+  /* 16px em todo campo: o iOS não dá zoom ao focar. */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+  input[type="checkbox"],
+  input[type="radio"] {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  /* Abas segmentadas (Dia/Semana/Mês, períodos): ~40px de altura. */
+  .segmented-item {
+    padding: 0.625rem 0.9rem;
+  }
+}
+
+/* Área de toque maior que o desenho: para ícones e links pequenos (favoritar, "Gerenciar"...).
+   A classe deixa o elemento relative (na camada components: um `absolute` do Tailwind continua valendo). */
+@layer components {
+  .alvo-toque {
+    position: relative;
+  }
+}
+@media (pointer: coarse) {
+  .alvo-toque::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+}
+
+/* App instalado (PWA): sem o "puxar para atualizar"/quique da página inteira; o aviso de versão cuida das atualizações. */
+@media (display-mode: standalone) {
+  html,
   body {
-    @apply bg-background text-foreground font-sans antialiased;
+    overscroll-behavior-y: none;
   }
-  /* Números de dinheiro e documentos alinham em colunas */
-  .tabular {
-    font-variant-numeric: tabular-nums;
+}
+
+/* Altura da barra de abas flutuante (celular e tablet em pé): avisos flutuantes (versão nova, instalar)
+   ficam acima dela. O shell marca o <html> com data-barra-abas. */
+@media (max-width: 1023.98px) {
+  :root[data-barra-abas] {
+    --barra-inferior: calc(84px + env(safe-area-inset-bottom));
   }
+}
+
+/* Vidro dos elementos flutuantes do shell (cabeçalho, barra de abas), como no projeto revenda.
+   `@utility` para aceitar variantes (`lg:vidro`). */
+@utility vidro {
+  background: color-mix(in srgb, var(--areia-card) 78%, transparent);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow: 0 0 0 1px rgba(11, 27, 54, 0.06), 0 10px 30px -10px rgba(11, 27, 54, 0.22);
+}
+
+/* Altura disponível para telas de altura fixa (agenda): a tela menos o cabeçalho do shell e o espaço
+   reservado à barra de abas (celular) ou à margem inferior (a partir de lg). */
+.altura-util {
+  height: calc(100dvh - 3.5rem - env(safe-area-inset-top) - 6.5rem - env(safe-area-inset-bottom));
+}
+@media (min-width: 1024px) {
+  .altura-util {
+    height: calc(100dvh - 4rem - env(safe-area-inset-top) - 2.5rem);
+  }
+}
+
+/* Mapa "Localização das visitas" (components/localizacao/MapaEnvios.tsx): o endereço do profissional, um
+   losango em azul da marca, para não confundir com os círculos dos envios. */
+.marcador-endereco {
+  width: 18px;
+  height: 18px;
+  transform: rotate(45deg);
+  border-radius: 3px;
+  background: var(--marca);
+  border: 2px solid #fff;
+  box-shadow: 0 1px 4px rgba(11, 27, 54, 0.45);
+}
+.leaflet-container {
+  font: inherit;
+}
+/* Pin dos envios: sombra leve para destacar do fundo claro do mapa. */
+.pin-envio svg {
+  display: block;
+  filter: drop-shadow(0 1px 2px rgba(11, 27, 54, 0.45));
+}
+/* Grupo de envios próximos (agrupamento conforme o zoom): círculo verde (azul da marca 500) com a contagem; o anel vermelho avisa
+   que o grupo tem envios fora do local ou imprecisos. */
+.grupo-envios {
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--marca-500);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--realce) 45%, transparent), 0 1px 4px rgba(11, 27, 54, 0.35);
+  cursor: pointer;
+}
+.grupo-envios-alerta {
+  box-shadow: 0 0 0 3px var(--danger), 0 1px 4px rgba(11, 27, 54, 0.45);
+}
+/* Número de envios no centro de cada hexágono do mapa de densidade (camadaDensidade.ts). */
+.hexagono-total {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--marca-escuro);
+  pointer-events: none;
+}
+.hexagono-total-escuro {
+  color: #fff;
+}
+
+/* Impressão dos relatórios da frota ("Imprimir / PDF"): só a área de impressão aparece no papel. */
+.area-impressao { display: none; }
+@media print {
+  body * { visibility: hidden; }
+  .area-impressao, .area-impressao * { visibility: visible; }
+  .area-impressao { display: block; position: absolute; inset: 0; padding: 12mm; background: #fff; color: #000; font-size: 10pt; }
+  .area-impressao table { width: 100%; border-collapse: collapse; }
+  .area-impressao th, .area-impressao td { border: 1px solid #bbb; padding: 3px 5px; text-align: left; vertical-align: top; }
+  .area-impressao th { background: #eee; }
 }

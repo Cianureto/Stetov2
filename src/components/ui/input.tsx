@@ -1,20 +1,35 @@
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/cn";
 
-function Input({ className, type, ...props }: React.ComponentProps<"input">) {
-  return (
+const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  ({ className, ...props }, ref) => (
     <input
-      type={type}
-      data-slot="input"
+      ref={ref}
       className={cn(
-        "h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30",
-        "focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50",
-        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40",
+        "w-full rounded-[var(--radius-sm)] border border-[var(--borda-forte)] bg-areia-card px-3 py-2 text-sm text-foreground outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] placeholder:text-foreground-muted hover:border-foreground/30",
+        "focus:border-marca focus:shadow-[0_0_0_3px_var(--marca-claro)]",
+        "max-md:text-base max-md:py-2.5",
         className
       )}
       {...props}
     />
   )
-}
+);
+Input.displayName = "Input";
 
-export { Input }
+const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
+  ({ className, ...props }, ref) => (
+    <textarea
+      ref={ref}
+      className={cn(
+        "w-full rounded-[var(--radius-sm)] border border-[var(--borda-forte)] bg-areia-card px-3 py-2 text-sm text-foreground outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] placeholder:text-foreground-muted hover:border-foreground/30",
+        "focus:border-marca focus:shadow-[0_0_0_3px_var(--marca-claro)]",
+        className
+      )}
+      {...props}
+    />
+  )
+);
+Textarea.displayName = "Textarea";
+
+export { Input, Textarea };

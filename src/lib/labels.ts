@@ -1,18 +1,15 @@
-import type { Enums } from './database.types'
+import type { Enums } from "@/lib/database.types";
 
-export const REGIME_LABEL: Record<Enums<'regime_tributario'>, string> = {
-  simples_nacional: 'Simples Nacional',
-  lucro_presumido: 'Lucro Presumido',
-  lucro_real: 'Lucro Real',
-}
+export const REGIME_LABEL: Record<Enums<"regime_tributario">, string> = {
+  simples_nacional: "Simples Nacional",
+  lucro_presumido: "Lucro Presumido",
+  lucro_real: "Lucro Real",
+};
 
-export const STATUS_CLIENTE_LABEL: Record<Enums<'status_cliente'>, string> = {
-  ativo: 'Ativo',
-  inativo: 'Inativo',
-  provisorio: 'Provisório',
-}
+export const STATUS_CLIENTE_LABEL: Record<Enums<"status_cliente">, string> = {
+  ativo: "Ativo",
+  inativo: "Inativo",
+  provisorio: "Provisório",
+};
 
-export const PAPEL_LABEL: Record<Enums<'papel_usuario'>, string> = {
-  admin: 'Administrador',
-  usuario: 'Usuário',
-}
+export const TIPO_PESSOA_LABEL: Record<Enums<"tipo_pessoa">, string> = { PJ: "Pessoa jurídica", PF: "Pessoa física" };

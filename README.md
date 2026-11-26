@@ -1,35 +1,25 @@
 # Steto v2
 
-Nova versão do Steto Contabilidade, fora da Base44.
+Nova versão do Steto Contabilidade, fora da Base44. O frontend e as regras seguem o
+[ConectaPRO (visitacao)](https://github.com/mgnroberto/visitacao), adaptados ao Supabase e ao azul e branco da Steto.
+As convenções estão em [CLAUDE.md](CLAUDE.md).
 
-- **Frontend:** React 19 + Vite + TypeScript, TanStack Router (rotas por arquivo em `src/routes`) e TanStack Query, Tailwind v4 + shadcn/ui.
-- **Backend:** Supabase (Postgres, Auth, RLS, Edge Functions), projeto `Steto` em `sa-east-1`.
-- **Tema:** padrão da empresa, azul e branco. Os tokens ficam em `src/index.css`.
+- **App:** React 19 + Vite + Tailwind v4 + componentes no estilo Radix/shadcn, react-router.
+- **Dados:** Supabase (Postgres, Auth, RLS) no projeto `Steto` (`sa-east-1`). Não há servidor próprio: `src/api/rotas`
+  são as "rotas" da API, executadas no navegador contra o Supabase; quem decide o acesso é o RLS.
 
 ## Rodar localmente
 
 ```bash
-cp .env.example .env.local   # preencha URL e chave publicável do Supabase
+cp .env.example .env.local   # URL e chave publicável do Supabase
 npm install
-npm run dev
+npm run dev                  # http://localhost:5173
 ```
 
-## Scripts
+## Checagens (não há CI)
 
 | Comando | O que faz |
 |---|---|
-| `npm run dev` | Servidor de desenvolvimento |
-| `npm run build` | Checagem de tipos e build de produção |
-| `npm run typecheck` | Só a checagem de tipos |
+| `npm run build` | Tipos (`tsc -b`) + build de produção |
 | `npm run lint` | oxlint |
-| `npm test` | Testes (Vitest) |
-
-## Estrutura
-
-```
-src/
-  routes/            rotas (login, _app = área logada, _app/* = telas)
-  components/layout/ sidebar, cabeçalho, menu do usuário
-  components/ui/     componentes shadcn
-  lib/               cliente Supabase, autenticação, utilitários
-```
+| `npm test` | Vitest + Testing Library (jsdom) |

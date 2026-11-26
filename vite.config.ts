@@ -1,16 +1,13 @@
-import path from 'node:path'
 import tailwindcss from '@tailwindcss/vite'
-import { tanstackRouter } from '@tanstack/router-plugin/vite'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vite'
 
 export default defineConfig({
-  plugins: [
-    tanstackRouter({ target: 'react', autoCodeSplitting: true }),
-    react(),
-    tailwindcss(),
-  ],
+  // Imports absolutos: "@/..." aponta para src/ (o mesmo alias está em tsconfig.app.json).
   resolve: {
-    alias: { '@': path.resolve(import.meta.dirname, './src') },
+    alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },
   },
+  plugins: [react(), tailwindcss()],
+  server: { port: 5173 },
 })

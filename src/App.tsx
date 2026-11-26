@@ -9,6 +9,9 @@ import LoginPage from "@/pages/auth/LoginPage";
 import ClientesPage from "@/pages/clientes/ClientesPage";
 import ClientePage from "@/pages/clientes/formularios/ClientePage";
 import EmBreve from "@/pages/EmBreve";
+import RelatoriosPage from "@/pages/relatorios/RelatoriosPage";
+import PainelPage from "@/pages/painel/PainelPage";
+import PendenciasPage from "@/pages/pendencias/PendenciasPage";
 import ContasPage from "@/pages/contas/ContasPage";
 import ContaPage from "@/pages/contas/formularios/ContaPage";
 import CategoriasPage from "@/pages/contas/CategoriasPage";
@@ -37,8 +40,8 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
-              <Route path="/painel" element={<ComPermissao permissao="painel.ver"><EmBreve itens={["Totais do mês: notas, tributos e repasses", "Evolução mensal", "Últimos registros", "Contas vencendo em 7 dias"]} /></ComPermissao>} />
-              <Route path="/relatorios" element={<ComPermissao permissao="relatorios.ver"><EmBreve itens={["Filtros por período, empresa contábil e situação", "Exportação para Excel", "Resumo do período gerado por IA"]} /></ComPermissao>} />
+              <Route path="/painel" element={<ComPermissao permissao="painel.ver"><PainelPage /></ComPermissao>} />
+              <Route path="/relatorios" element={<ComPermissao permissao="relatorios.ver"><RelatoriosPage /></ComPermissao>} />
               <Route path="/registros" element={<ComPermissao permissao="registros.ver"><RegistrosPage /></ComPermissao>} />
               <Route path="/registros/novo" element={<ComPermissao permissao="registros.gerenciar"><RegistroPage /></ComPermissao>} />
               <Route path="/registros/:id" element={<ComPermissao permissao="registros.gerenciar"><RegistroPage /></ComPermissao>} />
@@ -46,7 +49,7 @@ export default function App() {
               <Route path="/contas/categorias" element={<ComPermissao permissao="contas.gerenciar"><CategoriasPage /></ComPermissao>} />
               <Route path="/contas/nova" element={<ComPermissao permissao="contas.gerenciar"><ContaPage /></ComPermissao>} />
               <Route path="/contas/:id" element={<ComPermissao permissao="contas.gerenciar"><ContaPage /></ComPermissao>} />
-              <Route path="/pendencias" element={<ComPermissao permissao="clientes.gerenciar"><EmBreve itens={["Clientes provisórios criados por importação", "Correção rápida dos dados que faltam"]} /></ComPermissao>} />
+              <Route path="/pendencias" element={<ComPermissao permissao="clientes.gerenciar"><PendenciasPage /></ComPermissao>} />
 
               <Route path="/clientes" element={<ComPermissao permissao="clientes.gerenciar"><ClientesPage /></ComPermissao>} />
               <Route path="/clientes/novo" element={<ComPermissao permissao="clientes.gerenciar"><ClientePage /></ComPermissao>} />

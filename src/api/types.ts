@@ -151,3 +151,17 @@ export type ListaContas = { contas: Conta[]; meta: MetaLista };
 export type ResumoContas = { aPagar: number; aReceber: number; pagoNoPeriodo: number; vencidas: number; valorVencido: number; vencemEm7Dias: number; total: number };
 
 export type Categoria = { id: string; nome: string; ativo: boolean; subcategorias: { id: string; nome: string; ativo: boolean }[] };
+
+export type PontoMensal = { competencia: string; quantidade: number; valorNf: number; repasse: number };
+export type PainelGeral = {
+  mes: ResumoRegistros;
+  pendenteTotal: ResumoRegistros;
+  contas: ResumoContas;
+  cadastros: { clientes: number; prestadores: number; empresasContabeis: number; provisorios: number };
+  serie: PontoMensal[];
+  topPrestadores: LinhaRanking[];
+  topClientes: LinhaRanking[];
+  proximasContas: Conta[];
+};
+
+export type Relatorio = { resumo: ResumoRegistros; clientes: LinhaRanking[]; prestadores: LinhaRanking[]; serie: PontoMensal[] };

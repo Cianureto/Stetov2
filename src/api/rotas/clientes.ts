@@ -180,6 +180,16 @@ rota("DELETE", "/clientes/:id", async ({ params }) => {
   return { ok: true };
 });
 
+/** Mescla um cliente (normalmente provisório) em outro: registros e vínculos vão para o destino e o de origem some. */
+rota("POST", "/clientes/:id/mesclar", async ({ params, corpo }) => {
+  const { destinoId } = validar(z.object({ destinoId: z.uuid("Escolha o cliente de destino.") }), corpo);
+  const { error } = await supabase.rpc("mesclar_cliente", { p_origem: params.id, p_destino: destinoId });
+  if (error?.code === "22023") throw erroHttp(400, "Escolha outro cliente para mesclar.");
+  if (error?.code === "P0002") throw erroHttp(404, error.message);
+  if (error) throw error;
+  return { ok: true };
+});
+
 const emMassaSchema = z.object({
   acao: z.enum(["ativar", "inativar", "excluir"]),
   ids: z.array(z.uuid()).min(1, "Selecione ao menos um cliente.").max(100, "No máximo 100 por vez."),

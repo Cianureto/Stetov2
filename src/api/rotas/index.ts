@@ -7,3 +7,5 @@ import "@/api/rotas/prestadores";
 import "@/api/rotas/registros";
 import "@/api/rotas/contas";
 import "@/api/rotas/categorias";
+import "@/api/rotas/painel";
+import "@/api/rotas/relatorios";

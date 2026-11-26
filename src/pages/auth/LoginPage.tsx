@@ -68,9 +68,8 @@ export default function LoginPage() {
         <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} className="w-full max-w-sm">
           <div className="mb-8 text-center lg:hidden">
             <h1 className="mb-2 flex items-center justify-center">
-              <MarcaLogo tamanho="xl" />
+              <MarcaLogo tamanho="xl" completo className="h-20" />
             </h1>
-            <p className="mt-0.5 text-sm text-foreground-muted">Contabilidade</p>
           </div>
 
           <div className="mb-8 hidden lg:block">

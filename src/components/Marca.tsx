@@ -1,35 +1,29 @@
-import { Stethoscope } from "lucide-react";
 import { cn } from "@/lib/cn";
+import stetoClaro from "@/assets/marca/steto-claro.png";
+import stetoEscuro from "@/assets/marca/steto-escuro.png";
+import completoClaro from "@/assets/marca/steto-contabilidade-claro.png";
+import completoEscuro from "@/assets/marca/steto-contabilidade-escuro.png";
 
-const ALTURAS = {
-  sm: { caixa: "h-8 w-8 rounded-[9px]", icone: "size-[18px]", texto: "text-[17px]" },
-  md: { caixa: "h-9 w-9 rounded-[10px]", icone: "size-5", texto: "text-[19px]" },
-  lg: { caixa: "h-11 w-11 rounded-xl", icone: "size-6", texto: "text-2xl" },
-  xl: { caixa: "h-12 w-12 rounded-xl", icone: "size-7", texto: "text-[28px]" },
-} as const;
+// Logo da Steto, extraído da arte oficial (fundo transparente, reduzido para 2x de tela). "escuro" tem as letras
+// brancas e o símbolo azul-claro (barra lateral, painel do login); "claro", letras azul-marinho e símbolo azul.
+// `completo` acrescenta "CONTABILIDADE" embaixo (login no celular).
+const ALTURAS = { sm: "h-7", md: "h-8", lg: "h-10", xl: "h-14" } as const;
 
-/**
- * Logo compacto do Steto (símbolo + nome). "escuro" é para a barra lateral, o cabeçalho hero e o painel do
- * login (texto branco); "claro", para fundos brancos.
- */
+// Proporção das imagens (largura x altura), para o navegador reservar o espaço antes de carregar.
+const PROPORCAO = { compacto: [478, 144], completo: [478, 182] } as const;
+
 export function MarcaLogo({
   fundo = "claro",
   tamanho = "sm",
+  completo = false,
   className,
 }: {
   fundo?: "claro" | "escuro";
   tamanho?: keyof typeof ALTURAS;
+  completo?: boolean;
   className?: string;
 }) {
-  const t = ALTURAS[tamanho];
-  return (
-    <span className={cn("inline-flex items-center gap-2.5 select-none", className)} aria-label="Steto">
-      <span className={cn("grid shrink-0 place-items-center", t.caixa, fundo === "escuro" ? "bg-white text-marca" : "bg-marca text-white")} aria-hidden>
-        <Stethoscope className={t.icone} strokeWidth={2.2} />
-      </span>
-      <span aria-hidden className={cn("font-titulo font-bold tracking-[-0.02em]", t.texto, fundo === "escuro" ? "text-white" : "text-foreground")}>
-        Steto
-      </span>
-    </span>
-  );
+  const src = completo ? (fundo === "escuro" ? completoEscuro : completoClaro) : fundo === "escuro" ? stetoEscuro : stetoClaro;
+  const [w, h] = PROPORCAO[completo ? "completo" : "compacto"];
+  return <img src={src} alt={completo ? "Steto Contabilidade" : "Steto"} width={w} height={h} draggable={false} className={cn("w-auto max-w-full shrink-0 select-none", ALTURAS[tamanho], className)} />;
 }

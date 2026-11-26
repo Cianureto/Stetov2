@@ -839,6 +839,10 @@ export type Database = {
           valor_nf: number
         }[]
       }
+      relatorio_periodo: {
+        Args: { p_ate: string; p_de: string; p_empresa_contabil?: string }
+        Returns: Json
+      }
       resumo_contas: {
         Args: { p_ate?: string; p_de?: string }
         Returns: Json

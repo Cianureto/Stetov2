@@ -164,7 +164,46 @@ export type PainelGeral = {
   proximasContas: Conta[];
 };
 
-export type Relatorio = { resumo: ResumoRegistros; clientes: LinhaRanking[]; prestadores: LinhaRanking[]; serie: PontoMensal[] };
+/** Totais de um intervalo de competências no relatório (notas canceladas ficam de fora). */
+export type ResumoRelatorio = {
+  quantidade: number;
+  valorNf: number;
+  tributos: number;
+  repasse: number;
+  repassePago: number;
+  repassePendente: number;
+  pagos: number;
+  pendentes: number;
+  prestadores: number;
+  clientes: number;
+  /** Dias, em média, entre o fim do mês da competência e o pagamento do repasse. */
+  prazoMedioDias: number | null;
+};
+export type PontoRelatorio = { competencia: string; quantidade: number; valorNf: number; tributos: number; repasse: number; repassePago: number; repassePendente: number };
+/** Faixa de idade dos repasses pendentes: 0 = do mês atual, 1 = 1 mês, 2 = 2 meses, 3 = 3 a 5 meses, 4 = 6 meses ou mais. */
+export type FaixaEnvelhecimento = { faixa: 0 | 1 | 2 | 3 | 4; quantidade: number; valor: number };
+
+/** Relatório do período (função relatorio_periodo): tudo o que a tela Relatórios mostra, numa chamada. */
+export type Relatorio = {
+  periodo: { de: string; ate: string; meses: number; anteriorDe: string; anteriorAte: string };
+  atual: ResumoRelatorio;
+  /** Mesmo número de meses, imediatamente antes do período. */
+  anterior: ResumoRelatorio;
+  canceladas: { quantidade: number; valorNf: number };
+  serie: PontoRelatorio[];
+  tributos: { iss: number; ir: number; pis: number; cofins: number; csll: number };
+  descontos: { padrao: number; adicional: number; acrescimo: number };
+  envelhecimento: FaixaEnvelhecimento[];
+  empresas: { id: string; nome: string; quantidade: number; valorNf: number; repasse: number }[];
+  prestadores: LinhaRanking[];
+  clientes: LinhaRanking[];
+  contas: {
+    serie: { competencia: string; pagar: number; receber: number }[];
+    resumo: { quantidade: number; pagar: number; receber: number; pagas: number; recebidas: number; vencidas: number; valorVencido: number };
+    /** Contas a pagar por categoria (as 12 maiores). */
+    categorias: { nome: string; valor: number; quantidade: number }[];
+  };
+};
 
 export type Usuario = { id: string; nome: string; email: string; papel: "admin" | "usuario"; ativo: boolean; trocarSenha: boolean; criadoEm: string; empresa?: { id: string; nome: string } };
 export type ListaUsuarios = { usuarios: Usuario[]; meta: MetaLista };

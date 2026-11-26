@@ -16,8 +16,10 @@ type Serie = { key: string; label: string; color: string; data: number[] };
  * vão numa tabela visualmente escondida (WCAG: alternativa em texto para gráficos).
  */
 function TabelaDoGrafico({ categorias, series, formatarValor }: { categorias: string[]; series: { label: string; data: number[] }[]; formatarValor: (v: number) => string }) {
+  // sr-only num div: uma tabela não encolhe abaixo do conteúdo e alargaria a página no celular.
   return (
-    <table className="sr-only">
+    <div className="sr-only">
+    <table>
       <thead>
         <tr>
           <th scope="col">Período</th>
@@ -37,6 +39,7 @@ function TabelaDoGrafico({ categorias, series, formatarValor }: { categorias: st
         ))}
       </tbody>
     </table>
+    </div>
   );
 }
 

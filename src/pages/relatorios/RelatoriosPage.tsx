@@ -1,70 +1,179 @@
-import { useMemo, useState } from "react";
-import { Download } from "lucide-react";
-import type { LinhaRanking, OpcaoApi, Relatorio } from "@/api/types";
-import { BarChart } from "@/components/charts";
+import { useMemo, useState, type ReactNode } from "react";
+import { useSearchParams } from "react-router-dom";
+import { Building2, CalendarClock, Download, FileText, HandCoins, Landmark, Percent, Receipt, UserRound, Users } from "lucide-react";
+import type { OpcaoApi, Relatorio } from "@/api/types";
 import { EstadoCarga } from "@/components/EstadoCarga";
+import { CartaoIndicador, SeloVariacao } from "@/components/relatorios/CartaoIndicador";
+import { BarraSegmentada, BarrasRotuladas, GraficoArea, GraficoColunas } from "@/components/relatorios/graficos";
+import { ListaDestaques } from "@/components/relatorios/ListaDestaques";
 import { TabelaRanking } from "@/components/relatorios/TabelaRanking";
 import { Button } from "@/components/ui/button";
-import { CabecalhoHero } from "@/components/ui/cabecalho-hero";
 import { CampoMesAno } from "@/components/ui/campo-mes-ano";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
+import { Segmentos } from "@/components/ui/segmentos";
 import { Seletor } from "@/components/ui/seletor";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDadosApi } from "@/hooks/useDadosApi";
-import { useParametroUrl } from "@/hooks/useParametroUrl";
 import { hojeBrasilia } from "@/lib/contas";
 import { baixarCsv } from "@/lib/csv";
-import { formatarMoeda } from "@/lib/format";
-import { competenciaCurta, competenciaParaBanco, competenciaParaTela } from "@/lib/repasse";
+import { formatarMoeda, formatarMoedaCurta, formatarPercentualCurto, variacaoPercentual } from "@/lib/format";
+import { rotuloMesEixo, rotuloPeriodo, somarMeses } from "@/lib/graficos";
+import { competenciaParaBanco, competenciaParaTela } from "@/lib/repasse";
 
-const inicioDoAno = () => `${hojeBrasilia().slice(0, 4)}-01-01`;
-const mesAtual = () => `${hojeBrasilia().slice(0, 7)}-01`;
+// Cores dos gráficos (validadas para daltonismo e contraste com o script da skill de visualização):
+// dois azuis da marca para faturamento × repasse; âmbar para o que está pendente; ciano para contas a pagar.
+const COR = { nf: "#1d4ed8", repasse: "#5fa8f5", pago: "#1d4ed8", pendente: "#e9a000", receber: "#1d4ed8", pagar: "#22b8cf", descontoAdicional: "#9db4d6" };
 
-const planilhaRanking = (linhas: LinhaRanking[], rotulo: string) =>
-  linhas.map((l) => ({ [rotulo]: l.nome, Notas: l.quantidade, "Valor das notas": l.valorNf, Repasse: l.repasse, Pago: l.repassePago, Pendente: l.repassePendente }));
+const FAIXAS = ["Do mês atual", "1 mês", "2 meses", "3 a 5 meses", "6 meses ou mais"];
 
-/** /relatorios — totais e rankings de um período de competências, por empresa contábil. */
+type Preset = { id: string; label: string; de: string; ate: string };
+function presets(): Preset[] {
+  const mes = `${hojeBrasilia().slice(0, 7)}-01`;
+  const ano = Number(mes.slice(0, 4));
+  return [
+    { id: "mes", label: "Este mês", de: mes, ate: mes },
+    { id: "3m", label: "3 meses", de: somarMeses(mes, -2), ate: mes },
+    { id: "ano", label: "Este ano", de: `${ano}-01-01`, ate: mes },
+    { id: "12m", label: "12 meses", de: somarMeses(mes, -11), ate: mes },
+    { id: "anoPassado", label: String(ano - 1), de: `${ano - 1}-01-01`, ate: `${ano - 1}-12-01` },
+  ];
+}
+
+const pct = (parte: number, todo: number) => (todo ? (parte / todo) * 100 : 0);
+const notas = (n: number) => `${n.toLocaleString("pt-BR")} ${n === 1 ? "nota" : "notas"}`;
+
+function Cartao({ titulo, descricao, acao, children, className, id }: { titulo: string; descricao?: string; acao?: ReactNode; children: ReactNode; className?: string; id?: string }) {
+  return (
+    <section id={id} className={`card min-w-0 scroll-mt-24 p-4 md:p-5 ${className ?? ""}`} aria-label={titulo}>
+      <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
+        <div>
+          <h2 className="font-titulo text-[15px] font-semibold">{titulo}</h2>
+          {descricao && <p className="mt-0.5 text-xs text-foreground-muted">{descricao}</p>}
+        </div>
+        {acao}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+/** Número de destaque no topo de um cartão de gráfico (como o "Total" do modelo), com variação opcional. */
+function Destaque({ valor, rotulo, variacao, subirEBom }: { valor: string; rotulo: string; variacao?: number | null; subirEBom?: boolean | null }) {
+  return (
+    <div className="mb-4">
+      <div className="text-[22px] font-semibold leading-tight tracking-tight">{valor}</div>
+      <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-foreground-muted">
+        {variacao !== undefined && <SeloVariacao variacao={variacao} subirEBom={subirEBom} />}
+        {rotulo}
+      </div>
+    </div>
+  );
+}
+
+const linkVerTodos = (href: string) => (
+  <a href={href} className="text-xs font-semibold text-[var(--marca)] hover:underline">
+    Ver todos
+  </a>
+);
+
+/** /relatorios — relatório completo de um período de competências, por empresa contábil ou de todas. */
 export default function RelatoriosPage() {
-  // O período fica na URL (link compartilhável); os campos só valem ao aplicar.
-  const [de, setDe] = useParametroUrl<string>("de", inicioDoAno());
-  const [ate, setAte] = useParametroUrl<string>("ate", mesAtual());
-  const [empresa, setEmpresa] = useParametroUrl<string>("empresa", "");
+  const opcoesPeriodo = useMemo(() => presets(), []);
+  const [params, setParams] = useSearchParams();
+  const padrao = opcoesPeriodo.find((p) => p.id === "ano")!;
+  const de = competenciaParaBanco(competenciaParaTela(params.get("de"))) ?? padrao.de;
+  const ate = competenciaParaBanco(competenciaParaTela(params.get("ate"))) ?? padrao.ate;
+  const empresa = params.get("empresa") ?? "";
+  const presetAtual = opcoesPeriodo.find((p) => p.de === de && p.ate === ate)?.id ?? null;
+
   const [rascunho, setRascunho] = useState({ de: competenciaParaTela(de), ate: competenciaParaTela(ate), empresa });
   const [erroPeriodo, setErroPeriodo] = useState<string | null>(null);
+  // O formulário acompanha a URL (voltar do navegador, link compartilhado, atalho de período): ajuste
+  // durante a renderização, sem efeito.
+  const chaveFiltros = `${de}|${ate}|${empresa}`;
+  const [filtrosDoRascunho, setFiltrosDoRascunho] = useState(chaveFiltros);
+  if (filtrosDoRascunho !== chaveFiltros) {
+    setFiltrosDoRascunho(chaveFiltros);
+    setRascunho({ de: competenciaParaTela(de), ate: competenciaParaTela(ate), empresa });
+  }
+
   const empresas = useDadosApi<OpcaoApi[]>("/empresas-contabeis/opcoes");
-  const caminho = useMemo(() => `/relatorios?${new URLSearchParams(empresa ? { de, ate, empresaContabil: empresa } : { de, ate })}`, [de, ate, empresa]);
+  const caminho = `/relatorios?${new URLSearchParams(empresa ? { de, ate, empresaContabil: empresa } : { de, ate })}`;
   const carga = useDadosApi<Relatorio>(caminho, "Não foi possível carregar o relatório.");
-  const r = carga.dados?.resumo;
   const nomeEmpresa = empresas.dados?.find((e) => e.valor === empresa)?.rotulo;
+
+  /** Grava o período e a empresa na URL de uma vez (link compartilhável). */
+  function aplicarFiltros(novo: { de: string; ate: string; empresa: string }) {
+    const p = new URLSearchParams(params);
+    p.set("de", novo.de);
+    p.set("ate", novo.ate);
+    if (novo.empresa) p.set("empresa", novo.empresa);
+    else p.delete("empresa");
+    setParams(p, { replace: true, preventScrollReset: true });
+  }
 
   function aplicar() {
     const novoDe = competenciaParaBanco(rascunho.de);
     const novoAte = competenciaParaBanco(rascunho.ate);
     if (!novoDe || !novoAte) return setErroPeriodo("Use MM/AAAA nos dois campos do período.");
     if (novoDe > novoAte) return setErroPeriodo("O início do período vem depois do fim.");
+    if (novoDe < somarMeses(novoAte, -59)) return setErroPeriodo("Escolha um período de até 60 meses.");
     setErroPeriodo(null);
-    setDe(novoDe);
-    setAte(novoAte);
-    setEmpresa(rascunho.empresa);
+    aplicarFiltros({ de: novoDe, ate: novoAte, empresa: rascunho.empresa });
   }
+
+  const d = carga.dados;
+  const sufixo = `${de.slice(0, 7)}-a-${ate.slice(0, 7)}`;
 
   return (
     <div className="space-y-6">
-      <CabecalhoHero
-        falhou={!!carga.erro && !r}
-        atualizando={carga.carregando && !!r}
-        rotulo={`Relatórios · ${competenciaCurta(de)} a ${competenciaCurta(ate)}${nomeEmpresa ? ` · ${nomeEmpresa}` : ""}`}
-        titulo="Relatório do período"
-        descricao="Totais e rankings das notas com competência no período escolhido. Registros cancelados não entram no repasse."
-        numeros={[
-          { valor: r ? formatarMoeda(r.valorNf) : undefined, rotulo: "Valor das notas", nota: r ? `${r.quantidade} notas` : undefined },
-          { valor: r ? formatarMoeda(r.repasse) : undefined, rotulo: "Repasse total" },
-          { valor: r ? formatarMoeda(r.repassePago) : undefined, rotulo: "Pago", destaque: "text-realce" },
-          { valor: r ? formatarMoeda(r.repassePendente) : undefined, rotulo: "Pendente", destaque: "text-[var(--acafrao)]" },
-        ]}
-      />
+      <header className="flex flex-wrap items-end justify-between gap-4">
+        <div className="min-w-0">
+          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--marca)]">Relatórios</p>
+          <h1 className="mt-1 font-titulo text-2xl font-semibold tracking-tight md:text-[28px]">Relatório do período</h1>
+          <p className="mt-1 text-sm text-foreground-secondary">
+            Competências de {rotuloPeriodo(de, ate)} · {nomeEmpresa ?? "todas as empresas contábeis"}
+            {d && <> · comparado a {rotuloPeriodo(d.periodo.anteriorDe, d.periodo.anteriorAte)}</>}
+          </p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="secondary" disabled={!d}>
+              <Download aria-hidden /> Exportar
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-60">
+            <DropdownMenuLabel>Planilhas (CSV)</DropdownMenuLabel>
+            <DropdownMenuItem onSelect={() => d && baixarCsv(`resumo-mensal-${sufixo}`, planilhaMensal(d))}>
+              <FileText aria-hidden className="size-4" /> Resumo mês a mês
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={!d?.prestadores.length} onSelect={() => d && baixarCsv(`repasses-por-prestador-${sufixo}`, planilhaRanking(d.prestadores, "Prestador"))}>
+              <UserRound aria-hidden className="size-4" /> Por prestador
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={!d?.clientes.length} onSelect={() => d && baixarCsv(`faturamento-por-cliente-${sufixo}`, planilhaRanking(d.clientes, "Cliente"))}>
+              <Building2 aria-hidden className="size-4" /> Por cliente
+            </DropdownMenuItem>
+            <DropdownMenuItem onSelect={() => d && baixarCsv(`tributos-${sufixo}`, planilhaTributos(d))}>
+              <Landmark aria-hidden className="size-4" /> Tributos
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </header>
 
-      <form className="card flex flex-wrap items-end gap-3 p-4" onSubmit={(e) => { e.preventDefault(); aplicar(); }}>
+      <form className="card flex flex-wrap items-end gap-3 p-4" onSubmit={(e) => { e.preventDefault(); aplicar(); }} aria-label="Filtros do relatório">
+        <div className="w-full xl:w-auto">
+          <span className="mb-1.5 block text-[13px] font-medium text-foreground-secondary">Período</span>
+          <Segmentos
+            opcoes={opcoesPeriodo.map((p) => ({ id: p.id, label: p.label }))}
+            valor={presetAtual}
+            onChange={(id) => {
+              const p = opcoesPeriodo.find((x) => x.id === id)!;
+              setErroPeriodo(null);
+              aplicarFiltros({ de: p.de, ate: p.ate, empresa: rascunho.empresa });
+            }}
+          />
+        </div>
         <div className="w-32">
           <Label htmlFor="rel-de">De</Label>
           <CampoMesAno id="rel-de" valor={rascunho.de} onChange={(v) => setRascunho((x) => ({ ...x, de: v }))} invalido={!!erroPeriodo} />
@@ -81,31 +190,379 @@ export default function RelatoriosPage() {
         {erroPeriodo && <p role="alert" className="w-full text-sm text-[var(--danger)]">{erroPeriodo}</p>}
       </form>
 
-      <EstadoCarga carga={carga} esqueleto={<Skeleton className="h-80 w-full rounded-2xl" />}>
-        {(d) => (
+      <EstadoCarga
+        carga={carga}
+        esqueleto={
           <div className="space-y-6">
-            {d.serie.length > 1 && (
-              <section className="card p-4 md:p-5">
-                <h2 className="mb-3 font-titulo text-[15px] font-semibold">Mês a mês</h2>
-                <BarChart
-                  categorias={d.serie.map((s) => competenciaCurta(s.competencia))}
-                  series={[{ key: "nf", label: "Valor das notas", color: "#1d4ed8", data: d.serie.map((s) => s.valorNf) }, { key: "repasse", label: "Repasse", color: "#7cc4ff", data: d.serie.map((s) => s.repasse) }]}
-                  altura={200}
-                  formatarValor={formatarMoeda}
-                />
-              </section>
-            )}
-            <div className="flex flex-wrap justify-end gap-2">
-              <Button variant="secondary" disabled={!d.prestadores.length} onClick={() => baixarCsv(`repasses-por-prestador-${de.slice(0, 7)}-a-${ate.slice(0, 7)}`, planilhaRanking(d.prestadores, "Prestador"))}><Download aria-hidden /> Prestadores (CSV)</Button>
-              <Button variant="secondary" disabled={!d.clientes.length} onClick={() => baixarCsv(`faturamento-por-cliente-${de.slice(0, 7)}-a-${ate.slice(0, 7)}`, planilhaRanking(d.clientes, "Cliente"))}><Download aria-hidden /> Clientes (CSV)</Button>
-            </div>
-            <div className="grid gap-6 min-[1800px]:grid-cols-2">
-              <TabelaRanking titulo="Por prestador" rotuloNome="Prestador" linhas={d.prestadores} vazio="Nenhuma nota no período." />
-              <TabelaRanking titulo="Por cliente" rotuloNome="Cliente" linhas={d.clientes} vazio="Nenhuma nota no período." />
-            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">{[0, 1, 2, 3].map((i) => <Skeleton key={i} className="h-40 rounded-2xl" />)}</div>
+            <Skeleton className="h-96 w-full rounded-2xl" />
           </div>
-        )}
+        }
+      >
+        {(r) => <Conteudo r={r} filtrandoEmpresa={!!empresa} />}
       </EstadoCarga>
     </div>
   );
 }
+
+function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boolean }) {
+  const { atual: a, anterior: ant, serie } = r;
+  const variosAnos = r.periodo.de.slice(0, 4) !== r.periodo.ate.slice(0, 4);
+  const meses = serie.map((p) => rotuloMesEixo(p.competencia, variosAnos));
+  const comparacao = `vs. ${rotuloPeriodo(r.periodo.anteriorDe, r.periodo.anteriorAte)}`;
+  const retido = a.valorNf - a.repasse;
+  const retidoAnt = ant.valorNf - ant.repasse;
+  const ticket = a.quantidade ? a.valorNf / a.quantidade : 0;
+  const ticketAnt = ant.quantidade ? ant.valorNf / ant.quantidade : 0;
+  const tributos = [
+    { chave: "iss", rotulo: "ISS", valor: r.tributos.iss },
+    { chave: "cofins", rotulo: "COFINS", valor: r.tributos.cofins },
+    { chave: "ir", rotulo: "IR", valor: r.tributos.ir },
+    { chave: "csll", rotulo: "CSLL", valor: r.tributos.csll },
+    { chave: "pis", rotulo: "PIS", valor: r.tributos.pis },
+  ].sort((x, y) => y.valor - x.valor);
+  const pendenteTotal = r.envelhecimento.reduce((t, f) => t + f.valor, 0);
+  const pendentesAntigos = r.envelhecimento.filter((f) => f.faixa >= 3).reduce((t, f) => t + f.valor, 0);
+  const contas = r.contas.resumo;
+
+  if (a.quantidade === 0 && contas.quantidade === 0) {
+    return (
+      <div className="card px-6 py-14 text-center">
+        <p className="font-titulo text-lg font-semibold">Nenhuma nota nem conta no período</p>
+        <p className="mt-1 text-sm text-foreground-muted">Escolha outro período ou outra empresa contábil nos filtros acima.</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Indicadores principais */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <CartaoIndicador
+          icone={Receipt}
+          titulo="Faturamento (valor das notas)"
+          valor={formatarMoeda(a.valorNf)}
+          variacao={variacaoPercentual(a.valorNf, ant.valorNf)}
+          comparacao={comparacao}
+          nota={`${notas(a.quantidade)} · ticket médio ${formatarMoedaCurta(ticket)}`}
+          tendencia={serie.map((p) => p.valorNf)}
+        />
+        <CartaoIndicador
+          icone={HandCoins}
+          titulo="Repasse aos prestadores"
+          valor={formatarMoeda(a.repasse)}
+          variacao={variacaoPercentual(a.repasse, ant.repasse)}
+          comparacao={comparacao}
+          nota={`${formatarPercentualCurto(pct(a.repasse, a.valorNf))} do faturamento`}
+          tendencia={serie.map((p) => p.repasse)}
+        />
+        <CartaoIndicador
+          icone={Percent}
+          titulo="Descontos retidos"
+          valor={formatarMoeda(retido)}
+          variacao={variacaoPercentual(retido, retidoAnt)}
+          comparacao={comparacao}
+          nota={`${formatarPercentualCurto(pct(retido, a.valorNf))} do faturamento`}
+          tendencia={serie.map((p) => p.valorNf - p.repasse)}
+          ajuda="Valor das notas menos o repasse: desconto padrão do prestador e descontos adicionais, já abatidos os acréscimos."
+        />
+        <CartaoIndicador
+          icone={Landmark}
+          titulo="Tributos das notas"
+          valor={formatarMoeda(a.tributos)}
+          variacao={variacaoPercentual(a.tributos, ant.tributos)}
+          subirEBom={null}
+          comparacao={comparacao}
+          nota={`carga efetiva de ${formatarPercentualCurto(pct(a.tributos, a.valorNf))}`}
+          tendencia={serie.map((p) => p.tributos)}
+          ajuda="Soma de ISS, IR, PIS, COFINS e CSLL destacados nas notas. São informativos: não saem do repasse."
+        />
+      </div>
+
+      {/* Números de apoio */}
+      <div className="card grid grid-cols-2 divide-borda sm:grid-cols-3 lg:grid-cols-5 lg:divide-x">
+        {[
+          { icone: FileText, rotulo: "Notas emitidas", valor: a.quantidade.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.quantidade, ant.quantidade) },
+          { icone: Receipt, rotulo: "Ticket médio", valor: formatarMoeda(ticket), variacao: variacaoPercentual(ticket, ticketAnt) },
+          { icone: UserRound, rotulo: "Prestadores com notas", valor: a.prestadores.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.prestadores, ant.prestadores) },
+          { icone: Users, rotulo: "Clientes atendidos", valor: a.clientes.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.clientes, ant.clientes) },
+          {
+            icone: CalendarClock,
+            rotulo: "Prazo médio de repasse",
+            valor: a.prazoMedioDias === null ? "—" : `${a.prazoMedioDias.toLocaleString("pt-BR")} dias`,
+            variacao: a.prazoMedioDias !== null && ant.prazoMedioDias ? variacaoPercentual(a.prazoMedioDias, ant.prazoMedioDias) : null,
+            subirEBom: false,
+          },
+        ].map((m) => (
+          <div key={m.rotulo} className="flex items-center gap-3 p-4">
+            <m.icone aria-hidden className="size-5 shrink-0 text-foreground-muted" />
+            <div className="min-w-0">
+              <div className="truncate text-xs text-foreground-muted">{m.rotulo}</div>
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-base font-semibold">{m.valor}</span>
+                <SeloVariacao variacao={m.variacao} subirEBom={m.subirEBom ?? true} />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Evolução */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Cartao titulo="Faturamento e repasse" descricao="Valor das notas e repasse aos prestadores, por competência" className="lg:col-span-2">
+          <GraficoArea
+            titulo="Faturamento e repasse por mês"
+            categorias={meses}
+            series={[
+              { chave: "nf", rotulo: "Valor das notas", cor: COR.nf, dados: serie.map((p) => p.valorNf) },
+              { chave: "repasse", rotulo: "Repasse", cor: COR.repasse, dados: serie.map((p) => p.repasse) },
+            ]}
+            formatarValor={formatarMoeda}
+            formatarEixo={formatarMoedaCurta}
+          />
+        </Cartao>
+        <Cartao titulo="Notas emitidas" descricao="Quantidade de notas por competência">
+          <Destaque valor={a.quantidade.toLocaleString("pt-BR")} rotulo={`notas · ${comparacao}`} variacao={variacaoPercentual(a.quantidade, ant.quantidade)} />
+          <GraficoColunas
+            titulo="Notas emitidas por mês"
+            categorias={meses}
+            series={[{ chave: "notas", rotulo: "Notas", cor: COR.nf, dados: serie.map((p) => p.quantidade) }]}
+            altura={214}
+            formatarValor={(v) => notas(v)}
+            formatarEixo={(v) => v.toLocaleString("pt-BR")}
+            rotularMaior
+          />
+        </Cartao>
+      </div>
+
+      {/* Repasses: pagos x pendentes e idade das pendências */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Cartao
+          titulo="Repasse pago e pendente"
+          descricao="Situação do repasse de cada competência"
+          className="lg:col-span-2"
+          acao={
+            <dl className="flex gap-5 text-right">
+              <div>
+                <dt className="text-xs text-foreground-muted">Pago</dt>
+                <dd className="text-sm font-semibold tabular-nums">{formatarMoedaCurta(a.repassePago)} <span className="font-normal text-foreground-muted">· {formatarPercentualCurto(pct(a.repassePago, a.repasse))}</span></dd>
+              </div>
+              <div>
+                <dt className="text-xs text-foreground-muted">Pendente</dt>
+                <dd className="text-sm font-semibold tabular-nums">{formatarMoedaCurta(a.repassePendente)}</dd>
+              </div>
+            </dl>
+          }
+        >
+          <GraficoColunas
+            titulo="Repasse pago e pendente por mês"
+            categorias={meses}
+            modo="empilhado"
+            series={[
+              { chave: "pago", rotulo: "Pago", cor: COR.pago, dados: serie.map((p) => p.repassePago) },
+              { chave: "pendente", rotulo: "Pendente", cor: COR.pendente, dados: serie.map((p) => p.repassePendente) },
+            ]}
+            formatarValor={formatarMoeda}
+            formatarEixo={formatarMoedaCurta}
+          />
+        </Cartao>
+        <Cartao titulo="Pendências por idade" descricao="Repasses ainda não pagos, pelo tempo desde a competência">
+          <Destaque
+            valor={formatarMoeda(pendenteTotal)}
+            rotulo={`${notas(a.pendentes)} pendentes${pendentesAntigos ? ` · ${formatarMoedaCurta(pendentesAntigos)} há 3 meses ou mais` : ""}`}
+          />
+          <BarrasRotuladas
+            cor={COR.pendente}
+            formatarValor={formatarMoeda}
+            itens={r.envelhecimento.map((f) => ({ chave: String(f.faixa), rotulo: FAIXAS[f.faixa], valor: f.valor, detalhe: f.quantidade ? notas(f.quantidade) : "nenhuma" }))}
+          />
+        </Cartao>
+      </div>
+
+      {/* Tributos, composição e empresas */}
+      <div className={`grid grid-cols-1 gap-6 lg:grid-cols-2 ${!filtrandoEmpresa && r.empresas.length > 1 ? "xl:grid-cols-3" : ""}`}>
+        <Cartao titulo="Tributos por tipo" descricao="Destacados nas notas (informativos)">
+          <Destaque valor={formatarMoeda(a.tributos)} rotulo={`carga efetiva de ${formatarPercentualCurto(pct(a.tributos, a.valorNf))} sobre o faturamento`} />
+          <BarrasRotuladas
+            formatarValor={formatarMoeda}
+            itens={tributos.map((t) => ({ chave: t.chave, rotulo: t.rotulo, valor: t.valor, detalhe: `${formatarPercentualCurto(pct(t.valor, a.valorNf))} do faturamento · ${formatarPercentualCurto(pct(t.valor, a.tributos))} dos tributos` }))}
+          />
+        </Cartao>
+
+        <Cartao titulo="Para onde vai o faturamento" descricao="Como o valor das notas se divide">
+          <BarraSegmentada
+            rotulo="Divisão do faturamento"
+            partes={[
+              { rotulo: "Repasse", valor: a.repasse, cor: COR.nf },
+              { rotulo: "Desconto padrão", valor: r.descontos.padrao, cor: COR.repasse, textoClaro: false },
+              { rotulo: "Descontos adicionais", valor: r.descontos.adicional, cor: COR.descontoAdicional, textoClaro: false },
+            ]}
+          />
+          <dl className="mt-5 divide-y divide-borda text-sm">
+            {[
+              { rotulo: "Valor das notas", valor: a.valorNf, forte: true },
+              { rotulo: "Desconto padrão", valor: -r.descontos.padrao },
+              { rotulo: "Descontos adicionais", valor: -r.descontos.adicional },
+              { rotulo: "Acréscimos", valor: r.descontos.acrescimo },
+              { rotulo: "Repasse aos prestadores", valor: a.repasse, forte: true },
+            ].map((l) => (
+              <div key={l.rotulo} className="flex items-center justify-between gap-3 py-2">
+                <dt className={l.forte ? "font-medium text-foreground" : "text-foreground-secondary"}>{l.rotulo}</dt>
+                <dd className={`tabular-nums ${l.forte ? "font-semibold" : ""}`}>
+                  {l.valor < 0 ? "− " : !l.forte && l.valor > 0 ? "+ " : ""}
+                  {formatarMoeda(Math.abs(l.valor))}
+                </dd>
+              </div>
+            ))}
+          </dl>
+          {r.canceladas.quantidade > 0 && (
+            <p className="mt-3 rounded-lg bg-[var(--areia)] px-3 py-2 text-xs text-foreground-secondary">
+              {notas(r.canceladas.quantidade)} {r.canceladas.quantidade === 1 ? "cancelada" : "canceladas"} ({formatarMoeda(r.canceladas.valorNf)}) fora dos totais.
+            </p>
+          )}
+        </Cartao>
+
+        {!filtrandoEmpresa && r.empresas.length > 1 && (
+          <Cartao titulo="Por empresa contábil" descricao="Valor das notas e fatia do faturamento">
+            <BarrasRotuladas
+              formatarValor={formatarMoeda}
+              max={a.valorNf}
+              itens={r.empresas.map((e) => ({ chave: e.id, rotulo: e.nome, valor: e.valorNf, detalhe: `${formatarPercentualCurto(pct(e.valorNf, a.valorNf))} do total · ${notas(e.quantidade)} · repasse ${formatarMoedaCurta(e.repasse)}` }))}
+            />
+          </Cartao>
+        )}
+      </div>
+
+      {/* Maiores do período */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Cartao titulo="Prestadores que mais faturaram" descricao="Pelo valor das notas no período" acao={linkVerTodos("#ranking-prestadores")}>
+          <ListaDestaques linhas={r.prestadores} totalNf={a.valorNf} vazio="Nenhuma nota no período." />
+        </Cartao>
+        <Cartao titulo="Principais clientes" descricao="Pelo valor das notas no período" acao={linkVerTodos("#ranking-clientes")}>
+          <ListaDestaques linhas={r.clientes} totalNf={a.valorNf} vazio="Nenhuma nota no período." />
+        </Cartao>
+      </div>
+
+      {/* Contas */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Cartao titulo="Contas a pagar e a receber" descricao="Pelo mês de vencimento" className="lg:col-span-2">
+          <dl className="mb-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            {[
+              { rotulo: "A pagar", valor: formatarMoeda(contas.pagar), nota: `${formatarMoedaCurta(contas.pagas)} já pago` },
+              { rotulo: "A receber", valor: formatarMoeda(contas.receber), nota: `${formatarMoedaCurta(contas.recebidas)} recebido` },
+              { rotulo: "Saldo previsto", valor: formatarMoeda(contas.receber - contas.pagar), nota: "receber − pagar" },
+              { rotulo: "Vencidas", valor: formatarMoeda(contas.valorVencido), nota: `${contas.vencidas} ${contas.vencidas === 1 ? "conta" : "contas"}`, alerta: contas.vencidas > 0 },
+            ].map((m) => (
+              <div key={m.rotulo}>
+                <dt className="text-xs text-foreground-muted">{m.rotulo}</dt>
+                <dd className={`mt-0.5 text-base font-semibold ${m.alerta ? "text-[var(--danger)]" : ""}`}>{m.valor}</dd>
+                <dd className="text-xs text-foreground-muted">{m.nota}</dd>
+              </div>
+            ))}
+          </dl>
+          {contas.quantidade ? (
+            <GraficoColunas
+              titulo="Contas a pagar e a receber por mês de vencimento"
+              categorias={meses}
+              series={[
+                { chave: "receber", rotulo: "A receber", cor: COR.receber, dados: r.contas.serie.map((p) => p.receber) },
+                { chave: "pagar", rotulo: "A pagar", cor: COR.pagar, dados: r.contas.serie.map((p) => p.pagar) },
+              ]}
+              altura={230}
+              formatarValor={formatarMoeda}
+              formatarEixo={formatarMoedaCurta}
+            />
+          ) : (
+            <p className="text-sm text-foreground-muted">Nenhuma conta vence no período.</p>
+          )}
+        </Cartao>
+        <Cartao titulo="Despesas por categoria" descricao="Contas a pagar que vencem no período">
+          <BarrasRotuladas
+            cor={COR.pagar}
+            formatarValor={formatarMoeda}
+            vazio="Nenhuma conta a pagar no período."
+            itens={r.contas.categorias.map((c) => ({ chave: c.nome, rotulo: c.nome, valor: c.valor, detalhe: `${formatarPercentualCurto(pct(c.valor, contas.pagar))} das despesas · ${c.quantidade} ${c.quantidade === 1 ? "conta" : "contas"}` }))}
+          />
+        </Cartao>
+      </div>
+
+      {/* Mês a mês */}
+      <Cartao
+        titulo="Resumo mês a mês"
+        descricao="Os mesmos números dos gráficos, por competência"
+        acao={<Button variant="secondary" size="sm" onClick={() => baixarCsv(`resumo-mensal-${r.periodo.de.slice(0, 7)}-a-${r.periodo.ate.slice(0, 7)}`, planilhaMensal(r))}><Download aria-hidden /> CSV</Button>}
+      >
+        <div className="-mx-4 overflow-x-auto md:-mx-5">
+          <table className="w-full min-w-[720px] text-sm">
+            <thead>
+              <tr className="border-y border-borda bg-[var(--areia)] text-left text-xs text-foreground-muted">
+                <th scope="col" className="px-4 py-2.5 font-medium md:px-5">Competência</th>
+                {["Notas", "Valor das notas", "Tributos", "Repasse", "Pago", "Pendente"].map((t) => (
+                  <th key={t} scope="col" className="px-3 py-2.5 text-right font-medium last:pr-4 md:last:pr-5">{t}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="tabular-nums">
+              {serie.map((p) => (
+                <tr key={p.competencia} className="border-b border-borda last:border-0">
+                  <th scope="row" className="px-4 py-2 text-left font-medium md:px-5">{competenciaParaTela(p.competencia)}</th>
+                  <td className="px-3 py-2 text-right">{p.quantidade}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.valorNf)}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.tributos)}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.repasse)}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.repassePago)}</td>
+                  <td className={`px-3 py-2 pr-4 text-right md:pr-5 ${p.repassePendente ? "text-[var(--aviso)]" : ""}`}>{formatarMoeda(p.repassePendente)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot className="tabular-nums">
+              <tr className="border-t-2 border-borda font-semibold">
+                <th scope="row" className="px-4 py-2.5 text-left md:px-5">Total</th>
+                <td className="px-3 py-2.5 text-right">{a.quantidade}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(a.valorNf)}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(a.tributos)}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(a.repasse)}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(a.repassePago)}</td>
+                <td className="px-3 py-2.5 pr-4 text-right md:pr-5">{formatarMoeda(a.repassePendente)}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </Cartao>
+
+      {/* Rankings completos */}
+      <div className="grid grid-cols-1 gap-6 min-[1800px]:grid-cols-2">
+        <div id="ranking-prestadores" className="scroll-mt-24">
+          <TabelaRanking titulo="Todos os prestadores" rotuloNome="Prestador" linhas={r.prestadores} vazio="Nenhuma nota no período." />
+        </div>
+        <div id="ranking-clientes" className="scroll-mt-24">
+          <TabelaRanking titulo="Todos os clientes" rotuloNome="Cliente" linhas={r.clientes} vazio="Nenhuma nota no período." />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const planilhaRanking = (linhas: Relatorio["prestadores"], rotulo: string) =>
+  linhas.map((l) => ({ [rotulo]: l.nome, Notas: l.quantidade, "Valor das notas": l.valorNf, Repasse: l.repasse, Pago: l.repassePago, Pendente: l.repassePendente }));
+
+const planilhaMensal = (r: Relatorio) =>
+  r.serie.map((p, i) => ({
+    "Competência": competenciaParaTela(p.competencia),
+    Notas: p.quantidade,
+    "Valor das notas": p.valorNf,
+    Tributos: p.tributos,
+    Repasse: p.repasse,
+    "Descontos retidos": Math.round((p.valorNf - p.repasse) * 100) / 100,
+    Pago: p.repassePago,
+    Pendente: p.repassePendente,
+    "Contas a pagar": r.contas.serie[i]?.pagar ?? 0,
+    "Contas a receber": r.contas.serie[i]?.receber ?? 0,
+  }));
+
+const planilhaTributos = (r: Relatorio) =>
+  (["iss", "cofins", "ir", "csll", "pis"] as const).map((t) => ({
+    Tributo: t.toUpperCase(),
+    Valor: r.tributos[t],
+    "% do faturamento": Math.round(pct(r.tributos[t], r.atual.valorNf) * 1000) / 1000,
+  }));

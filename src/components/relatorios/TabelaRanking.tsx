@@ -9,7 +9,7 @@ import type { Coluna } from "@/lib/tabela";
 const chave = (l: LinhaRanking) => l.id;
 
 /**
- * Ranking de clientes ou prestadores por repasse (lista curta e limitada que a tela já tem inteira: tabela local,
+ * Ranking de clientes ou prestadores por valor das notas (lista curta e limitada que a tela já tem inteira: tabela local,
  * como os rankings de Relatórios do ConectaPRO).
  */
 export function TabelaRanking({ titulo, rotuloNome, linhas, vazio, onLinha }: { titulo: string; rotuloNome: string; linhas: LinhaRanking[]; vazio: string; onLinha?: (l: LinhaRanking) => void }) {
@@ -17,13 +17,14 @@ export function TabelaRanking({ titulo, rotuloNome, linhas, vazio, onLinha }: { 
     () => [
       { chave: "nome", titulo: rotuloNome, filtro: { tipo: "texto" }, className: "font-medium" },
       { chave: "quantidade", titulo: "Notas", filtro: { tipo: "numero" }, alinhar: "direita", ordemInicial: "desc", className: "tabular-nums hidden sm:table-cell" },
+      { chave: "valorNf", titulo: "Valor das notas", filtro: { tipo: "moeda" }, alinhar: "direita", ordemInicial: "desc", render: (l) => formatarMoeda(l.valorNf), className: "tabular-nums hidden lg:table-cell" },
       { chave: "repasse", titulo: "Repasse", filtro: { tipo: "moeda" }, alinhar: "direita", ordemInicial: "desc", render: (l) => formatarMoeda(l.repasse), className: "tabular-nums" },
       { chave: "repassePago", titulo: "Pago", filtro: { tipo: "moeda" }, alinhar: "direita", ordemInicial: "desc", render: (l) => formatarMoeda(l.repassePago), className: "tabular-nums hidden md:table-cell" },
       { chave: "repassePendente", titulo: "Pendente", filtro: { tipo: "moeda" }, alinhar: "direita", ordemInicial: "desc", render: (l) => formatarMoeda(l.repassePendente), className: "tabular-nums hidden md:table-cell text-[var(--aviso)]" },
     ],
     [rotuloNome],
   );
-  const tabela = useTabela(linhas, colunas, { ordemPadrao: "-repasse", porPagina: 10 });
+  const tabela = useTabela(linhas, colunas, { ordemPadrao: "-valorNf", porPagina: 10 });
   return (
     <div className="card overflow-hidden">
       <h2 className="px-4 pt-4 font-titulo text-[15px] font-semibold md:px-5">{titulo}</h2>

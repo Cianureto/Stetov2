@@ -26,6 +26,21 @@ export const percentualParaCampo = (v: number) => (v ? fmtPercent.format(v) : ""
 const fmtMoeda = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 export const formatarMoeda = (v: number) => fmtMoeda.format(v);
 
+/** Moeda abreviada para eixos e cartões: R$ 1,2 mi · R$ 950 mil · R$ 820,00. */
+export const formatarMoedaCurta = (v: number) => {
+  const a = Math.abs(v);
+  if (a >= 1_000_000) return `R$ ${(v / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi`;
+  if (a >= 1000) return `R$ ${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil`;
+  return formatarMoeda(v);
+};
+
+/** Variação de `anterior` para `atual`, em %. null quando não há base de comparação (anterior zero). */
+export const variacaoPercentual = (atual: number, anterior: number): number | null => (anterior ? ((atual - anterior) / Math.abs(anterior)) * 100 : null);
+
+const fmtUmaCasa = new Intl.NumberFormat("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+/** 12,345 → "12,3%". */
+export const formatarPercentualCurto = (v: number) => `${fmtUmaCasa.format(v)}%`;
+
 /** Iniciais do nome para o avatar ("Ana Souza" → "AS"). */
 export function iniciais(nome: string) {
   return nome

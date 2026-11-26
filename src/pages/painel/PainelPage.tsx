@@ -9,10 +9,10 @@ import { Metrica, Metricas } from "@/components/ui/metricas";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { usePermissao } from "@/hooks/usePermissao";
-import { formatarData, formatarMoeda } from "@/lib/format";
+import { formatarData, formatarMoeda, formatarMoedaCurta } from "@/lib/format";
 import { competenciaCurta } from "@/lib/repasse";
 
-const moedaCurta = (v: number) => (v >= 1_000_000 ? `R$ ${(v / 1_000_000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mi` : v >= 1000 ? `R$ ${(v / 1000).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} mil` : formatarMoeda(v));
+const moedaCurta = formatarMoedaCurta;
 
 function Cartao({ titulo, acao, children }: { titulo: string; acao?: React.ReactNode; children: React.ReactNode }) {
   return (

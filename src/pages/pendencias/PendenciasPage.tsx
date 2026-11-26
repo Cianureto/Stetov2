@@ -73,7 +73,7 @@ export default function PendenciasPage() {
         titulo="Pendências de clientes"
         descricao="Clientes provisórios criados na importação de planilhas e XML. Complete o cadastro e ative, ou mescle com o cliente que já existe."
         numeros={[
-          { valor: total, rotulo: "Provisórios a revisar", destaque: total ? "text-[var(--acafrao)]" : "text-realce" },
+          { valor: total, rotulo: "Provisórios a revisar", tom: total ? "aviso" : "marca" },
           { valor: resumo.dados?.semRegime, rotulo: "Clientes sem regime tributário" },
         ]}
       />

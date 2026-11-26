@@ -100,8 +100,8 @@ export default function ClientesPage() {
         }
         numeros={[
           { valor: r?.total, rotulo: "Clientes na base" },
-          { valor: r?.ativo, rotulo: "Ativos", destaque: "text-realce" },
-          { valor: r?.provisorio, rotulo: "Provisórios a revisar", destaque: "text-[var(--acafrao)]" },
+          { valor: r?.ativo, rotulo: "Ativos", tom: "marca" },
+          { valor: r?.provisorio, rotulo: "Provisórios a revisar", tom: "aviso" },
           { valor: r?.semRegime, rotulo: "Sem regime tributário" },
         ]}
       />

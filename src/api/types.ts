@@ -159,7 +159,8 @@ export type PainelGeral = {
   contas: ResumoContas;
   cadastros: { clientes: number; prestadores: number; empresasContabeis: number; provisorios: number };
   serie: PontoMensal[];
-  topPrestadores: LinhaRanking[];
+  /** Tributos retidos nas notas da competência atual (CSRF = PIS + COFINS + CSLL). */
+  retencoesMes: { iss: number; ir: number; csrf: number };
   topClientes: LinhaRanking[];
   proximasContas: Conta[];
 };
@@ -179,7 +180,21 @@ export type ResumoRelatorio = {
   /** Dias, em média, entre o fim do mês da competência e o pagamento do repasse. */
   prazoMedioDias: number | null;
 };
-export type PontoRelatorio = { competencia: string; quantidade: number; valorNf: number; tributos: number; repasse: number; repassePago: number; repassePendente: number };
+export type PontoRelatorio = {
+  competencia: string;
+  quantidade: number;
+  valorNf: number;
+  tributos: number;
+  iss: number;
+  ir: number;
+  /** PIS + COFINS + CSLL (contribuições retidas na fonte, recolhidas juntas). */
+  csrf: number;
+  repasse: number;
+  repassePago: number;
+  repassePendente: number;
+};
+/** Totais por tomador (cliente/hospital) no relatório, com as retenções. */
+export type LinhaTomador = LinhaRanking & { documento: string; iss: number; ir: number; csrf: number; tributos: number };
 /** Faixa de idade dos repasses pendentes: 0 = do mês atual, 1 = 1 mês, 2 = 2 meses, 3 = 3 a 5 meses, 4 = 6 meses ou mais. */
 export type FaixaEnvelhecimento = { faixa: 0 | 1 | 2 | 3 | 4; quantidade: number; valor: number };
 
@@ -196,7 +211,7 @@ export type Relatorio = {
   envelhecimento: FaixaEnvelhecimento[];
   empresas: { id: string; nome: string; quantidade: number; valorNf: number; repasse: number }[];
   prestadores: LinhaRanking[];
-  clientes: LinhaRanking[];
+  clientes: LinhaTomador[];
   contas: {
     serie: { competencia: string; pagar: number; receber: number }[];
     resumo: { quantidade: number; pagar: number; receber: number; pagas: number; recebidas: number; vencidas: number; valorVencido: number };

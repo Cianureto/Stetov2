@@ -5,8 +5,9 @@ import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
 export type NumeroHero = {
   valor: number | string | undefined;
   rotulo: string;
-  destaque?: string;
-  /** Linha curta de comparação sob o rótulo (ex.: "+3 vs. ontem", "na meta"); `notaRuim` pinta de açafrão. */
+  /** Tom do número: `marca` (ponto azul), `aviso` (âmbar: pendente, a revisar), `perigo` (vermelho: vencido). */
+  tom?: "marca" | "aviso" | "perigo";
+  /** Linha curta de comparação sob o rótulo (ex.: "16 notas", "R$ 9.498,42"); `notaRuim` pinta de âmbar. */
   nota?: string;
   notaRuim?: boolean;
   /** Valor em texto longo (ex.: nome de produto): fonte menor, quebra em até duas linhas. */
@@ -18,11 +19,14 @@ export type NumeroHero = {
 const formatar = (v: number | string | undefined, falhou: boolean) =>
   v === undefined ? (falhou ? "—" : "…") : typeof v === "number" ? v.toLocaleString("pt-BR") : v;
 
+const PONTO = { marca: "bg-[var(--marca)]", aviso: "bg-[var(--acafrao)]", perigo: "bg-[var(--danger)]" } as const;
+const VALOR = { marca: "", aviso: "text-[var(--aviso)]", perigo: "text-[var(--danger)]" } as const;
+
 /**
- * Cabeçalho em destaque das telas de catálogo do gestor (Apresentações, Consultores): faixa escura em
- * azul da marca com brilhos da marca, título, ação principal e números do conjunto inteiro (`undefined` = carregando).
- * `aviso` aparece abaixo dos números (ex.: cadastros aguardando aprovação). `falhou`: a carga deu erro e
- * não há números ("—" em vez de "…"); `atualizando`: os números são da carga anterior (ficam esmaecidos).
+ * Cabeçalho das telas de lista e painel: sobretítulo, título, descrição e a ação principal, sobre o fundo da
+ * página, e os números do conjunto inteiro (`undefined` = carregando) em cartões brancos logo abaixo.
+ * `aviso` aparece abaixo dos números. `falhou`: a carga deu erro e não há números ("—" em vez de "…");
+ * `atualizando`: os números são da carga anterior (ficam esmaecidos).
  */
 export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], aviso, falhou = false, atualizando = false, compacto = false }: {
   rotulo: string;
@@ -34,56 +38,52 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
   aviso?: ReactNode;
   falhou?: boolean;
   atualizando?: boolean;
-  /** Versão mais baixa, para telas que precisam do espaço vertical (agenda, relatório de visita). */
+  /** Versão mais baixa, para telas que precisam do espaço vertical. */
   compacto?: boolean;
 }) {
   return (
-    <header className={cn("relative overflow-hidden rounded-2xl bg-[var(--consultor-dark)] text-white shadow-[var(--shadow-lg)]", compacto ? "px-4 py-4 md:px-6 md:py-5" : "px-5 py-6 md:px-8 md:py-8")}>
-      <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full bg-[var(--consultor-glow-mint)] blur-3xl" />
-      <div aria-hidden className="pointer-events-none absolute -bottom-32 left-1/3 h-64 w-64 rounded-full bg-[var(--consultor-glow-amber)] opacity-60 blur-3xl" />
-
-      <div className={cn("relative flex flex-col", compacto ? "gap-3" : "gap-6")}>
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="max-w-2xl">
-            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-realce">{rotulo}</p>
-            <h1 className={cn("mt-1 font-titulo font-bold leading-tight", compacto ? "text-xl md:text-2xl" : "text-2xl md:text-[32px]")}>{titulo}</h1>
-            <p className={cn("text-sm leading-relaxed text-white/75", compacto ? "mt-1 max-sm:line-clamp-2" : "mt-2")}>{descricao}</p>
-          </div>
-          {acao}
+    <header className={cn("flex flex-col", compacto ? "gap-4" : "gap-5")}>
+      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
+        <div className="min-w-0 max-w-3xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--marca)]">{rotulo}</p>
+          <h1 className={cn("mt-1 font-titulo font-semibold leading-tight tracking-tight text-foreground", compacto ? "text-xl md:text-2xl" : "text-2xl md:text-[28px]")}>{titulo}</h1>
+          <p className={cn("mt-1 text-sm leading-relaxed text-foreground-secondary", compacto && "max-sm:line-clamp-2")}>{descricao}</p>
         </div>
+        {acao}
+      </div>
 
-        {numeros.length > 0 && (
+      {numeros.length > 0 && (
         <div
           aria-busy={atualizando || undefined}
-          className={cn("grid grid-cols-2 gap-2.5 transition-opacity md:gap-3", numeros.length >= 4 && "md:grid-cols-4", numeros.length === 3 && "md:grid-cols-3", atualizando && "opacity-60")}
+          className={cn("grid grid-cols-2 gap-3 transition-opacity md:gap-4", numeros.length >= 4 && "lg:grid-cols-4", numeros.length === 3 && "md:grid-cols-3", atualizando && "opacity-60")}
         >
           {numeros.map((n) => (
-            <div key={n.rotulo} className="min-w-0 rounded-xl bg-white/[0.06] px-3.5 py-3 ring-1 ring-white/10 backdrop-blur-sm">
+            <div key={n.rotulo} className="card min-w-0 px-4 py-3.5 md:px-5 md:py-4">
+              <div className="flex min-w-0 items-center gap-1.5 text-[13px] text-foreground-secondary">
+                {n.tom && <span aria-hidden className={cn("size-2 shrink-0 rounded-full", PONTO[n.tom])} />}
+                <span className="truncate">{n.rotulo}</span>
+                {n.ajuda && <AjudaIndicador indicador={n.rotulo} texto={n.ajuda} />}
+              </div>
               <div
                 className={cn(
-                  "font-titulo font-semibold text-white",
-                  n.textual ? "line-clamp-2 text-base leading-snug md:text-lg" : "text-2xl tabular-nums leading-none md:text-[28px]",
-                  n.destaque,
+                  "mt-1.5 font-semibold tracking-tight text-foreground",
+                  n.textual ? "line-clamp-2 text-base leading-snug md:text-lg" : "text-xl leading-tight md:text-2xl",
+                  n.tom && VALOR[n.tom],
                 )}
                 title={n.textual && typeof n.valor === "string" ? n.valor : undefined}
               >
                 {formatar(n.valor, falhou)}
               </div>
-              <div className="mt-1.5 flex min-w-0 items-center gap-1 text-xs text-white/70">
-                <span className="truncate">{n.rotulo}</span>
-                {n.ajuda && <AjudaIndicador escuro indicador={n.rotulo} texto={n.ajuda} />}
-              </div>
-              {n.nota && <div className={cn("mt-1 truncate text-[11px] font-semibold", n.notaRuim ? "text-[var(--acafrao)]" : "text-realce")}>{n.nota}</div>}
+              {n.nota && <div className={cn("mt-1 truncate text-xs", n.notaRuim ? "font-medium text-[var(--aviso)]" : "text-foreground-muted")}>{n.nota}</div>}
             </div>
           ))}
         </div>
-        )}
-        {aviso}
-      </div>
+      )}
+      {aviso}
     </header>
   );
 }
 
-/** Botão principal do cabeçalho em destaque (menta sobre o azul da marca). */
+/** Botão principal do cabeçalho (azul da marca). */
 export const classeAcaoHero =
-  "inline-flex h-11 shrink-0 items-center gap-2 rounded-xl bg-[var(--realce)] px-4 text-sm font-semibold text-[var(--consultor-dark)] shadow-[inset_0_1px_0_rgb(255_255_255/0.35),0_10px_24px_-10px_var(--consultor-glow-mint)] transition hover:brightness-105 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70";
+  "inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-[var(--marca)] px-4 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(11,27,54,0.12)] transition hover:bg-[var(--marca-escuro)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marca)] focus-visible:ring-offset-2";

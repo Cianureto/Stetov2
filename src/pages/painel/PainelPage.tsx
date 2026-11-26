@@ -1,7 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import type { PainelGeral } from "@/api/types";
-import { BarChart, RankedBars } from "@/components/charts";
+import { RankedBars } from "@/components/charts";
+import { BarrasRotuladas, GraficoColunas } from "@/components/relatorios/graficos";
+import { rotuloMesEixo } from "@/lib/graficos";
 import { BadgeSituacaoConta } from "@/components/contas/BadgeSituacaoConta";
 import { EstadoCarga } from "@/components/EstadoCarga";
 import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
@@ -16,7 +18,7 @@ const moedaCurta = formatarMoedaCurta;
 
 function Cartao({ titulo, acao, children }: { titulo: string; acao?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="card p-4 md:p-5">
+    <section className="card min-w-0 p-4 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="font-titulo text-[15px] font-semibold">{titulo}</h2>
         {acao}
@@ -49,9 +51,9 @@ export default function PainelPage() {
         ) : undefined}
         numeros={[
           { valor: p ? formatarMoeda(p.mes.valorNf) : undefined, rotulo: "Faturado no mês", nota: p ? `${p.mes.quantidade} ${p.mes.quantidade === 1 ? "nota" : "notas"}` : undefined },
-          { valor: p ? formatarMoeda(p.pendenteTotal.repassePendente) : undefined, rotulo: "Repasses pendentes", destaque: "text-[var(--acafrao)]", nota: p ? `${p.pendenteTotal.pendentes} registros` : undefined },
+          { valor: p ? formatarMoeda(p.pendenteTotal.repassePendente) : undefined, rotulo: "Repasses pendentes", tom: "aviso", nota: p ? `${p.pendenteTotal.pendentes} registros` : undefined },
           { valor: p ? formatarMoeda(p.contas.aPagar) : undefined, rotulo: "Contas a pagar em aberto" },
-          { valor: p?.contas.vencidas, rotulo: "Contas vencidas", destaque: p?.contas.vencidas ? "text-[var(--coral)]" : "text-realce", nota: p?.contas.vencidas ? formatarMoeda(p.contas.valorVencido) : "nenhuma", notaRuim: !!p?.contas.vencidas },
+          { valor: p?.contas.vencidas, rotulo: "Contas vencidas", tom: p?.contas.vencidas ? "perigo" : "marca", nota: p?.contas.vencidas ? formatarMoeda(p.contas.valorVencido) : "nenhuma", notaRuim: !!p?.contas.vencidas },
         ]}
       />
 
@@ -65,16 +67,18 @@ export default function PainelPage() {
               <Metrica titulo="Clientes provisórios" valor={d.cadastros.provisorios} tom={d.cadastros.provisorios ? "atencao" : "ok"} legenda={<Link to="/pendencias" className="hover:underline">revisar pendências</Link>} />
             </Metricas>
 
-            <div className="grid gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <Cartao titulo="Faturamento e repasse, últimos 12 meses">
-                <BarChart
-                  categorias={d.serie.map((s) => competenciaCurta(s.competencia).slice(0, 3))}
+                <GraficoColunas
+                  titulo="Faturamento e repasse, últimos 12 meses"
+                  categorias={d.serie.map((s) => rotuloMesEixo(s.competencia, true))}
                   series={[
-                    { key: "nf", label: "Valor das notas", color: "#1d4ed8", data: d.serie.map((s) => s.valorNf) },
-                    { key: "repasse", label: "Repasse", color: "#7cc4ff", data: d.serie.map((s) => s.repasse) },
+                    { chave: "nf", rotulo: "Valor das notas", cor: "#1d4ed8", dados: d.serie.map((s) => s.valorNf) },
+                    { chave: "repasse", rotulo: "Repasse", cor: "#5fa8f5", dados: d.serie.map((s) => s.repasse) },
                   ]}
-                  altura={200}
-                  formatarValor={moedaCurta}
+                  altura={240}
+                  formatarValor={formatarMoeda}
+                  formatarEixo={moedaCurta}
                 />
               </Cartao>
               <Cartao titulo="Contas que vencem em 7 dias" acao={<Link to="/contas?aba=pagar" className="text-sm font-medium text-marca hover:underline">Ver contas</Link>}>
@@ -84,11 +88,11 @@ export default function PainelPage() {
                   <ul className="divide-y divide-borda">
                     {d.proximasContas.map((c) => (
                       <li key={c.id}>
-                        <Link to={`/contas/${c.id}`} className="flex items-center gap-3 py-2 text-sm hover:bg-[var(--areia)]">
+                        <Link to={`/contas/${c.id}`} className="flex items-center gap-3 py-2.5 text-sm hover:bg-[var(--areia)]">
                           <span className="w-20 shrink-0 tabular-nums text-foreground-secondary">{formatarData(c.dataVencimento)}</span>
                           <span className="min-w-0 flex-1 truncate">{c.descricao}</span>
                           <span className="shrink-0 tabular-nums font-medium">{formatarMoeda(c.valor)}</span>
-                          <BadgeSituacaoConta status={c.status} dataVencimento={c.dataVencimento} />
+                          <span className="hidden sm:inline-flex"><BadgeSituacaoConta status={c.status} dataVencimento={c.dataVencimento} /></span>
                         </Link>
                       </li>
                     ))}
@@ -97,12 +101,22 @@ export default function PainelPage() {
               </Cartao>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-2">
-              <Cartao titulo="Prestadores com mais repasse (12 meses)">
-                {d.topPrestadores.length ? <RankedBars itens={d.topPrestadores.map((l) => ({ label: l.nome, sublabel: `${l.quantidade} notas`, valor: l.repasse }))} corBarra="#1d4ed8" formatarValor={formatarMoeda} /> : <p className="text-sm text-foreground-muted">Nenhuma nota nos últimos 12 meses.</p>}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <Cartao titulo="Retenções do mês" acao={<Link to="/relatorios" className="text-sm font-medium text-marca hover:underline">Ver relatório</Link>}>
+                <p className="mb-4 text-[22px] font-semibold tracking-tight">{formatarMoeda(d.retencoesMes.iss + d.retencoesMes.ir + d.retencoesMes.csrf)}</p>
+                <BarrasRotuladas
+                  formatarValor={formatarMoeda}
+                  max={d.retencoesMes.iss + d.retencoesMes.ir + d.retencoesMes.csrf}
+                  vazio="Nenhuma retenção nas notas do mês."
+                  itens={[
+                    { chave: "iss", rotulo: "ISS", valor: d.retencoesMes.iss, detalhe: "recolhido ao município" },
+                    { chave: "ir", rotulo: "IRRF", valor: d.retencoesMes.ir, detalhe: "imposto de renda retido na fonte" },
+                    { chave: "csrf", rotulo: "CSRF", valor: d.retencoesMes.csrf, detalhe: "PIS, COFINS e CSLL" },
+                  ]}
+                />
               </Cartao>
-              <Cartao titulo="Clientes com mais faturamento (12 meses)">
-                {d.topClientes.length ? <RankedBars itens={d.topClientes.map((l) => ({ label: l.nome, sublabel: `${l.quantidade} notas`, valor: l.valorNf }))} corBarra="#2563eb" formatarValor={formatarMoeda} /> : <p className="text-sm text-foreground-muted">Nenhuma nota nos últimos 12 meses.</p>}
+              <Cartao titulo="Faturamento por tomador (12 meses)">
+                {d.topClientes.length ? <RankedBars itens={d.topClientes.map((l) => ({ label: l.nome, sublabel: `${l.quantidade} notas`, valor: l.valorNf }))} corBarra="#1d4ed8" formatarValor={formatarMoeda} /> : <p className="text-sm text-foreground-muted">Nenhuma nota nos últimos 12 meses.</p>}
               </Cartao>
             </div>
           </div>

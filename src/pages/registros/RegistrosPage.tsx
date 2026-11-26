@@ -106,8 +106,8 @@ export default function RegistrosPage() {
         ) : undefined}
         numeros={[
           { valor: r ? formatarMoeda(r.valorNf) : undefined, rotulo: "Valor das notas" },
-          { valor: r ? formatarMoeda(r.repassePendente) : undefined, rotulo: "Repasse pendente", destaque: "text-[var(--acafrao)]" },
-          { valor: r ? formatarMoeda(r.repassePago) : undefined, rotulo: "Repasse pago", destaque: "text-realce" },
+          { valor: r ? formatarMoeda(r.repassePendente) : undefined, rotulo: "Repasse pendente", tom: "aviso" },
+          { valor: r ? formatarMoeda(r.repassePago) : undefined, rotulo: "Repasse pago", tom: "marca" },
           { valor: r?.quantidade, rotulo: "Notas lançadas" },
         ]}
       />

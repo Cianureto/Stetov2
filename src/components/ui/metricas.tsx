@@ -45,12 +45,12 @@ export function Metrica({
   ajuda?: string;
 }) {
   return (
-    <div className="flex min-w-0 flex-col px-3 py-2.5 md:px-6 md:py-5">
+    <div className="flex min-w-0 flex-col px-4 py-3.5 md:px-5 md:py-4">
       <div className="flex items-start gap-1 text-[12px] font-medium leading-tight text-foreground-secondary md:text-[13px]">
         <span className="min-w-0">{titulo}</span>
         {ajuda && <AjudaIndicador indicador={titulo} texto={ajuda} className="-my-0.5" />}
       </div>
-      <div className={cn("mt-1.5 font-titulo font-semibold leading-none tracking-tight md:mt-3", pequeno ? "text-base md:text-xl leading-snug" : "text-[22px] md:text-[38px]", destaque && "text-marca")}>
+      <div className={cn("mt-1.5 font-semibold leading-tight tracking-tight", pequeno ? "text-base md:text-lg leading-snug" : "text-xl md:text-2xl", destaque && "text-marca")}>
         {valor == null ? <Skeleton className="h-8 w-16" /> : pequeno ? valor : <Contador valor={valor} />}
       </div>
       {progresso != null && valor != null && (

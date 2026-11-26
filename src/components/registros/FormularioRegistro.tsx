@@ -87,6 +87,7 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
         onFechar={onFechar}
         onSubmit={salvar}
         erro={erro}
+        lateral={<ResumoRepasse valorNf={l.valorNf} calculo={calculo} descontoPercent={l.descontoPercent} descontoAdicional={l.descontoAdicional} acrescimo={l.acrescimo} />}
         footer={
           <>
             <Button type="button" variant="secondary" className="flex-1" onClick={onFechar}>Cancelar</Button>
@@ -97,7 +98,7 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
         }
       >
         <SecaoFormulario titulo="Quem e quando" descricao="Ao escolher o prestador, a empresa contábil e o cliente são sugeridos pelos vínculos dele.">
-          <div className="grid gap-3 @2xl:grid-cols-2">
+          <div className="grid gap-3 @xl:grid-cols-2">
             <div>
               <RotuloComNovo htmlFor="reg-prestador" onNovo={() => setNovo("prestador")} rotuloNovo="Novo prestador">Prestador</RotuloComNovo>
               <Seletor id="reg-prestador" rotulo="Prestador" obrigatorio pesquisavel valor={l.prestadorId} onChange={(v) => void l.escolherPrestador(v)} opcoes={prestadores.dados ?? []} placeholder={prestadores.carregando ? "Carregando..." : "Escolha o prestador"} />
@@ -107,8 +108,8 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
               <Seletor id="reg-cliente" rotulo="Cliente" obrigatorio pesquisavel valor={l.clienteId} onChange={(v) => void l.escolherCliente(v)} opcoes={opcoesClientes} placeholder={clientes.carregando ? "Carregando..." : "Escolha o cliente"} />
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3 @2xl:grid-cols-[minmax(0,1fr)_9rem_10rem_minmax(0,0.8fr)]">
-            <div className="col-span-2 @2xl:col-span-1">
+          <div className="grid grid-cols-2 gap-3 @xl:grid-cols-3 @4xl:grid-cols-[minmax(0,1fr)_9rem_10rem_minmax(0,0.8fr)]">
+            <div className="col-span-2 @xl:col-span-3 @4xl:col-span-1">
               <RotuloComNovo htmlFor="reg-empresa" onNovo={() => setNovo("empresa")} rotuloNovo="Nova empresa">Empresa contábil</RotuloComNovo>
               <Seletor id="reg-empresa" rotulo="Empresa contábil" obrigatorio pesquisavel valor={l.empresaContabilId} onChange={l.setEmpresaContabilId} opcoes={empresas.dados ?? []} placeholder={empresas.carregando ? "Carregando..." : "Escolha a empresa"} />
             </div>
@@ -120,7 +121,7 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
               <Label htmlFor="reg-nfs">Nº da NFS</Label>
               <Input id="reg-nfs" maxLength={40} className="tabular-nums" value={l.numeroNfs} onChange={(e) => l.setNumeroNfs(e.target.value)} />
             </div>
-            <div className="col-span-2 @2xl:col-span-1">
+            <div className="col-span-2 @xl:col-span-1">
               <Label htmlFor="reg-setor">Setor (opcional)</Label>
               <Input id="reg-setor" maxLength={80} value={l.setor} onChange={(e) => l.setSetor(e.target.value)} />
             </div>
@@ -136,7 +137,7 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
         </SecaoFormulario>
 
         <SecaoFormulario titulo="Descontos e acréscimos" descricao={`Desconto padrão do prestador: ${formatarPercentual(l.descontoPercent)} da NF (definido no cadastro dele).`}>
-          <div className="grid grid-cols-2 gap-3 @2xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 @xl:grid-cols-3">
             <div>
               <Label htmlFor="reg-desconto-padrao">Desconto padrão</Label>
               <Input id="reg-desconto-padrao" readOnly tabIndex={-1} className="bg-[var(--areia)] text-right tabular-nums" value={formatarMoeda(calculo.descontoPadraoAplicado)} />
@@ -153,7 +154,7 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
         </SecaoFormulario>
 
         <SecaoFormulario titulo="Pagamento" descricao={banco?.banco ? `Repasse para ${[banco.banco, banco.agencia && `ag. ${banco.agencia}`, banco.conta && `conta ${banco.conta}`].filter(Boolean).join(", ")}${banco.chavePix ? ` · Pix ${banco.chavePix}` : ""}.` : "O prestador ainda não tem dados bancários no cadastro."}>
-          <div className="grid grid-cols-2 gap-3 @2xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 @xl:grid-cols-3">
             <div>
               <Label htmlFor="reg-situacao">Situação</Label>
               <Seletor id="reg-situacao" rotulo="Situação" valor={l.situacao} onChange={(v) => l.setSituacao(v as Registro["situacao"])} opcoes={OPCOES_SITUACAO} />
@@ -162,14 +163,12 @@ export function FormularioRegistro({ modo, registro, onFechar, onSalvo }: PropsF
               <Label htmlFor="reg-tipo-pagamento">Forma</Label>
               <Seletor id="reg-tipo-pagamento" rotulo="Forma de pagamento" valor={l.tipoPagamento} onChange={l.setTipoPagamento} opcoes={OPCOES_TIPO_PAGAMENTO} />
             </div>
-            <div className="col-span-2 @2xl:col-span-1">
+            <div className="col-span-2 @xl:col-span-1">
               <Label htmlFor="reg-data-pagamento">Data do pagamento</Label>
               <Input id="reg-data-pagamento" type="date" value={l.dataPagamento} onChange={(e) => l.setDataPagamento(e.target.value)} />
             </div>
           </div>
         </SecaoFormulario>
-
-        <ResumoRepasse valorNf={l.valorNf} calculo={calculo} descontoPercent={l.descontoPercent} descontoAdicional={l.descontoAdicional} acrescimo={l.acrescimo} />
       </MolduraFormulario>
 
       {novo === "cliente" && <FormularioCliente modo="modal" onFechar={() => setNovo(null)} onSalvo={(c) => { setNovo(null); clientes.recarregar(); void l.escolherCliente(c.id); }} />}

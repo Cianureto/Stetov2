@@ -100,8 +100,8 @@ export default function PrestadoresPage() {
         }
         numeros={[
           { valor: r?.total, rotulo: "Prestadores na base" },
-          { valor: r?.completos, rotulo: "Cadastro completo", destaque: "text-realce" },
-          { valor: r?.incompletos, rotulo: "Cadastro incompleto", destaque: "text-[var(--acafrao)]" },
+          { valor: r?.completos, rotulo: "Cadastro completo", tom: "marca" },
+          { valor: r?.incompletos, rotulo: "Cadastro incompleto", tom: "aviso" },
           { valor: r?.inativos, rotulo: "Inativos" },
         ]}
       />

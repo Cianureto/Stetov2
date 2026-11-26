@@ -88,9 +88,9 @@ export default function ContasPage() {
         ) : undefined}
         numeros={[
           { valor: r ? formatarMoeda(r.aPagar) : undefined, rotulo: "A pagar (em aberto)" },
-          { valor: r ? formatarMoeda(r.aReceber) : undefined, rotulo: "A receber (em aberto)", destaque: "text-realce" },
-          { valor: r?.vencidas, rotulo: "Vencidas", destaque: r?.vencidas ? "text-[var(--coral)]" : undefined, nota: r?.vencidas ? formatarMoeda(r.valorVencido) : undefined, notaRuim: !!r?.vencidas },
-          { valor: r?.vencemEm7Dias, rotulo: "Vencem em 7 dias", destaque: "text-[var(--acafrao)]" },
+          { valor: r ? formatarMoeda(r.aReceber) : undefined, rotulo: "A receber (em aberto)", tom: "marca" },
+          { valor: r?.vencidas, rotulo: "Vencidas", tom: r?.vencidas ? "perigo" : undefined, nota: r?.vencidas ? formatarMoeda(r.valorVencido) : undefined, notaRuim: !!r?.vencidas },
+          { valor: r?.vencemEm7Dias, rotulo: "Vencem em 7 dias", tom: "aviso" },
         ]}
       />
       <AbasContagem rotulo="Recorte" valor={aba} onChange={setAba} abas={[

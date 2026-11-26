@@ -13,7 +13,7 @@ export function BarraSuperior({ secoes, inicio, onBuscar }: { secoes: SecaoMenu[
   const { pathname } = useLocation();
   const trilha = trilhaPara(pathname, secoes);
   return (
-    <header className="sticky top-0 z-30 border-b border-foreground/[0.06] bg-[var(--areia)]/75 pt-[env(safe-area-inset-top)] backdrop-blur-2xl backdrop-saturate-200 lg:border-transparent lg:bg-transparent lg:px-3 lg:backdrop-blur-none">
+    <header className="sticky top-0 z-30 border-b border-foreground/[0.06] bg-[var(--areia)]/75 pt-[env(safe-area-inset-top)] backdrop-blur-2xl backdrop-saturate-200 lg:mx-auto lg:w-full lg:max-w-[1600px] lg:border-transparent lg:bg-[linear-gradient(to_bottom,var(--areia)_70%,transparent)] lg:px-10 lg:pb-2 lg:backdrop-blur-none 2xl:px-14">
       <div className="flex h-14 items-center gap-1.5 px-3 lg:vidro lg:mt-3 lg:h-[52px] lg:rounded-2xl lg:pl-5 lg:pr-2">
         <Link to={inicio} className="min-w-0 flex-1 rounded-lg px-1 outline-none focus-visible:ring-2 focus-visible:ring-marca lg:hidden">
           <MarcaLogo fundo="claro" />

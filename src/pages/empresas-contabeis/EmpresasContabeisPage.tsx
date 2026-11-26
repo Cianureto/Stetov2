@@ -92,7 +92,7 @@ export default function EmpresasContabeisPage() {
         ) : undefined}
         numeros={[
           { valor: r?.total, rotulo: "Empresas cadastradas" },
-          { valor: r?.ativas, rotulo: "Ativas", destaque: "text-realce" },
+          { valor: r?.ativas, rotulo: "Ativas", tom: "marca" },
           { valor: r?.inativas, rotulo: "Inativas" },
         ]}
       />

@@ -6,7 +6,7 @@ import { ROTULO_TRIBUTO, TRIBUTOS, type Tributo } from "@/lib/repasse";
 /** Percentuais da nota (padrão: os do cliente) com o valor de cada tributo abaixo. */
 export function CamposTributos({ valores, valoresCalculados, onChange }: { valores: Record<Tributo, string>; valoresCalculados: Record<Tributo, number>; onChange: (v: Record<Tributo, string>) => void }) {
   return (
-    <div className="grid grid-cols-3 gap-3 @2xl:grid-cols-5">
+    <div className="grid grid-cols-3 gap-3 @xl:grid-cols-5">
       {TRIBUTOS.map((t) => (
         <div key={t} className="min-w-0">
           <Label htmlFor={`tributo-${t}`}>{ROTULO_TRIBUTO[t]}</Label>

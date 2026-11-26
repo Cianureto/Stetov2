@@ -14,8 +14,8 @@ describe("CabecalhoHero", () => {
     render(<CabecalhoHero {...base} numeros={[{ valor: 1234, rotulo: "Visitas no mês", nota: "+12% vs. mês anterior" }, { valor: "86%", rotulo: "Comparecimento", nota: "abaixo da meta", notaRuim: true }]} />);
     expect(screen.getByRole("heading", { name: "Relatórios" })).toBeTruthy();
     expect(screen.getByText("1.234")).toBeTruthy();
-    expect(screen.getByText("+12% vs. mês anterior").className).toContain("text-realce");
-    expect(screen.getByText("abaixo da meta").className).toContain("acafrao");
+    expect(screen.getByText("+12% vs. mês anterior").className).toContain("text-foreground-muted");
+    expect(screen.getByText("abaixo da meta").className).toContain("--aviso");
   });
 
   it("carregando mostra reticências; com falha, travessão", () => {

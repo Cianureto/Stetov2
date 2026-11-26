@@ -76,7 +76,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
       <div className="flex min-w-0 flex-col">
         <BarraSuperior secoes={secoes} inicio={inicio} onBuscar={() => setBuscaAberta(true)} />
         {!online && (
-          <div role="status" className="mx-3 mt-3 flex items-start gap-2.5 rounded-xl bg-[var(--sidebar-bg)] px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[var(--shadow-md)] lg:ml-9 lg:mr-6">
+          <div role="status" className="mx-3 mt-3 flex items-start gap-2.5 rounded-xl bg-[var(--sidebar-bg)] px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[var(--shadow-md)] lg:mx-10 2xl:mx-14">
             <WifiOff className="mt-0.5 size-4 shrink-0 text-[var(--acafrao)]" aria-hidden />
             Você está sem internet. O que já foi carregado continua na tela; salvar e atualizar voltam quando a conexão voltar.
           </div>
@@ -86,7 +86,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
           tabIndex={-1}
           className={cn(
             "w-full flex-1 pb-[calc(env(safe-area-inset-bottom)+6.5rem)] outline-none lg:pb-10",
-            telaCheia ? "" : "mx-auto max-w-[1600px] px-3 pt-4 sm:px-6 sm:pt-6 lg:pl-9 lg:pr-6",
+            telaCheia ? "" : "mx-auto max-w-[1600px] px-4 pt-5 sm:px-6 sm:pt-7 lg:px-10 lg:pt-8 2xl:px-14",
           )}
         >
           <PageTransition key={pathname}>

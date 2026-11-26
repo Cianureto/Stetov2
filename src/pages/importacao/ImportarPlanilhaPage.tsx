@@ -74,7 +74,7 @@ export default function ImportarPlanilhaPage() {
         </>
       }
     >
-      <SecaoFormulario titulo="1. O que importar">
+      <SecaoFormulario titulo="O que importar">
         <div className="max-w-sm">
           <Label htmlFor="imp-tipo">Tipo</Label>
           <Seletor id="imp-tipo" rotulo="Tipo" valor={tipo} onChange={(v) => mudarTipo(v as TipoImportacao)} opcoes={OPCOES_TIPO} />
@@ -90,7 +90,7 @@ export default function ImportarPlanilhaPage() {
       </SecaoFormulario>
 
       {arquivo && (
-        <SecaoFormulario titulo="2. Colunas" descricao={faltando.length ? `Falta ligar: ${faltando.map((c) => c.rotulo).join(", ")}.` : "Confira as sugestões; campos sem coluna ficam em branco."}>
+        <SecaoFormulario titulo="Colunas" descricao={faltando.length ? `Falta ligar: ${faltando.map((c) => c.rotulo).join(", ")}.` : "Confira as sugestões; campos sem coluna ficam em branco."}>
           <div className="grid gap-3 @2xl:grid-cols-2">
             {campos.map((c) => (
               <div key={c.chave}>
@@ -103,7 +103,7 @@ export default function ImportarPlanilhaPage() {
       )}
 
       {arquivo && (
-        <SecaoFormulario titulo="3. Conferir" descricao="As 5 primeiras linhas como vão entrar.">
+        <SecaoFormulario titulo="Conferir" descricao="As 5 primeiras linhas como vão entrar.">
           <div className="overflow-x-auto rounded-lg border border-borda">
             <table className="w-full text-left text-[13px]">
               <thead className="bg-[var(--areia)]"><tr>{campos.filter((c) => mapa[c.chave]).map((c) => <th key={c.chave} scope="col" className="whitespace-nowrap px-3 py-2 font-semibold">{c.rotulo}</th>)}</tr></thead>

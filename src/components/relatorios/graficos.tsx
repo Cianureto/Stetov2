@@ -412,17 +412,19 @@ export function BarrasRotuladas({
   formatarValor,
   max,
   vazio = "Sem dados no período.",
+  className,
 }: {
   itens: { rotulo: ReactNode; valor: number; detalhe?: ReactNode; chave?: string }[];
   cor?: string;
   formatarValor: (v: number) => string;
   max?: number;
   vazio?: string;
+  className?: string;
 }) {
   const escala = max ?? Math.max(0, ...itens.map((i) => i.valor));
   if (!itens.length) return <p className="text-sm text-foreground-muted">{vazio}</p>;
   return (
-    <ul className="space-y-3.5">
+    <ul className={cn("space-y-3.5", className)}>
       {itens.map((item, i) => (
         <li key={item.chave ?? i}>
           <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">

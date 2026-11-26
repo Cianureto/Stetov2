@@ -1,12 +1,11 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Building2, CalendarClock, Download, FileText, HandCoins, Landmark, Percent, Receipt, UserRound, Users } from "lucide-react";
+import { Building2, CalendarClock, Clock, Download, FileText, FileX, HandCoins, Landmark, Percent, Receipt, UserRound } from "lucide-react";
 import type { OpcaoApi, Relatorio } from "@/api/types";
 import { EstadoCarga } from "@/components/EstadoCarga";
 import { CartaoIndicador, SeloVariacao } from "@/components/relatorios/CartaoIndicador";
 import { BarraSegmentada, BarrasRotuladas, GraficoArea, GraficoColunas } from "@/components/relatorios/graficos";
-import { ListaDestaques } from "@/components/relatorios/ListaDestaques";
-import { TabelaRanking } from "@/components/relatorios/TabelaRanking";
+import { TabelaTomadores } from "@/components/relatorios/TabelaTomadores";
 import { Button } from "@/components/ui/button";
 import { CampoMesAno } from "@/components/ui/campo-mes-ano";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
@@ -17,13 +16,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { hojeBrasilia } from "@/lib/contas";
 import { baixarCsv } from "@/lib/csv";
-import { formatarMoeda, formatarMoedaCurta, formatarPercentualCurto, variacaoPercentual } from "@/lib/format";
+import { formatarDocumento, formatarMoeda, formatarMoedaCurta, formatarPercentualCurto, variacaoPercentual } from "@/lib/format";
 import { rotuloMesEixo, rotuloPeriodo, somarMeses } from "@/lib/graficos";
 import { competenciaParaBanco, competenciaParaTela } from "@/lib/repasse";
 
 // Cores dos gráficos (validadas para daltonismo e contraste com o script da skill de visualização):
 // dois azuis da marca para faturamento × repasse; âmbar para o que está pendente; ciano para contas a pagar.
-const COR = { nf: "#1d4ed8", repasse: "#5fa8f5", pago: "#1d4ed8", pendente: "#e9a000", receber: "#1d4ed8", pagar: "#22b8cf", descontoAdicional: "#9db4d6" };
+// Retenções: azul, ciano e violeta (validados como conjunto, nessa ordem de empilhamento).
+const COR = { nf: "#1d4ed8", repasse: "#5fa8f5", pago: "#1d4ed8", pendente: "#e9a000", receber: "#1d4ed8", pagar: "#22b8cf", descontoAdicional: "#9db4d6", iss: "#1d4ed8", ir: "#22b8cf", csrf: "#7c5ce0" };
 
 const FAIXAS = ["Do mês atual", "1 mês", "2 meses", "3 a 5 meses", "6 meses ou mais"];
 
@@ -70,12 +70,6 @@ function Destaque({ valor, rotulo, variacao, subirEBom }: { valor: string; rotul
     </div>
   );
 }
-
-const linkVerTodos = (href: string) => (
-  <a href={href} className="text-xs font-semibold text-[var(--marca)] hover:underline">
-    Ver todos
-  </a>
-);
 
 /** /relatorios — relatório completo de um período de competências, por empresa contábil ou de todas. */
 export default function RelatoriosPage() {
@@ -148,14 +142,11 @@ export default function RelatoriosPage() {
             <DropdownMenuItem onSelect={() => d && baixarCsv(`resumo-mensal-${sufixo}`, planilhaMensal(d))}>
               <FileText aria-hidden className="size-4" /> Resumo mês a mês
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={!d?.prestadores.length} onSelect={() => d && baixarCsv(`repasses-por-prestador-${sufixo}`, planilhaRanking(d.prestadores, "Prestador"))}>
-              <UserRound aria-hidden className="size-4" /> Por prestador
+            <DropdownMenuItem disabled={!d?.clientes.length} onSelect={() => d && baixarCsv(`retencoes-por-tomador-${sufixo}`, planilhaTomadores(d))}>
+              <Building2 aria-hidden className="size-4" /> Retenções por tomador
             </DropdownMenuItem>
-            <DropdownMenuItem disabled={!d?.clientes.length} onSelect={() => d && baixarCsv(`faturamento-por-cliente-${sufixo}`, planilhaRanking(d.clientes, "Cliente"))}>
-              <Building2 aria-hidden className="size-4" /> Por cliente
-            </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => d && baixarCsv(`tributos-${sufixo}`, planilhaTributos(d))}>
-              <Landmark aria-hidden className="size-4" /> Tributos
+            <DropdownMenuItem disabled={!d?.prestadores.length} onSelect={() => d && baixarCsv(`repasses-por-prestador-${sufixo}`, planilhaPrestadores(d))}>
+              <UserRound aria-hidden className="size-4" /> Repasses por prestador
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -212,18 +203,16 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
   const comparacao = `vs. ${rotuloPeriodo(r.periodo.anteriorDe, r.periodo.anteriorAte)}`;
   const retido = a.valorNf - a.repasse;
   const retidoAnt = ant.valorNf - ant.repasse;
-  const ticket = a.quantidade ? a.valorNf / a.quantidade : 0;
-  const ticketAnt = ant.quantidade ? ant.valorNf / ant.quantidade : 0;
-  const tributos = [
-    { chave: "iss", rotulo: "ISS", valor: r.tributos.iss },
-    { chave: "cofins", rotulo: "COFINS", valor: r.tributos.cofins },
-    { chave: "ir", rotulo: "IR", valor: r.tributos.ir },
-    { chave: "csll", rotulo: "CSLL", valor: r.tributos.csll },
-    { chave: "pis", rotulo: "PIS", valor: r.tributos.pis },
-  ].sort((x, y) => y.valor - x.valor);
+  const csrf = r.tributos.pis + r.tributos.cofins + r.tributos.csll;
+  const retencoes = [
+    { chave: "iss", rotulo: "ISS", valor: r.tributos.iss, detalhe: "recolhido ao município" },
+    { chave: "ir", rotulo: "IRRF", valor: r.tributos.ir, detalhe: "imposto de renda retido na fonte" },
+    { chave: "csrf", rotulo: "CSRF", valor: csrf, detalhe: `PIS ${formatarMoedaCurta(r.tributos.pis)} · COFINS ${formatarMoedaCurta(r.tributos.cofins)} · CSLL ${formatarMoedaCurta(r.tributos.csll)}` },
+  ];
   const pendenteTotal = r.envelhecimento.reduce((t, f) => t + f.valor, 0);
   const pendentesAntigos = r.envelhecimento.filter((f) => f.faixa >= 3).reduce((t, f) => t + f.valor, 0);
   const contas = r.contas.resumo;
+  const mostrarEmpresas = !filtrandoEmpresa && r.empresas.length > 1;
 
   if (a.quantidade === 0 && contas.quantidade === 0) {
     return (
@@ -244,7 +233,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
           valor={formatarMoeda(a.valorNf)}
           variacao={variacaoPercentual(a.valorNf, ant.valorNf)}
           comparacao={comparacao}
-          nota={`${notas(a.quantidade)} · ticket médio ${formatarMoedaCurta(ticket)}`}
+          nota={`${notas(a.quantidade)} emitidas`}
           tendencia={serie.map((p) => p.valorNf)}
         />
         <CartaoIndicador
@@ -268,24 +257,23 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
         />
         <CartaoIndicador
           icone={Landmark}
-          titulo="Tributos das notas"
+          titulo="Tributos retidos"
           valor={formatarMoeda(a.tributos)}
           variacao={variacaoPercentual(a.tributos, ant.tributos)}
           subirEBom={null}
           comparacao={comparacao}
           nota={`carga efetiva de ${formatarPercentualCurto(pct(a.tributos, a.valorNf))}`}
           tendencia={serie.map((p) => p.tributos)}
-          ajuda="Soma de ISS, IR, PIS, COFINS e CSLL destacados nas notas. São informativos: não saem do repasse."
+          ajuda="ISS, IRRF, PIS, COFINS e CSLL retidos pelos tomadores nas notas. São informativos: não saem do repasse."
         />
       </div>
 
       {/* Números de apoio */}
-      <div className="card grid grid-cols-2 divide-borda sm:grid-cols-3 lg:grid-cols-5 lg:divide-x">
+      <div className="card grid grid-cols-2 lg:grid-cols-4 lg:divide-x lg:divide-borda">
         {[
-          { icone: FileText, rotulo: "Notas emitidas", valor: a.quantidade.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.quantidade, ant.quantidade) },
-          { icone: Receipt, rotulo: "Ticket médio", valor: formatarMoeda(ticket), variacao: variacaoPercentual(ticket, ticketAnt) },
-          { icone: UserRound, rotulo: "Prestadores com notas", valor: a.prestadores.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.prestadores, ant.prestadores) },
-          { icone: Users, rotulo: "Clientes atendidos", valor: a.clientes.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.clientes, ant.clientes) },
+          { icone: FileText, rotulo: "Notas emitidas", valor: a.quantidade.toLocaleString("pt-BR"), variacao: variacaoPercentual(a.quantidade, ant.quantidade), subirEBom: true as boolean | null },
+          { icone: FileX, rotulo: "Notas canceladas", valor: r.canceladas.quantidade ? `${r.canceladas.quantidade} · ${formatarMoedaCurta(r.canceladas.valorNf)}` : "Nenhuma", variacao: null, subirEBom: false },
+          { icone: Clock, rotulo: "Repasses pendentes", valor: `${a.pendentes} · ${formatarMoedaCurta(a.repassePendente)}`, variacao: variacaoPercentual(a.repassePendente, ant.repassePendente), subirEBom: false },
           {
             icone: CalendarClock,
             rotulo: "Prazo médio de repasse",
@@ -294,20 +282,20 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
             subirEBom: false,
           },
         ].map((m) => (
-          <div key={m.rotulo} className="flex items-center gap-3 p-4">
+          <div key={m.rotulo} className="flex items-center gap-3 p-4 md:px-5">
             <m.icone aria-hidden className="size-5 shrink-0 text-foreground-muted" />
             <div className="min-w-0">
               <div className="truncate text-xs text-foreground-muted">{m.rotulo}</div>
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-base font-semibold">{m.valor}</span>
-                <SeloVariacao variacao={m.variacao} subirEBom={m.subirEBom ?? true} />
+                <SeloVariacao variacao={m.variacao} subirEBom={m.subirEBom} />
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Evolução */}
+      {/* Faturamento e pendências */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Cartao titulo="Faturamento e repasse" descricao="Valor das notas e repasse aos prestadores, por competência" className="lg:col-span-2">
           <GraficoArea
@@ -321,21 +309,50 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
             formatarEixo={formatarMoedaCurta}
           />
         </Cartao>
-        <Cartao titulo="Notas emitidas" descricao="Quantidade de notas por competência">
-          <Destaque valor={a.quantidade.toLocaleString("pt-BR")} rotulo={`notas · ${comparacao}`} variacao={variacaoPercentual(a.quantidade, ant.quantidade)} />
-          <GraficoColunas
-            titulo="Notas emitidas por mês"
-            categorias={meses}
-            series={[{ chave: "notas", rotulo: "Notas", cor: COR.nf, dados: serie.map((p) => p.quantidade) }]}
-            altura={214}
-            formatarValor={(v) => notas(v)}
-            formatarEixo={(v) => v.toLocaleString("pt-BR")}
-            rotularMaior
+        <Cartao titulo="Pendências por idade" descricao="Repasses ainda não pagos, pelo tempo desde a competência">
+          <Destaque
+            valor={formatarMoeda(pendenteTotal)}
+            rotulo={`${notas(a.pendentes)} pendentes${pendentesAntigos ? ` · ${formatarMoedaCurta(pendentesAntigos)} há 3 meses ou mais` : ""}`}
+          />
+          <BarrasRotuladas
+            cor={COR.pendente}
+            formatarValor={formatarMoeda}
+            itens={r.envelhecimento.map((f) => ({ chave: String(f.faixa), rotulo: FAIXAS[f.faixa], valor: f.valor, detalhe: f.quantidade ? notas(f.quantidade) : "nenhuma" }))}
           />
         </Cartao>
       </div>
 
-      {/* Repasses: pagos x pendentes e idade das pendências */}
+      {/* Retenções */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <Cartao titulo="Retenções por mês" descricao="Tributos retidos pelos tomadores, por competência" className="lg:col-span-2">
+          <GraficoColunas
+            titulo="Retenções por mês"
+            categorias={meses}
+            modo="empilhado"
+            series={[
+              { chave: "iss", rotulo: "ISS", cor: COR.iss, dados: serie.map((p) => p.iss) },
+              { chave: "ir", rotulo: "IRRF", cor: COR.ir, dados: serie.map((p) => p.ir) },
+              { chave: "csrf", rotulo: "CSRF (PIS, COFINS, CSLL)", cor: COR.csrf, dados: serie.map((p) => p.csrf) },
+            ]}
+            formatarValor={formatarMoeda}
+            formatarEixo={formatarMoedaCurta}
+          />
+        </Cartao>
+        <Cartao titulo="Retenções por tipo" descricao="Total do período e peso sobre o faturamento">
+          <Destaque valor={formatarMoeda(a.tributos)} rotulo={`carga efetiva de ${formatarPercentualCurto(pct(a.tributos, a.valorNf))} sobre o faturamento`} />
+          <BarrasRotuladas
+            formatarValor={formatarMoeda}
+            itens={retencoes.map((t) => ({
+              chave: t.chave,
+              rotulo: t.rotulo,
+              valor: t.valor,
+              detalhe: `${formatarPercentualCurto(pct(t.valor, a.valorNf))} do faturamento · ${t.detalhe}`,
+            }))}
+          />
+        </Cartao>
+      </div>
+
+      {/* Repasses e composição */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Cartao
           titulo="Repasse pago e pendente"
@@ -366,28 +383,6 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
             formatarEixo={formatarMoedaCurta}
           />
         </Cartao>
-        <Cartao titulo="Pendências por idade" descricao="Repasses ainda não pagos, pelo tempo desde a competência">
-          <Destaque
-            valor={formatarMoeda(pendenteTotal)}
-            rotulo={`${notas(a.pendentes)} pendentes${pendentesAntigos ? ` · ${formatarMoedaCurta(pendentesAntigos)} há 3 meses ou mais` : ""}`}
-          />
-          <BarrasRotuladas
-            cor={COR.pendente}
-            formatarValor={formatarMoeda}
-            itens={r.envelhecimento.map((f) => ({ chave: String(f.faixa), rotulo: FAIXAS[f.faixa], valor: f.valor, detalhe: f.quantidade ? notas(f.quantidade) : "nenhuma" }))}
-          />
-        </Cartao>
-      </div>
-
-      {/* Tributos, composição e empresas */}
-      <div className={`grid grid-cols-1 gap-6 lg:grid-cols-2 ${!filtrandoEmpresa && r.empresas.length > 1 ? "xl:grid-cols-3" : ""}`}>
-        <Cartao titulo="Tributos por tipo" descricao="Destacados nas notas (informativos)">
-          <Destaque valor={formatarMoeda(a.tributos)} rotulo={`carga efetiva de ${formatarPercentualCurto(pct(a.tributos, a.valorNf))} sobre o faturamento`} />
-          <BarrasRotuladas
-            formatarValor={formatarMoeda}
-            itens={tributos.map((t) => ({ chave: t.chave, rotulo: t.rotulo, valor: t.valor, detalhe: `${formatarPercentualCurto(pct(t.valor, a.valorNf))} do faturamento · ${formatarPercentualCurto(pct(t.valor, a.tributos))} dos tributos` }))}
-          />
-        </Cartao>
 
         <Cartao titulo="Para onde vai o faturamento" descricao="Como o valor das notas se divide">
           <BarraSegmentada
@@ -415,31 +410,6 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
               </div>
             ))}
           </dl>
-          {r.canceladas.quantidade > 0 && (
-            <p className="mt-3 rounded-lg bg-[var(--areia)] px-3 py-2 text-xs text-foreground-secondary">
-              {notas(r.canceladas.quantidade)} {r.canceladas.quantidade === 1 ? "cancelada" : "canceladas"} ({formatarMoeda(r.canceladas.valorNf)}) fora dos totais.
-            </p>
-          )}
-        </Cartao>
-
-        {!filtrandoEmpresa && r.empresas.length > 1 && (
-          <Cartao titulo="Por empresa contábil" descricao="Valor das notas e fatia do faturamento">
-            <BarrasRotuladas
-              formatarValor={formatarMoeda}
-              max={a.valorNf}
-              itens={r.empresas.map((e) => ({ chave: e.id, rotulo: e.nome, valor: e.valorNf, detalhe: `${formatarPercentualCurto(pct(e.valorNf, a.valorNf))} do total · ${notas(e.quantidade)} · repasse ${formatarMoedaCurta(e.repasse)}` }))}
-            />
-          </Cartao>
-        )}
-      </div>
-
-      {/* Maiores do período */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Cartao titulo="Prestadores que mais faturaram" descricao="Pelo valor das notas no período" acao={linkVerTodos("#ranking-prestadores")}>
-          <ListaDestaques linhas={r.prestadores} totalNf={a.valorNf} vazio="Nenhuma nota no período." />
-        </Cartao>
-        <Cartao titulo="Principais clientes" descricao="Pelo valor das notas no período" acao={linkVerTodos("#ranking-clientes")}>
-          <ListaDestaques linhas={r.clientes} totalNf={a.valorNf} vazio="Nenhuma nota no período." />
         </Cartao>
       </div>
 
@@ -486,6 +456,26 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
         </Cartao>
       </div>
 
+      {/* Retenções por tomador */}
+      <Cartao
+        titulo="Retenções por tomador"
+        descricao="O que cada hospital/cliente reteve nas notas do período, para conferir com os informes de retenção"
+        acao={<Button variant="secondary" size="sm" disabled={!r.clientes.length} onClick={() => baixarCsv(`retencoes-por-tomador-${r.periodo.de.slice(0, 7)}-a-${r.periodo.ate.slice(0, 7)}`, planilhaTomadores(r))}><Download aria-hidden /> CSV</Button>}
+      >
+        <TabelaTomadores linhas={r.clientes} />
+      </Cartao>
+
+      {mostrarEmpresas && (
+        <Cartao titulo="Por empresa contábil" descricao="Valor das notas e fatia do faturamento">
+          <BarrasRotuladas
+            className="grid gap-5 space-y-0 md:grid-cols-2 xl:grid-cols-3"
+            formatarValor={formatarMoeda}
+            max={a.valorNf}
+            itens={r.empresas.map((e) => ({ chave: e.id, rotulo: e.nome, valor: e.valorNf, detalhe: `${formatarPercentualCurto(pct(e.valorNf, a.valorNf))} do total · ${notas(e.quantidade)} · repasse ${formatarMoedaCurta(e.repasse)}` }))}
+          />
+        </Cartao>
+      )}
+
       {/* Mês a mês */}
       <Cartao
         titulo="Resumo mês a mês"
@@ -493,11 +483,11 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
         acao={<Button variant="secondary" size="sm" onClick={() => baixarCsv(`resumo-mensal-${r.periodo.de.slice(0, 7)}-a-${r.periodo.ate.slice(0, 7)}`, planilhaMensal(r))}><Download aria-hidden /> CSV</Button>}
       >
         <div className="-mx-4 overflow-x-auto md:-mx-5">
-          <table className="w-full min-w-[720px] text-sm">
+          <table className="w-full min-w-[760px] text-sm">
             <thead>
               <tr className="border-y border-borda bg-[var(--areia)] text-left text-xs text-foreground-muted">
                 <th scope="col" className="px-4 py-2.5 font-medium md:px-5">Competência</th>
-                {["Notas", "Valor das notas", "Tributos", "Repasse", "Pago", "Pendente"].map((t) => (
+                {["Notas", "Valor das notas", "ISS", "IRRF", "CSRF", "Repasse", "Pendente"].map((t) => (
                   <th key={t} scope="col" className="px-3 py-2.5 text-right font-medium last:pr-4 md:last:pr-5">{t}</th>
                 ))}
               </tr>
@@ -508,9 +498,10 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
                   <th scope="row" className="px-4 py-2 text-left font-medium md:px-5">{competenciaParaTela(p.competencia)}</th>
                   <td className="px-3 py-2 text-right">{p.quantidade}</td>
                   <td className="px-3 py-2 text-right">{formatarMoeda(p.valorNf)}</td>
-                  <td className="px-3 py-2 text-right">{formatarMoeda(p.tributos)}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.iss)}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.ir)}</td>
+                  <td className="px-3 py-2 text-right">{formatarMoeda(p.csrf)}</td>
                   <td className="px-3 py-2 text-right">{formatarMoeda(p.repasse)}</td>
-                  <td className="px-3 py-2 text-right">{formatarMoeda(p.repassePago)}</td>
                   <td className={`px-3 py-2 pr-4 text-right md:pr-5 ${p.repassePendente ? "text-[var(--aviso)]" : ""}`}>{formatarMoeda(p.repassePendente)}</td>
                 </tr>
               ))}
@@ -520,49 +511,48 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
                 <th scope="row" className="px-4 py-2.5 text-left md:px-5">Total</th>
                 <td className="px-3 py-2.5 text-right">{a.quantidade}</td>
                 <td className="px-3 py-2.5 text-right">{formatarMoeda(a.valorNf)}</td>
-                <td className="px-3 py-2.5 text-right">{formatarMoeda(a.tributos)}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(r.tributos.iss)}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(r.tributos.ir)}</td>
+                <td className="px-3 py-2.5 text-right">{formatarMoeda(csrf)}</td>
                 <td className="px-3 py-2.5 text-right">{formatarMoeda(a.repasse)}</td>
-                <td className="px-3 py-2.5 text-right">{formatarMoeda(a.repassePago)}</td>
                 <td className="px-3 py-2.5 pr-4 text-right md:pr-5">{formatarMoeda(a.repassePendente)}</td>
               </tr>
             </tfoot>
           </table>
         </div>
       </Cartao>
-
-      {/* Rankings completos */}
-      <div className="grid grid-cols-1 gap-6 min-[1800px]:grid-cols-2">
-        <div id="ranking-prestadores" className="scroll-mt-24">
-          <TabelaRanking titulo="Todos os prestadores" rotuloNome="Prestador" linhas={r.prestadores} vazio="Nenhuma nota no período." />
-        </div>
-        <div id="ranking-clientes" className="scroll-mt-24">
-          <TabelaRanking titulo="Todos os clientes" rotuloNome="Cliente" linhas={r.clientes} vazio="Nenhuma nota no período." />
-        </div>
-      </div>
     </div>
   );
 }
 
-const planilhaRanking = (linhas: Relatorio["prestadores"], rotulo: string) =>
-  linhas.map((l) => ({ [rotulo]: l.nome, Notas: l.quantidade, "Valor das notas": l.valorNf, Repasse: l.repasse, Pago: l.repassePago, Pendente: l.repassePendente }));
+const planilhaPrestadores = (r: Relatorio) =>
+  r.prestadores.map((l) => ({ Prestador: l.nome, Notas: l.quantidade, "Valor das notas": l.valorNf, Repasse: l.repasse, Pago: l.repassePago, Pendente: l.repassePendente }));
+
+const planilhaTomadores = (r: Relatorio) =>
+  r.clientes.map((l) => ({
+    Tomador: l.nome,
+    "CNPJ/CPF": formatarDocumento(l.documento),
+    Notas: l.quantidade,
+    "Valor das notas": l.valorNf,
+    ISS: l.iss,
+    IRRF: l.ir,
+    CSRF: l.csrf,
+    "Total retido": l.tributos,
+  }));
 
 const planilhaMensal = (r: Relatorio) =>
   r.serie.map((p, i) => ({
     "Competência": competenciaParaTela(p.competencia),
     Notas: p.quantidade,
     "Valor das notas": p.valorNf,
-    Tributos: p.tributos,
+    ISS: p.iss,
+    IRRF: p.ir,
+    "CSRF (PIS+COFINS+CSLL)": p.csrf,
+    "Total retido": p.tributos,
     Repasse: p.repasse,
     "Descontos retidos": Math.round((p.valorNf - p.repasse) * 100) / 100,
     Pago: p.repassePago,
     Pendente: p.repassePendente,
     "Contas a pagar": r.contas.serie[i]?.pagar ?? 0,
     "Contas a receber": r.contas.serie[i]?.receber ?? 0,
-  }));
-
-const planilhaTributos = (r: Relatorio) =>
-  (["iss", "cofins", "ir", "csll", "pis"] as const).map((t) => ({
-    Tributo: t.toUpperCase(),
-    Valor: r.tributos[t],
-    "% do faturamento": Math.round(pct(r.tributos[t], r.atual.valorNf) * 1000) / 1000,
   }));

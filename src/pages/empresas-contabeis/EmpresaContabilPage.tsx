@@ -43,8 +43,8 @@ export default function EmpresaContabilPage() {
               ) : undefined}
               numeros={[
                 { valor: formatarMoeda(resumo.repasse), rotulo: "Repasse total" },
-                { valor: formatarMoeda(resumo.repassePago), rotulo: "Pago", destaque: "text-realce" },
-                { valor: formatarMoeda(resumo.repassePendente), rotulo: "Pendente", destaque: "text-[var(--acafrao)]" },
+                { valor: formatarMoeda(resumo.repassePago), rotulo: "Pago", tom: "marca" },
+                { valor: formatarMoeda(resumo.repassePendente), rotulo: "Pendente", tom: "aviso" },
                 { valor: resumo.quantidade, rotulo: "Notas lançadas" },
               ]}
             />

@@ -9,6 +9,11 @@ import LoginPage from "@/pages/auth/LoginPage";
 import ClientesPage from "@/pages/clientes/ClientesPage";
 import ClientePage from "@/pages/clientes/formularios/ClientePage";
 import EmBreve from "@/pages/EmBreve";
+import RegistrosPage from "@/pages/registros/RegistrosPage";
+import RegistroPage from "@/pages/registros/formularios/RegistroPage";
+import EmpresasContabeisPage from "@/pages/empresas-contabeis/EmpresasContabeisPage";
+import EmpresaContabilPage from "@/pages/empresas-contabeis/EmpresaContabilPage";
+import EmpresaContabilFormPage from "@/pages/empresas-contabeis/formularios/EmpresaContabilFormPage";
 import PrestadoresPage from "@/pages/prestadores/PrestadoresPage";
 import PrestadorPage from "@/pages/prestadores/formularios/PrestadorPage";
 
@@ -31,8 +36,9 @@ export default function App() {
             <Route element={<AppShell />}>
               <Route path="/painel" element={<ComPermissao permissao="painel.ver"><EmBreve itens={["Totais do mês: notas, tributos e repasses", "Evolução mensal", "Últimos registros", "Contas vencendo em 7 dias"]} /></ComPermissao>} />
               <Route path="/relatorios" element={<ComPermissao permissao="relatorios.ver"><EmBreve itens={["Filtros por período, empresa contábil e situação", "Exportação para Excel", "Resumo do período gerado por IA"]} /></ComPermissao>} />
-              <Route path="/registros" element={<ComPermissao permissao="registros.ver"><EmBreve itens={["Lançamento por cliente, prestador, empresa contábil e mês", "Cálculo de tributos, descontos e repasse", "Situação com atualização em lote"]} /></ComPermissao>} />
-              <Route path="/registros/novo" element={<ComPermissao permissao="registros.gerenciar"><EmBreve itens={["Formulário de lançamento em tela própria"]} /></ComPermissao>} />
+              <Route path="/registros" element={<ComPermissao permissao="registros.ver"><RegistrosPage /></ComPermissao>} />
+              <Route path="/registros/novo" element={<ComPermissao permissao="registros.gerenciar"><RegistroPage /></ComPermissao>} />
+              <Route path="/registros/:id" element={<ComPermissao permissao="registros.gerenciar"><RegistroPage /></ComPermissao>} />
               <Route path="/contas" element={<ComPermissao permissao="contas.ver"><EmBreve itens={["Contas com vencimento, status e banco", "Categorias e subcategorias", "Ajustes e recorrência"]} /></ComPermissao>} />
               <Route path="/contas/nova" element={<ComPermissao permissao="contas.gerenciar"><EmBreve itens={["Formulário de conta em tela própria"]} /></ComPermissao>} />
               <Route path="/pendencias" element={<ComPermissao permissao="clientes.gerenciar"><EmBreve itens={["Clientes provisórios criados por importação", "Correção rápida dos dados que faltam"]} /></ComPermissao>} />
@@ -43,7 +49,10 @@ export default function App() {
               <Route path="/prestadores" element={<ComPermissao permissao="prestadores.gerenciar"><PrestadoresPage /></ComPermissao>} />
               <Route path="/prestadores/novo" element={<ComPermissao permissao="prestadores.gerenciar"><PrestadorPage /></ComPermissao>} />
               <Route path="/prestadores/:id" element={<ComPermissao permissao="prestadores.gerenciar"><PrestadorPage /></ComPermissao>} />
-              <Route path="/empresas-contabeis" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmBreve itens={["Empresas pelas quais as notas são emitidas", "Clientes e prestadores vinculados"]} /></ComPermissao>} />
+              <Route path="/empresas-contabeis" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmpresasContabeisPage /></ComPermissao>} />
+              <Route path="/empresas-contabeis/nova" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmpresaContabilFormPage /></ComPermissao>} />
+              <Route path="/empresas-contabeis/:id" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmpresaContabilPage /></ComPermissao>} />
+              <Route path="/empresas-contabeis/:id/editar" element={<ComPermissao permissao="empresas_contabeis.gerenciar"><EmpresaContabilFormPage /></ComPermissao>} />
 
               <Route path="/importacao" element={<ComPermissao permissao="importacao.executar"><EmBreve itens={["Planilha com mapeamento de colunas", "XML de NFSe", "Histórico com erros por linha"]} /></ComPermissao>} />
               <Route path="/acessos" element={<ComPermissao permissao="acessos.gerenciar"><EmBreve itens={["Usuários da empresa", "Perfis de acesso com permissões"]} /></ComPermissao>} />

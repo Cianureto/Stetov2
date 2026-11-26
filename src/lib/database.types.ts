@@ -14,6 +14,23 @@ export type Database = {
   }
   public: {
     Tables: {
+      auditoria: {
+        Row: {
+          acao: string
+          antes: Json | null
+          created_at: string
+          depois: Json | null
+          empresa_id: string | null
+          id: number
+          registro_id: string | null
+          tabela: string
+          usuario_email: string | null
+          usuario_id: string | null
+        }
+        Insert: never
+        Update: never
+        Relationships: []
+      }
       categorias_contas: {
         Row: {
           ativo: boolean
@@ -54,6 +71,7 @@ export type Database = {
       }
       clientes: {
         Row: {
+          importacao_id: string | null
           aliquota_cofins: number
           aliquota_csll: number
           aliquota_ir: number
@@ -76,6 +94,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          importacao_id?: string | null
           aliquota_cofins?: number
           aliquota_csll?: number
           aliquota_ir?: number
@@ -98,6 +117,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          importacao_id?: string | null
           aliquota_cofins?: number
           aliquota_csll?: number
           aliquota_ir?: number
@@ -131,6 +151,7 @@ export type Database = {
       }
       contas: {
         Row: {
+          grupo_recorrencia: string | null
           ajustes: Json
           banco_pagamento_codigo: string | null
           banco_pagamento_nome: string | null
@@ -153,6 +174,7 @@ export type Database = {
           valor_base: number
         }
         Insert: {
+          grupo_recorrencia?: string | null
           ajustes?: Json
           banco_pagamento_codigo?: string | null
           banco_pagamento_nome?: string | null
@@ -175,6 +197,7 @@ export type Database = {
           valor_base: number
         }
         Update: {
+          grupo_recorrencia?: string | null
           ajustes?: Json
           banco_pagamento_codigo?: string | null
           banco_pagamento_nome?: string | null
@@ -262,6 +285,7 @@ export type Database = {
       }
       empresas_contabeis: {
         Row: {
+          importacao_id: string | null
           cnpj: string
           created_at: string
           empresa_id: string
@@ -273,6 +297,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          importacao_id?: string | null
           cnpj: string
           created_at?: string
           empresa_id?: string
@@ -284,6 +309,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          importacao_id?: string | null
           cnpj?: string
           created_at?: string
           empresa_id?: string
@@ -495,6 +521,7 @@ export type Database = {
       }
       prestadores: {
         Row: {
+          importacao_id: string | null
           agencia: string | null
           banco: string | null
           cadastro_completo: boolean | null
@@ -516,6 +543,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          importacao_id?: string | null
           agencia?: string | null
           banco?: string | null
           chave_pix?: string | null
@@ -536,6 +564,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          importacao_id?: string | null
           agencia?: string | null
           banco?: string | null
           chave_pix?: string | null
@@ -567,6 +596,13 @@ export type Database = {
       }
       registros_financeiros: {
         Row: {
+          aliquota_cofins: number
+          aliquota_csll: number
+          aliquota_ir: number
+          aliquota_iss: number
+          aliquota_pis: number
+          desconto_padrao_percent: number
+          importacao_id: string | null
           acrescimo: number
           agencia: string | null
           aplicar_desconto: boolean
@@ -606,6 +642,13 @@ export type Database = {
           valor_total_tributos: number
         }
         Insert: {
+          aliquota_cofins?: number
+          aliquota_csll?: number
+          aliquota_ir?: number
+          aliquota_iss?: number
+          aliquota_pis?: number
+          desconto_padrao_percent?: number
+          importacao_id?: string | null
           acrescimo?: number
           agencia?: string | null
           aplicar_desconto?: boolean
@@ -645,6 +688,13 @@ export type Database = {
           valor_total_tributos?: number
         }
         Update: {
+          aliquota_cofins?: number
+          aliquota_csll?: number
+          aliquota_ir?: number
+          aliquota_iss?: number
+          aliquota_pis?: number
+          desconto_padrao_percent?: number
+          importacao_id?: string | null
           acrescimo?: number
           agencia?: string | null
           aplicar_desconto?: boolean
@@ -767,6 +817,41 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      mesclar_cliente: {
+        Args: { p_destino: string; p_origem: string }
+        Returns: undefined
+      }
+      ranking_registros: {
+        Args: { p_ate?: string; p_de?: string; p_empresa_contabil?: string; p_limite?: number; p_por: string }
+        Returns: {
+          id: string
+          nome: string
+          quantidade: number
+          repasse: number
+          repasse_pago: number
+          repasse_pendente: number
+          valor_nf: number
+        }[]
+      }
+      resumo_contas: {
+        Args: { p_ate?: string; p_de?: string }
+        Returns: Json
+      }
+      resumo_registros: {
+        Args: {
+          p_ate?: string
+          p_cliente?: string
+          p_de?: string
+          p_empresa_contabil?: string
+          p_prestador?: string
+          p_situacao?: Database["public"]["Enums"]["situacao_registro"]
+        }
+        Returns: Json
+      }
+      serie_mensal_registros: {
+        Args: { p_empresa_contabil?: string; p_meses?: number }
+        Returns: { competencia: string; quantidade: number; repasse: number; valor_nf: number }[]
+      }
       salvar_prestador: {
         Args: {
           p_clientes: string[]

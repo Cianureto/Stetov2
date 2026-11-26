@@ -4,3 +4,4 @@ import "@/api/rotas/auth";
 import "@/api/rotas/clientes";
 import "@/api/rotas/empresasContabeis";
 import "@/api/rotas/prestadores";
+import "@/api/rotas/registros";

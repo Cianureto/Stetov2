@@ -1,8 +1,10 @@
 import { z } from "zod";
 import { erroHttp, rota } from "@/api/client";
+import { contar } from "@/api/contagem";
 import { lerConsulta, listarNoBanco, type Campos } from "@/api/listagem";
 import { supabase } from "@/api/supabase";
-import type { ListaPrestadores, Prestador, ResumoPrestadores } from "@/api/types";
+import type { ListaPrestadores, OpcaoApi, Prestador, ResumoPrestadores } from "@/api/types";
+import { todasAsLinhas } from "@/api/paginar";
 import { executarEmMassa, validar } from "@/api/validacao";
 import type { Tables } from "@/lib/database.types";
 import { cpfValido, emailValido, somenteDigitos, telefoneValido } from "@/lib/mascaras";
@@ -139,10 +141,18 @@ rota("GET", "/prestadores", async ({ query }): Promise<ListaPrestadores> => {
 });
 
 rota("GET", "/prestadores/resumo", async (): Promise<ResumoPrestadores> => {
-  const { data, error } = await supabase.from("prestadores").select("cadastro_completo, status");
-  if (error) throw error;
-  const completos = data.filter((p) => p.cadastro_completo).length;
-  return { total: data.length, completos, incompletos: data.length - completos, inativos: data.filter((p) => p.status === "inativo").length };
+  const [total, completos, inativos] = await Promise.all([
+    contar("prestadores"),
+    contar("prestadores", (q) => q.eq("cadastro_completo", true)),
+    contar("prestadores", (q) => q.eq("status", "inativo")),
+  ]);
+  return { total, completos, incompletos: total - completos, inativos };
+});
+
+/** Prestadores ativos para seletores. */
+rota("GET", "/prestadores/opcoes", async (): Promise<OpcaoApi[]> => {
+  const data = await todasAsLinhas(() => supabase.from("prestadores").select("id, nome_completo, crm").eq("status", "ativo").order("nome_completo").order("id"));
+  return data.map((p) => ({ valor: p.id, rotulo: p.nome_completo, descricao: p.crm ? `CRM ${p.crm}` : undefined }));
 });
 
 rota("GET", "/prestadores/:id", ({ params }) => carregar(params.id));

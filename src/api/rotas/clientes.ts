@@ -1,5 +1,7 @@
 import { z } from "zod";
 import { erroHttp, rota } from "@/api/client";
+import { contar } from "@/api/contagem";
+import { todasAsLinhas } from "@/api/paginar";
 import { lerConsulta, listarNoBanco, type Campos } from "@/api/listagem";
 import { supabase } from "@/api/supabase";
 import type { Cliente, ListaClientes, OpcaoApi, ResumoClientes } from "@/api/types";
@@ -131,22 +133,21 @@ rota("GET", "/clientes", async ({ query }): Promise<ListaClientes> => {
   return { clientes: itens.map(paraResposta), meta };
 });
 
-/** Totais do cabeçalho: uma consulta leve (só o status e o regime), nunca as linhas inteiras. */
+/** Totais do cabeçalho: contagens exatas no banco, nunca as linhas inteiras. */
 rota("GET", "/clientes/resumo", async (): Promise<ResumoClientes> => {
-  const { data, error } = await supabase.from("clientes").select("status, regime_tributario");
-  if (error) throw error;
-  const r: ResumoClientes = { total: data.length, ativo: 0, inativo: 0, provisorio: 0, semRegime: 0 };
-  for (const c of data) {
-    r[c.status]++;
-    if (!c.regime_tributario) r.semRegime++;
-  }
-  return r;
+  const [total, ativo, inativo, provisorio, semRegime] = await Promise.all([
+    contar("clientes"),
+    contar("clientes", (q) => q.eq("status", "ativo")),
+    contar("clientes", (q) => q.eq("status", "inativo")),
+    contar("clientes", (q) => q.eq("status", "provisorio")),
+    contar("clientes", (q) => q.is("regime_tributario", null)),
+  ]);
+  return { total, ativo, inativo, provisorio, semRegime };
 });
 
 /** Clientes para seletores (vínculos, lançamentos): todos menos os inativos, em ordem alfabética. */
 rota("GET", "/clientes/opcoes", async (): Promise<OpcaoApi[]> => {
-  const { data, error } = await supabase.from("clientes").select("id, razao_social, documento").neq("status", "inativo").order("razao_social").limit(2000);
-  if (error) throw error;
+  const data = await todasAsLinhas(() => supabase.from("clientes").select("id, razao_social, documento").neq("status", "inativo").order("razao_social").order("id"));
   return data.map((c) => ({ valor: c.id, rotulo: c.razao_social, descricao: formatarDocumento(c.documento) }));
 });
 

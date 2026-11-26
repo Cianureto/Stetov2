@@ -6,10 +6,21 @@ import { useAuth } from "@/context/useAuth";
 import { useAcao } from "@/hooks/useAcao";
 import { consumirDestino } from "@/lib/sessao";
 import { MarcaLogo } from "@/components/Marca";
+import { PhotoCarousel, type FotoCarrossel } from "@/components/ui/photo-carousel";
+import fotoDiretoria from "@/assets/login/equipe-diretoria.jpg";
+import fotoAtendimento from "@/assets/login/equipe-atendimento.jpg";
+import fotoMarca from "@/assets/login/marca-steto.jpg";
 import { Button } from "@/components/ui/button";
 import { CampoMascara } from "@/components/ui/campo-mascara";
 import { InputSenha } from "@/components/ui/input-senha";
 import { Label } from "@/components/ui/label";
+
+// Fotos da Steto no painel do login. A da marca é paisagem: aparece inteira sobre o mesmo azul do fundo dela.
+const FOTOS_LOGIN: FotoCarrossel[] = [
+  { src: fotoDiretoria, posicao: "50% 30%" },
+  { src: fotoAtendimento, posicao: "50% 35%" },
+  { src: fotoMarca, inteira: true, fundo: "#253e67", posicao: "50% 22%" },
+];
 
 const DESTAQUES = ["Repasses calculados com os tributos de cada cliente", "Contas a pagar e receber com vencimentos", "Relatórios por período, cliente e prestador"];
 
@@ -34,32 +45,23 @@ export default function LoginPage() {
 
   return (
     <div className="flex min-h-screen bg-areia lg:pt-[env(safe-area-inset-top)]">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-[var(--marca-escuro)] p-12 text-white lg:flex lg:w-[46%]">
-        <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(11,27,54,0.98),rgba(30,58,138,0.92)_58%,rgba(37,99,235,0.85))]" />
-        <div
-          className="absolute inset-0 opacity-[0.09]"
-          style={{
-            backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 60% 70%, white 1px, transparent 1px)",
-            backgroundSize: "36px 36px, 52px 52px",
-          }}
-        />
-        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="relative flex items-center">
-          <MarcaLogo fundo="escuro" tamanho="lg" />
-        </motion.div>
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-[var(--marca-escuro)] p-12 pb-14 text-white lg:flex lg:w-[46%]">
+        <PhotoCarousel imagens={FOTOS_LOGIN} intervalo={6000} />
+        {/* Faixa escura embaixo (texto): legível sobre qualquer foto, sem cobrir os rostos. As fotos já mostram a marca. */}
+        <div aria-hidden className="pointer-events-none absolute inset-x-0 bottom-0 h-[58%] bg-gradient-to-t from-[rgba(11,27,54,0.96)] via-[rgba(11,27,54,0.7)] to-transparent" />
+        <span aria-hidden />
 
-        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="relative max-w-md space-y-5">
-          <h2 className="font-titulo text-[40px] font-bold leading-[1.05]">A contabilidade da sua operação médica em um só lugar.</h2>
-          <p className="text-sm leading-relaxed text-white/75">Cadastre clientes e prestadores, lance as notas e acompanhe o que está pendente.</p>
-          <ul className="space-y-2.5 pt-2">
+        <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="relative z-10 max-w-md space-y-4">
+          <h2 className="font-titulo text-[32px] font-bold leading-[1.1]">A contabilidade da sua operação médica em um só lugar.</h2>
+          <ul className="space-y-2">
             {DESTAQUES.map((t) => (
-              <li key={t} className="flex items-center gap-2 text-sm text-white/85">
+              <li key={t} className="flex items-center gap-2 text-sm text-white/90">
                 <CheckCircle2 className="size-4 shrink-0 text-realce" aria-hidden /> {t}
               </li>
             ))}
           </ul>
+          <p className="pt-2 text-xs text-white/70">© {ano} Steto</p>
         </motion.div>
-
-        <div className="relative text-xs text-white/70">© {ano} Steto</div>
       </div>
 
       <div className="flex flex-1 items-center justify-center px-4 py-10">

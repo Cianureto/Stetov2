@@ -2,12 +2,18 @@ import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { cn } from "@/lib/cn";
 
+/** Uma foto do carrossel. `inteira`: mostra a imagem toda sobre `fundo` (ex.: logo em paisagem num painel em pé). */
+export type FotoCarrossel = string | { src: string; inteira?: boolean; fundo?: string; posicao?: string };
+
+const normalizar = (f: FotoCarrossel) => (typeof f === "string" ? { src: f } : f);
+
+/** Fotos que se alternam (fundo do painel do login). Decorativas: os botões só trocam a foto. */
 export function PhotoCarousel({
   imagens,
   intervalo = 5000,
   className,
 }: {
-  imagens: string[];
+  imagens: FotoCarrossel[];
   intervalo?: number;
   className?: string;
 }) {
@@ -19,31 +25,41 @@ export function PhotoCarousel({
     return () => clearInterval(t);
   }, [imagens.length, intervalo]);
 
+  const atual = normalizar(imagens[indice]);
+
   return (
-    <div className={cn("absolute inset-0", className)} aria-hidden>
+    <div className={cn("absolute inset-0", className)}>
       <AnimatePresence initial={false}>
-        <motion.img
+        <motion.div
           key={indice}
-          src={imagens[indice]}
-          alt=""
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0"
+          style={{ backgroundColor: atual.fundo }}
           initial={{ opacity: 0, scale: 1.04 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ opacity: { duration: 0.9, ease: "easeInOut" }, scale: { duration: intervalo / 1000 + 0.9, ease: "linear" } }}
-        />
+        >
+          <img
+            src={atual.src}
+            alt=""
+            className={cn("absolute inset-0 h-full w-full", atual.inteira ? "object-contain px-12 pb-[45%] pt-10" : "object-cover")}
+            style={{ objectPosition: atual.posicao }}
+          />
+        </motion.div>
       </AnimatePresence>
 
       {imagens.length > 1 && (
-        <div className="absolute bottom-5 left-1/2 z-10 flex -translate-x-1/2 gap-1.5">
+        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-1.5" role="group" aria-label="Fotos">
           {imagens.map((_, i) => (
             <button
               key={i}
+              type="button"
               onClick={() => setIndice(i)}
-              aria-label={`Foto ${i + 1}`}
+              aria-label={`Mostrar foto ${i + 1} de ${imagens.length}`}
+              aria-pressed={i === indice}
               className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                i === indice ? "w-5 bg-white" : "w-1.5 bg-white/40 hover:bg-white/60"
+                "alvo-toque h-1.5 rounded-full transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white",
+                i === indice ? "w-5 bg-white" : "w-1.5 bg-white/50 hover:bg-white/70",
               )}
             />
           ))}

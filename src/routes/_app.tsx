@@ -1,10 +1,12 @@
 import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
-import { Menu } from 'lucide-react'
+import { Loader2, Menu, ShieldAlert } from 'lucide-react'
 import { useState } from 'react'
 import { Brand } from '@/components/layout/Brand'
 import { SidebarNav } from '@/components/layout/Sidebar'
 import { UserMenu } from '@/components/layout/UserMenu'
 import { Button } from '@/components/ui/button'
+import { useAuth } from '@/lib/auth'
+import { usePerfil } from '@/lib/perfil'
 import { Sheet, SheetContent, SheetDescription, SheetTitle } from '@/components/ui/sheet'
 
 export const Route = createFileRoute('/_app')({
@@ -18,6 +20,43 @@ export const Route = createFileRoute('/_app')({
 
 function AppLayout() {
   const [menuAberto, setMenuAberto] = useState(false)
+  const perfil = usePerfil()
+  const { signOut } = useAuth()
+
+  if (perfil.isPending) {
+    return (
+      <div className="grid min-h-svh place-items-center" role="status">
+        <Loader2 className="size-6 animate-spin text-primary" aria-label="Carregando" />
+      </div>
+    )
+  }
+
+  // Logado no Supabase, mas ainda sem vínculo com uma empresa
+  if (!perfil.data) {
+    return (
+      <div className="grid min-h-svh place-items-center p-6">
+        <div className="max-w-md rounded-xl border bg-card p-8 text-center shadow-xs">
+          <span className="mx-auto grid size-12 place-items-center rounded-full bg-warning-soft text-warning">
+            <ShieldAlert className="size-6" aria-hidden />
+          </span>
+          <h1 className="mt-4 text-lg font-semibold">
+            {perfil.isError ? 'Não foi possível carregar seu acesso' : 'Seu acesso ainda não foi liberado'}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {perfil.isError
+              ? 'Verifique sua conexão e tente de novo.'
+              : 'Sua conta existe, mas ainda não está vinculada a uma empresa. Peça ao administrador para liberar seu acesso.'}
+          </p>
+          <div className="mt-6 flex justify-center gap-2">
+            {perfil.isError && <Button onClick={() => perfil.refetch()}>Tentar de novo</Button>}
+            <Button variant="outline" onClick={() => void signOut()}>
+              Sair
+            </Button>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-svh lg:grid lg:grid-cols-[256px_1fr]">

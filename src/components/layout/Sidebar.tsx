@@ -1,15 +1,27 @@
 import { Link } from '@tanstack/react-router'
 import { Brand } from './Brand'
+import { usePerfil } from '@/lib/perfil'
 import { navGroups } from './nav'
 
 export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
+  const { data: perfil } = usePerfil()
+  // Esconde do menu o que o papel não usa. Quem protege os dados é o RLS no banco.
+  const grupos = navGroups
+    .map((g) => ({
+      ...g,
+      items: g.items.filter(
+        (i) => !i.acesso || (i.acesso === 'admin' ? perfil?.isAdmin : perfil?.isStetoAdmin),
+      ),
+    }))
+    .filter((g) => g.items.length > 0)
+
   return (
     <div className="flex h-full flex-col bg-sidebar text-sidebar-foreground">
       <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-5">
         <Brand inverse />
       </div>
       <nav aria-label="Principal" className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-        {navGroups.map((group, i) => (
+        {grupos.map((group, i) => (
           <div key={group.label ?? i}>
             {group.label && (
               <p className="mb-1.5 px-3 text-[11px] font-semibold tracking-wider text-sidebar-muted uppercase">

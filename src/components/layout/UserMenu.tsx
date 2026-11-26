@@ -10,11 +10,21 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/lib/auth'
+import { PAPEL_LABEL } from '@/lib/labels'
+import { usePerfil } from '@/lib/perfil'
 
 export function UserMenu() {
   const { session, signOut } = useAuth()
+  const { data: perfil } = usePerfil()
   const email = session?.user.email ?? ''
-  const iniciais = email.slice(0, 2).toUpperCase()
+  const nome = perfil?.nome || email
+  const iniciais = (perfil?.nome ?? email)
+    .split(/[\s@.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join('')
+    .toUpperCase()
 
   return (
     <DropdownMenu>
@@ -25,11 +35,19 @@ export function UserMenu() {
               {iniciais}
             </AvatarFallback>
           </Avatar>
-          <span className="hidden max-w-48 truncate text-sm font-medium sm:inline">{email}</span>
+          <span className="hidden max-w-48 truncate text-sm font-medium sm:inline">{nome}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="truncate font-normal text-muted-foreground">{email}</DropdownMenuLabel>
+        <DropdownMenuLabel className="font-normal">
+          <p className="truncate text-sm font-medium text-foreground">{nome}</p>
+          {perfil?.nome && <p className="truncate text-xs text-muted-foreground">{email}</p>}
+          {perfil && (
+            <p className="mt-1 truncate text-xs text-muted-foreground">
+              {PAPEL_LABEL[perfil.papel]} · {perfil.empresa?.nome}
+            </p>
+          )}
+        </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onSelect={() => void signOut()}>
           <LogOut aria-hidden /> Sair

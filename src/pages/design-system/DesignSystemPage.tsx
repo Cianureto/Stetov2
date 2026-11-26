@@ -186,7 +186,7 @@ export default function DesignSystemPage() {
         </Quadro>
       </Secao>
 
-      <Secao id="kpis" titulo="KPIs e movimento" descricao="Os cartões entram subindo em cascata, os números contam até o valor e, com o mouse por cima, o cartão sobe e o ícone gira de leve. Quem pede menos movimento no sistema não vê animação.">
+      <Secao id="kpis" titulo="KPIs e movimento" descricao="Os cartões entram subindo em cascata e cada algarismo corre de lado até o valor, borrado pela própria velocidade (os da direita correm mais). Com o mouse por cima, o cartão sobe e o ícone gira de leve. Quem pede menos movimento no sistema não vê animação.">
         <div className="flex justify-end">
           <Button variant="secondary" size="sm" onClick={() => setRodada((r) => r + 1)}>
             <RotateCcw aria-hidden /> Rever a entrada

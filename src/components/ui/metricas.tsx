@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
-import { Contador } from "@/components/ui/animado";
+import { NumeroVeloz } from "@/components/ui/numero-veloz";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
 
@@ -51,7 +51,7 @@ export function Metrica({
         {ajuda && <AjudaIndicador indicador={titulo} texto={ajuda} className="-my-0.5" />}
       </div>
       <div className={cn("mt-1.5", pequeno ? "text-base font-semibold leading-snug md:text-lg" : "numero-kpi", destaque && "text-marca")}>
-        {valor == null ? <Skeleton className="h-8 w-16" /> : pequeno ? valor : <Contador valor={valor} />}
+        {valor == null ? <Skeleton className="h-8 w-16" /> : pequeno ? valor : <NumeroVeloz valor={valor} />}
       </div>
       {progresso != null && valor != null && (
         <div className="mt-2 h-1 overflow-hidden md:mt-3 md:h-1.5 rounded-full bg-[var(--areia)]">

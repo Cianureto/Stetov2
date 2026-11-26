@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import type { CSSProperties } from "react";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
-import { Contador } from "@/components/ui/animado";
+import { NumeroVeloz } from "@/components/ui/numero-veloz";
 
 export type NumeroHero = {
   valor: number | string | undefined;
@@ -21,10 +21,10 @@ export type NumeroHero = {
 const formatar = (v: number | string | undefined, falhou: boolean) =>
   v === undefined ? (falhou ? "—" : "…") : typeof v === "number" ? v.toLocaleString("pt-BR") : v;
 
-/** Valor do cartão: conta de 0 até o número quando ele chega (e do valor anterior quando muda). */
+/** Valor do cartão: os algarismos correm até o número quando ele chega (e do valor anterior quando muda). */
 function Valor({ n, falhou }: { n: NumeroHero; falhou: boolean }) {
   if (n.valor === undefined || n.textual) return <>{formatar(n.valor, falhou)}</>;
-  return <Contador valor={typeof n.valor === "number" ? n.valor : n.valor} />;
+  return <NumeroVeloz valor={typeof n.valor === "number" ? n.valor : n.valor} />;
 }
 
 /** Posição na cascata de entrada dos cartões (cada um entra 70 ms depois do anterior). */

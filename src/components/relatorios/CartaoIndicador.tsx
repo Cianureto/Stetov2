@@ -3,7 +3,7 @@ import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { Sparkline } from "@/components/relatorios/graficos";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
 import type { CSSProperties } from "react";
-import { Contador } from "@/components/ui/animado";
+import { NumeroVeloz } from "@/components/ui/numero-veloz";
 import { cn } from "@/lib/cn";
 import { formatarPercentualCurto } from "@/lib/format";
 
@@ -88,7 +88,7 @@ export function CartaoIndicador({
           {titulo}
           {ajuda && <AjudaIndicador escuro indicador={titulo} texto={ajuda} />}
         </div>
-        <div className="numero-destaque relative mt-1"><Contador valor={valor} /></div>
+        <div className="numero-destaque relative mt-1"><NumeroVeloz valor={valor} /></div>
         <div className="relative mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-3 text-xs text-white/75">
           <SeloVariacao variacao={variacao} subirEBom={subirEBom} sobreAzul />
           <span>{variacao === null ? "sem dados no período anterior" : comparacao}</span>
@@ -114,7 +114,7 @@ export function CartaoIndicador({
         {titulo}
         {ajuda && <AjudaIndicador indicador={titulo} texto={ajuda} />}
       </div>
-      <div className="numero-kpi mt-0.5 text-foreground"><Contador valor={valor} /></div>
+      <div className="numero-kpi mt-0.5 text-foreground"><NumeroVeloz valor={valor} /></div>
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground-muted">
         <SeloVariacao variacao={variacao} subirEBom={subirEBom} />
         <span>{variacao === null ? "sem dados no período anterior" : comparacao}</span>

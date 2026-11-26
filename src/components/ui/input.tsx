@@ -6,8 +6,8 @@ const Input = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLI
     <input
       ref={ref}
       className={cn(
-        "w-full rounded-[var(--radius-sm)] border border-[var(--borda-forte)] bg-areia-card px-3 py-2 text-sm text-foreground outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] placeholder:text-foreground-muted hover:border-foreground/30",
-        "focus:border-marca focus:shadow-[0_0_0_3px_var(--marca-claro)]",
+        "min-h-10 w-full rounded-[var(--radius-sm)] border border-borda bg-areia-card px-3.5 py-2 text-sm text-foreground shadow-[var(--shadow-xs)] outline-none transition-[border-color,box-shadow,background-color] duration-[var(--dur-hover)] placeholder:text-tinta-500 hover:border-tinta-300 disabled:bg-tinta-50 disabled:text-foreground-muted disabled:shadow-none aria-[invalid=true]:border-[var(--danger)]",
+        "focus:border-azul-500 focus:shadow-[var(--anel-foco)]",
         "max-md:text-base max-md:py-2.5",
         className
       )}
@@ -22,8 +22,8 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttribu
     <textarea
       ref={ref}
       className={cn(
-        "w-full rounded-[var(--radius-sm)] border border-[var(--borda-forte)] bg-areia-card px-3 py-2 text-sm text-foreground outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] placeholder:text-foreground-muted hover:border-foreground/30",
-        "focus:border-marca focus:shadow-[0_0_0_3px_var(--marca-claro)]",
+        "w-full rounded-[var(--radius-sm)] border border-borda bg-areia-card px-3.5 py-2 text-sm text-foreground shadow-[var(--shadow-xs)] outline-none transition-[border-color,box-shadow] duration-[var(--dur-hover)] placeholder:text-tinta-500 hover:border-tinta-300",
+        "focus:border-azul-500 focus:shadow-[var(--anel-foco)]",
         className
       )}
       {...props}

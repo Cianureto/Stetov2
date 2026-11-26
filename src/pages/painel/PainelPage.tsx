@@ -20,7 +20,7 @@ function Cartao({ titulo, acao, children }: { titulo: string; acao?: React.React
   return (
     <section className="card min-w-0 p-4 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
-        <h2 className="font-titulo text-[15px] font-semibold">{titulo}</h2>
+        <h2 className="texto-titulo-3">{titulo}</h2>
         {acao}
       </div>
       {children}

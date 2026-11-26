@@ -20,11 +20,11 @@ export function SecaoFormulario({ titulo, descricao, acao, children, className }
   if (modo === "tela") {
     return (
       <section role="group" aria-labelledby={id} className={cn("secao-numerada card min-w-0 overflow-hidden", className)}>
-        <div className="flex items-start justify-between gap-3 border-b border-borda bg-[#f8fafd] px-4 py-3.5 sm:px-6 sm:py-4">
+        <div className="flex items-start justify-between gap-3 border-b border-borda bg-tinta-25 px-4 py-3.5 sm:px-6 sm:py-4">
           <div className="flex min-w-0 items-start gap-3">
-            <span aria-hidden className="numero-secao mt-px grid size-7 shrink-0 place-items-center rounded-lg bg-[var(--marca-claro)] text-[13px] font-semibold tabular-nums text-[var(--marca)]" />
+            <span aria-hidden className="numero-secao mt-px grid size-7 shrink-0 place-items-center rounded-lg bg-azul-50 text-[13px] font-semibold tabular-nums text-azul-700 ring-1 ring-inset ring-azul-100" />
             <div className="min-w-0">
-              <h2 id={id} className="font-titulo text-[15px] font-semibold leading-7">{titulo}</h2>
+              <h2 id={id} className="texto-titulo-3 leading-7">{titulo}</h2>
               {descricao && <p className="text-[13px] text-foreground-muted">{descricao}</p>}
             </div>
           </div>

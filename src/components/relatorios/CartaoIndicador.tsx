@@ -2,6 +2,8 @@ import type { LucideIcon } from "lucide-react";
 import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { Sparkline } from "@/components/relatorios/graficos";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
+import type { CSSProperties } from "react";
+import { Contador } from "@/components/ui/animado";
 import { cn } from "@/lib/cn";
 import { formatarPercentualCurto } from "@/lib/format";
 
@@ -44,6 +46,7 @@ export function CartaoIndicador({
   tendencia,
   ajuda,
   principal = false,
+  ordem = 0,
   className,
 }: {
   icone: LucideIcon;
@@ -58,24 +61,21 @@ export function CartaoIndicador({
   ajuda?: string;
   /** Cartão maior em azul da marca (o indicador principal da tela). */
   principal?: boolean;
+  /** Posição na cascata de entrada (0, 1, 2…). */
+  ordem?: number;
   className?: string;
 }) {
+  const estilo = { "--i": ordem } as CSSProperties;
   if (principal) {
     return (
-      <section
-        aria-label={titulo}
-        className={cn(
-          "relative flex min-w-0 flex-col overflow-hidden rounded-[var(--radius)] bg-[linear-gradient(135deg,#2f6bf0_0%,#1d4ed8_55%,#1b44c4_100%)] p-5 text-white shadow-[0_14px_30px_-16px_rgba(29,78,216,0.75)] md:p-6",
-          className,
-        )}
-      >
-        <svg aria-hidden viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth={1.25} className="pointer-events-none absolute -right-14 -top-16 size-56 text-white/[0.13]">
+      <section aria-label={titulo} style={estilo} className={cn("kpi kpi-principal kpi-entrada flex min-w-0 flex-col p-5 md:p-6", className)}>
+        <svg aria-hidden viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth={1.25} className="kpi-aneis pointer-events-none absolute -right-14 -top-16 size-56 text-white/[0.13]">
           <circle cx="100" cy="100" r="38" />
           <circle cx="100" cy="100" r="62" />
           <circle cx="100" cy="100" r="86" />
         </svg>
         <div className="relative flex items-start justify-between gap-4">
-          <span className="grid size-10 place-items-center rounded-xl bg-white/15 text-white">
+          <span className="kpi-icone grid size-10 place-items-center rounded-xl bg-white/15 text-white">
             <Icone aria-hidden className="size-5" />
           </span>
           {tendencia && tendencia.length > 1 && (
@@ -88,7 +88,7 @@ export function CartaoIndicador({
           {titulo}
           {ajuda && <AjudaIndicador escuro indicador={titulo} texto={ajuda} />}
         </div>
-        <div className="relative mt-1 text-[30px] font-semibold leading-tight tracking-tight md:text-[36px]">{valor}</div>
+        <div className="numero-destaque relative mt-1"><Contador valor={valor} /></div>
         <div className="relative mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-3 text-xs text-white/75">
           <SeloVariacao variacao={variacao} subirEBom={subirEBom} sobreAzul />
           <span>{variacao === null ? "sem dados no período anterior" : comparacao}</span>
@@ -99,9 +99,9 @@ export function CartaoIndicador({
   }
 
   return (
-    <section className={cn("card flex min-w-0 flex-col p-4 md:p-5", className)} aria-label={titulo}>
+    <section className={cn("card kpi kpi-entrada flex min-w-0 flex-col p-4 md:p-5", className)} style={estilo} aria-label={titulo}>
       <div className="flex items-start justify-between gap-3">
-        <span className="grid size-9 place-items-center rounded-xl bg-[var(--marca-claro)] text-[var(--marca)]">
+        <span className="kpi-icone grid size-9 place-items-center rounded-xl bg-azul-50 text-azul-600 ring-1 ring-inset ring-azul-100">
           <Icone aria-hidden className="size-[18px]" />
         </span>
         {tendencia && tendencia.length > 1 && (
@@ -114,7 +114,7 @@ export function CartaoIndicador({
         {titulo}
         {ajuda && <AjudaIndicador indicador={titulo} texto={ajuda} />}
       </div>
-      <div className="mt-0.5 text-[26px] font-semibold leading-tight tracking-tight text-foreground">{valor}</div>
+      <div className="numero-kpi mt-0.5 text-foreground"><Contador valor={valor} /></div>
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground-muted">
         <SeloVariacao variacao={variacao} subirEBom={subirEBom} />
         <span>{variacao === null ? "sem dados no período anterior" : comparacao}</span>

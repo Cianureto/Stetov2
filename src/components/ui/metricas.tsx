@@ -50,7 +50,7 @@ export function Metrica({
         <span className="min-w-0">{titulo}</span>
         {ajuda && <AjudaIndicador indicador={titulo} texto={ajuda} className="-my-0.5" />}
       </div>
-      <div className={cn("mt-1.5 font-semibold leading-tight tracking-tight", pequeno ? "text-base md:text-lg leading-snug" : "text-xl md:text-2xl", destaque && "text-marca")}>
+      <div className={cn("mt-1.5", pequeno ? "text-base font-semibold leading-snug md:text-lg" : "numero-kpi", destaque && "text-marca")}>
         {valor == null ? <Skeleton className="h-8 w-16" /> : pequeno ? valor : <Contador valor={valor} />}
       </div>
       {progresso != null && valor != null && (

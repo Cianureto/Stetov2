@@ -48,7 +48,7 @@ function Cartao({ titulo, descricao, acao, children, className, id }: { titulo: 
     <section id={id} className={`card min-w-0 scroll-mt-24 p-4 md:p-5 ${className ?? ""}`} aria-label={titulo}>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 className="font-titulo text-[15px] font-semibold">{titulo}</h2>
+          <h2 className="texto-titulo-3">{titulo}</h2>
           {descricao && <p className="mt-0.5 text-xs text-foreground-muted">{descricao}</p>}
         </div>
         {acao}
@@ -62,7 +62,7 @@ function Cartao({ titulo, descricao, acao, children, className, id }: { titulo: 
 function Destaque({ valor, rotulo, variacao, subirEBom }: { valor: string; rotulo: string; variacao?: number | null; subirEBom?: boolean | null }) {
   return (
     <div className="mb-4">
-      <div className="text-[22px] font-semibold leading-tight tracking-tight">{valor}</div>
+      <div className="numero-kpi">{valor}</div>
       <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-foreground-muted">
         {variacao !== undefined && <SeloVariacao variacao={variacao} subirEBom={subirEBom} />}
         {rotulo}
@@ -124,8 +124,8 @@ export default function RelatoriosPage() {
     <div className="space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-wider text-[var(--marca)]">Relatórios</p>
-          <h1 className="mt-1 font-titulo text-2xl font-semibold tracking-tight md:text-[28px]">Relatório do período</h1>
+          <p className="texto-sobretitulo">Relatórios</p>
+          <h1 className="texto-titulo-1 mt-1">Relatório do período</h1>
           <p className="mt-1 text-sm text-foreground-secondary">
             Competências de {rotuloPeriodo(de, ate)} · {nomeEmpresa ?? "todas as empresas contábeis"}
             {d && <> · comparado a {rotuloPeriodo(d.periodo.anteriorDe, d.periodo.anteriorAte)}</>}
@@ -239,6 +239,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
           tendencia={serie.map((p) => p.valorNf)}
         />
         <CartaoIndicador
+          ordem={1}
           icone={HandCoins}
           titulo="Repasse aos prestadores"
           valor={formatarMoeda(a.repasse)}
@@ -248,6 +249,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
           tendencia={serie.map((p) => p.repasse)}
         />
         <CartaoIndicador
+          ordem={2}
           icone={Percent}
           titulo="Descontos retidos"
           valor={formatarMoeda(retido)}
@@ -258,6 +260,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
           ajuda="Valor das notas menos o repasse: desconto padrão do prestador e descontos adicionais, já abatidos os acréscimos."
         />
         <CartaoIndicador
+          ordem={3}
           icone={Landmark}
           titulo="Tributos retidos"
           valor={formatarMoeda(a.tributos)}

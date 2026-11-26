@@ -40,3 +40,10 @@ com indicadores + `AbasContagem`, tabelas com `useTabelaServidor(caminho, "chave
 de outro formulário), `CampoMascara` para CPF/CNPJ/telefone/e-mail, `Seletor` (nunca `<select>`), `useDadosApi` +
 `EstadoCarga`, `useAcao` + toast em toda ação, imports absolutos `@/`, arquivos com menos de ~300 linhas, texto
 secundário em `text-foreground-muted`, alvos de toque de 44px.
+
+## Design system (tokens em `src/index.css`, referência viva em `/design-system`)
+
+- **Cores:** escalas `azul-50…950` (marca = 600) e `tinta-0…900` (neutros; texto nunca mais claro que 600). Estados: `--sucesso`, `--aviso`, `--danger`, `--info` com `-soft`. Use papéis (`marca`, `borda`, `foreground…`) ou as escalas; nada de hex solto em componente. Séries de gráfico: `--serie-1…5`, nessa ordem.
+- **Tipografia:** uma classe por papel — `texto-display`, `texto-titulo-1` (título da tela), `texto-titulo-2`, `texto-titulo-3` (título de cartão), `texto-corpo`, `texto-apoio`, `texto-legenda`, `texto-sobretitulo`, `numero-destaque` (número principal) e `numero-kpi`. Títulos em Bricolage; texto e números em Figtree.
+- **Componentes:** botão `accent` (azul) é a ação principal, um por tela; campos e botões com 40px; cartões `.card` (raio 14px, sombra xs).
+- **KPIs:** cartões de número usam `.kpi` (sobe no hover) + `.kpi-entrada` com `--i` (cascata de entrada) e o valor em `<Contador>`; o número principal da tela usa `.kpi-principal` (azul). Toda animação respeita `prefers-reduced-motion`.

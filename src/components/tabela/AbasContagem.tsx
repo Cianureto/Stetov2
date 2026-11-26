@@ -16,8 +16,8 @@ export function AbasContagem<T extends string>({ abas, valor, onChange, rotulo, 
             aria-selected={ativa}
             onClick={() => onChange(a.id)}
             className={cn(
-              "inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium transition-colors pointer-coarse:h-11",
-              ativa ? "bg-foreground text-white shadow-[var(--shadow-sm)]" : "bg-[var(--areia-card)] text-foreground-secondary ring-1 ring-borda hover:text-foreground",
+              "inline-flex h-9 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-medium transition-[background-color,color,box-shadow] duration-[var(--dur-hover)] pointer-coarse:h-11",
+              ativa ? "bg-marca text-white shadow-[0_6px_14px_-6px_rgba(29,78,216,0.6)]" : "bg-areia-card text-foreground-secondary shadow-[var(--shadow-xs)] ring-1 ring-borda hover:text-foreground hover:ring-tinta-300",
             )}
           >
             {a.label}
@@ -25,7 +25,7 @@ export function AbasContagem<T extends string>({ abas, valor, onChange, rotulo, 
               <span
                 className={cn(
                   "rounded-full px-1.5 text-[11px] font-semibold tabular-nums leading-[18px]",
-                  a.destaque && a.total > 0 ? "bg-[var(--acafrao)] text-[var(--foreground)]" : ativa ? "bg-white/20 text-white" : "bg-foreground/[0.06] text-foreground-muted",
+                  a.destaque && a.total > 0 ? "bg-[var(--acafrao)] text-[var(--foreground)]" : ativa ? "bg-white/20 text-white" : "bg-tinta-100 text-foreground-muted",
                 )}
               >
                 {a.total}

@@ -30,6 +30,7 @@ import EmpresaContabilPage from "@/pages/empresas-contabeis/EmpresaContabilPage"
 import EmpresaContabilFormPage from "@/pages/empresas-contabeis/formularios/EmpresaContabilFormPage";
 import PrestadoresPage from "@/pages/prestadores/PrestadoresPage";
 import PrestadorPage from "@/pages/prestadores/formularios/PrestadorPage";
+import DesignSystemPage from "@/pages/design-system/DesignSystemPage";
 
 function Home() {
   const { usuario, carregando } = useAuth();
@@ -48,6 +49,7 @@ export default function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<AppShell />}>
+              <Route path="/design-system" element={<DesignSystemPage />} />
               <Route path="/painel" element={<ComPermissao permissao="painel.ver"><PainelPage /></ComPermissao>} />
               <Route path="/relatorios" element={<ComPermissao permissao="relatorios.ver"><RelatoriosPage /></ComPermissao>} />
               <Route path="/registros" element={<ComPermissao permissao="registros.ver"><RegistrosPage /></ComPermissao>} />

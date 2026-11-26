@@ -1,72 +1,115 @@
 @import url("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
+/* ══════════════════════════════════════════════════════════════════════════════
+   Design system Steto — tokens. Padrão da empresa: azul e branco.
+   Use sempre os papéis (--marca, --borda, --foreground…) ou as escalas (azul-*, tinta-*) — nunca hex soltos.
+   A página /design-system mostra tudo isto ao vivo.
+   ══════════════════════════════════════════════════════════════════════════════ */
 :root {
-  /* Steto — padrão da empresa: azul e branco. Mesma estrutura de tokens do ConectaPRO (visitacao),
-     com azul da marca no lugar do petróleo e azul-céu no lugar da menta. Contrastes conferidos (WCAG AA). */
-  --background: #f3f6fb;
-  --foreground: #0b1b36;
-  --foreground-secondary: #364560;
-  /* 5,2:1 sobre o fundo e 5,7:1 sobre branco. Nunca use um cinza mais claro que este. */
-  --foreground-muted: #56647d;
+  /* ── Escala da marca (azul Steto). 600 é a cor da marca; branco sobre 600 = 6,7:1. ── */
+  --azul-50: #eff5ff;
+  --azul-100: #dbe7ff;
+  --azul-200: #bfd4fe;
+  --azul-300: #93b6fd;
+  --azul-400: #5f8ff9;
+  --azul-500: #3a6ef2;
+  --azul-600: #1d4ed8;
+  --azul-700: #1b40b3;
+  --azul-800: #1c3891;
+  --azul-900: #1c3273;
+  --azul-950: #0f1d45;
 
-  /* Branco sobre --marca dá 6,7:1. */
-  --marca: #1d4ed8;
-  --marca-escuro: #1e3a8a;
-  --marca-claro: #dbe7ff;
-  --marca-500: #2563eb;
-  --marca-600: #1d4ed8;
-  --marca-glow: rgba(29, 78, 216, 0.32);
+  /* ── Tinta: neutros levemente azulados (texto, bordas, superfícies). Texto nunca mais claro que 600. ── */
+  --tinta-0: #ffffff;
+  --tinta-25: #fafbfd;
+  --tinta-50: #f3f6fb;
+  --tinta-100: #ebf0f7;
+  --tinta-200: #dde4ef;
+  --tinta-300: #c3cedf;
+  --tinta-400: #95a3ba;
+  --tinta-500: #6b7a93;
+  --tinta-600: #56647d;
+  --tinta-700: #364560;
+  --tinta-800: #1e2d48;
+  --tinta-900: #0b1b36;
 
-  /* Realce sobre o escuro (barra lateral, cabeçalho hero): item ativo, anel do avatar. Nunca texto realce sobre branco. */
+  /* ── Estados (texto forte sobre fundo suave, ≥ 4,5:1) ── */
+  --sucesso: #13894a;
+  --sucesso-soft: #e3f6ec;
+  --aviso: #a86c00;
+  --aviso-soft: #fdf1d8;
+  --danger: #cf3238;
+  --danger-soft: #fdeaea;
+  --info: #1d4ed8;
+  --info-soft: #e8f0ff;
+
+  /* ── Séries de gráfico (validadas para daltonismo; ver lib dos relatórios) ── */
+  --serie-1: #1d4ed8;
+  --serie-2: #5fa8f5;
+  --serie-3: #22b8cf;
+  --serie-4: #7c5ce0;
+  --serie-5: #e9a000;
+
+  /* ── Papéis (o que os componentes usam) ── */
+  --background: var(--tinta-50);
+  --foreground: var(--tinta-900);
+  --foreground-secondary: var(--tinta-700);
+  /* 5,2:1 sobre o fundo e 5,7:1 sobre branco. */
+  --foreground-muted: var(--tinta-600);
+  --marca: var(--azul-600);
+  --marca-escuro: var(--azul-700);
+  --marca-claro: var(--azul-100);
+  --marca-500: var(--azul-500);
+  --marca-600: var(--azul-600);
+  --marca-glow: rgba(29, 78, 216, 0.28);
+  --areia: var(--tinta-50);
+  --areia-card: var(--tinta-0);
+  --borda: var(--tinta-200);
+  --borda-forte: var(--tinta-300);
+  --anel-foco: 0 0 0 4px rgba(58, 110, 242, 0.22);
+
+  /* Realce sobre o escuro (barra lateral): item ativo, anel do avatar. Nunca texto realce sobre branco. */
   --realce: #7cc4ff;
-  --realce-suave: #e3f1ff;
+  --realce-suave: var(--azul-50);
   --acafrao: #f2a922;
-  --acafrao-suave: #fdf0d3;
+  --acafrao-suave: var(--aviso-soft);
   --coral: #e5484d;
 
-  --areia: #f3f6fb;
-  --areia-card: #ffffff;
-  --borda: #dde4ef;
-  --borda-forte: rgba(11, 27, 54, 0.16);
-
-  /* Barra lateral: azul-marinho profundo, item ativo em realce */
-  --sidebar-bg: #0b1b36;
+  /* Barra lateral */
+  --sidebar-bg: var(--tinta-900);
   --sidebar-fg: rgba(255, 255, 255, 0.7);
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-active-bg: rgba(124, 196, 255, 0.16);
-  --sidebar-hover-bg: #e9eef7;
+  --sidebar-hover-bg: var(--tinta-100);
   --sidebar-dark-hover: rgba(255, 255, 255, 0.06);
-
-  --header-bg: #0b1b36;
-
+  --header-bg: var(--tinta-900);
   --consultor-dark: #0f2a5c;
   --consultor-glow-amber: rgba(242, 169, 34, 0.32);
   --consultor-glow-mint: rgba(124, 196, 255, 0.38);
 
-  --danger: #d0353a;
-  --danger-soft: #fde6e6;
-  --sucesso: #13894a;
-  --sucesso-soft: #dff5e8;
-  --aviso: #b07407;
-  --aviso-soft: #fdf0d3;
-  --info: #2a67d6;
-  --info-soft: #e5edfc;
-
-  --radius-sm: 0.5rem;
-  --radius: 0.75rem;
-  --radius-lg: 1.125rem;
+  /* ── Raios ── */
+  --radius-xs: 0.375rem;  /*  6px: badges quadrados, chips */
+  --radius-sm: 0.625rem;  /* 10px: botões e campos */
+  --radius: 0.875rem;     /* 14px: cartões */
+  --radius-lg: 1.125rem;  /* 18px: cartões grandes, modais */
   --radius-xl: 1.5rem;
 
-  --shadow-xs: 0 1px 2px rgba(11, 27, 54, 0.06);
+  /* ── Sombras (tingidas de tinta-900; a de destaque, de azul) ── */
+  --shadow-xs: 0 1px 2px rgba(11, 27, 54, 0.05);
   --shadow-sm: 0 1px 3px rgba(11, 27, 54, 0.07), 0 1px 2px rgba(11, 27, 54, 0.04);
-  --shadow-md: 0 6px 16px rgba(11, 27, 54, 0.08), 0 2px 4px rgba(11, 27, 54, 0.04);
-  --shadow-lg: 0 16px 40px rgba(11, 27, 54, 0.14), 0 4px 10px rgba(11, 27, 54, 0.05);
+  --shadow-md: 0 8px 20px -6px rgba(11, 27, 54, 0.12), 0 2px 4px rgba(11, 27, 54, 0.04);
+  --shadow-lg: 0 18px 40px -12px rgba(11, 27, 54, 0.18), 0 4px 10px rgba(11, 27, 54, 0.05);
+  --shadow-marca: 0 14px 30px -14px rgba(29, 78, 216, 0.7);
   --shadow-glow: 0 8px 24px var(--marca-glow);
 
-  /* Motion: a mesma curva do GSAP (power2.inOut) em todo o app */
-  --ease-suave: cubic-bezier(0.455, 0.03, 0.515, 0.955);
+  /* ── Movimento ── */
+  --ease-suave: cubic-bezier(0.455, 0.03, 0.515, 0.955); /* = GSAP power2.inOut */
+  --ease-saida: cubic-bezier(0.16, 1, 0.3, 1);           /* entra rápido e assenta (expo out) */
+  --dur-rapida: 150ms;
   --dur-hover: 200ms;
+  --dur-media: 280ms;
+  --dur-lenta: 600ms;
 }
 
 @theme inline {
@@ -89,6 +132,32 @@
   --color-acafrao: var(--acafrao);
   --color-acafrao-suave: var(--acafrao-suave);
   --color-coral: var(--coral);
+  --color-azul-50: var(--azul-50);
+  --color-azul-100: var(--azul-100);
+  --color-azul-200: var(--azul-200);
+  --color-azul-300: var(--azul-300);
+  --color-azul-400: var(--azul-400);
+  --color-azul-500: var(--azul-500);
+  --color-azul-600: var(--azul-600);
+  --color-azul-700: var(--azul-700);
+  --color-azul-800: var(--azul-800);
+  --color-azul-900: var(--azul-900);
+  --color-azul-950: var(--azul-950);
+  --color-tinta-25: var(--tinta-25);
+  --color-tinta-50: var(--tinta-50);
+  --color-tinta-100: var(--tinta-100);
+  --color-tinta-200: var(--tinta-200);
+  --color-tinta-300: var(--tinta-300);
+  --color-tinta-400: var(--tinta-400);
+  --color-tinta-500: var(--tinta-500);
+  --color-tinta-600: var(--tinta-600);
+  --color-tinta-700: var(--tinta-700);
+  --color-tinta-800: var(--tinta-800);
+  --color-tinta-900: var(--tinta-900);
+  --color-sucesso-soft: var(--sucesso-soft);
+  --color-aviso-soft: var(--aviso-soft);
+  --color-danger-soft: var(--danger-soft);
+  --color-info-soft: var(--info-soft);
   --font-titulo: "Bricolage Grotesque", "Figtree", sans-serif;
   --font-texto: "Figtree", system-ui, sans-serif;
 
@@ -155,8 +224,79 @@ h1, h2, h3, h4, .font-titulo {
   }
 }
 
+/* ── Tipografia: títulos em Bricolage Grotesque, texto e números em Figtree ─────────────
+   texto-display (36) · texto-titulo-1 (28, título da tela) · texto-titulo-2 (20) · texto-titulo-3 (15, título de cartão)
+   texto-corpo (14) · texto-apoio (13) · texto-legenda (12) · texto-sobretitulo (11, caixa alta, azul)
+   numero-destaque (o número principal) · numero-kpi (números de cartão) — sempre em Figtree, algarismos proporcionais. */
+@utility texto-display {
+  font-family: var(--font-titulo);
+  font-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.25rem);
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+}
+@utility texto-titulo-1 {
+  font-family: var(--font-titulo);
+  font-size: clamp(1.5rem, 1.3rem + 0.7vw, 1.75rem);
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+  font-weight: 600;
+}
+@utility texto-titulo-2 {
+  font-family: var(--font-titulo);
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+@utility texto-titulo-3 {
+  font-family: var(--font-titulo);
+  font-size: 0.9375rem;
+  line-height: 1.375rem;
+  letter-spacing: -0.01em;
+  font-weight: 600;
+}
+@utility texto-corpo {
+  font-size: 0.875rem;
+  line-height: 1.375rem;
+}
+@utility texto-apoio {
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  color: var(--foreground-secondary);
+}
+@utility texto-legenda {
+  font-size: 0.75rem;
+  line-height: 1rem;
+  color: var(--foreground-muted);
+}
+@utility texto-sobretitulo {
+  font-size: 0.6875rem;
+  line-height: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--marca);
+}
+@utility numero-destaque {
+  font-family: var(--font-texto);
+  font-size: clamp(1.75rem, 1.4rem + 1.1vw, 2.25rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  font-weight: 600;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+@utility numero-kpi {
+  font-family: var(--font-texto);
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.5rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  font-weight: 600;
+  font-variant-numeric: lining-nums proportional-nums;
+}
+
 @layer components {
-  /* Status badges: soft tinted pill, dot kept for quick scanning */
+  /* Badges: pílula com fundo suave, contorno fino da mesma cor e ponto para leitura rápida */
   .badge {
     display: inline-flex;
     align-items: center;
@@ -168,7 +308,8 @@ h1, h2, h3, h4, .font-titulo {
     letter-spacing: 0.01em;
     line-height: 1.3;
     white-space: nowrap;
-    background: color-mix(in srgb, currentColor 13%, transparent);
+    background: color-mix(in srgb, currentColor 11%, transparent);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 22%, transparent);
   }
   .badge::before {
     content: "";
@@ -178,16 +319,17 @@ h1, h2, h3, h4, .font-titulo {
     background: currentColor;
     flex-shrink: 0;
   }
-
   .badge-confirmado { color: var(--info); }
   .badge-realizado { color: var(--sucesso); }
   .badge-pendente { color: var(--aviso); }
   .badge-cancelado { color: var(--danger); }
 
+  /* Cartão: superfície branca, borda fina e sombra mínima */
   .card {
     background: var(--areia-card);
     border: 1px solid var(--borda);
     border-radius: var(--radius);
+    box-shadow: var(--shadow-xs);
     transition: box-shadow var(--dur-hover) var(--ease-suave), border-color var(--dur-hover) var(--ease-suave), transform var(--dur-hover) var(--ease-suave);
   }
 
@@ -196,59 +338,99 @@ h1, h2, h3, h4, .font-titulo {
     .card-hover:hover,
     .hover-lift:hover {
       box-shadow: var(--shadow-md);
-      border-color: var(--borda-forte);
+      border-color: var(--azul-200);
       transform: translateY(-2px);
     }
   }
-
   .hover-lift {
     transition: box-shadow var(--dur-hover) var(--ease-suave), border-color var(--dur-hover) var(--ease-suave), transform var(--dur-hover) var(--ease-suave);
   }
 
-  /* Toque: o flash cinza do iOS está desligado (body) e o hover não existe no dedo. Para todo elemento
-     clicável responder ao toque (em menos de 100 ms, sem mexer no layout), ele fica um pouco mais claro
-     enquanto pressionado; cartões clicáveis também encolhem de leve. :where() não pesa na especificidade,
-     então componentes com estado pressionado próprio continuam valendo. */
+  /* Toque: o elemento clicável clareia enquanto pressionado; cartões clicáveis encolhem de leve. */
   @media (hover: none) {
     :where(a, button, [role="button"], summary, label[for]):active:not(:disabled) {
       opacity: 0.72;
     }
     .card-hover:active,
-    .hover-lift:active {
+    .hover-lift:active,
+    .kpi:active {
       transform: scale(0.985);
     }
   }
 
-  /* Faixa de métricas: um bloco com linhas finas entre as células, sem buracos quando a última linha fica incompleta */
+  /* ── KPI: cartão de número. Entra subindo (uma vez, em cascata pelo --i) e sobe ao passar o mouse. ── */
+  .kpi {
+    position: relative;
+    transition:
+      transform var(--dur-media) var(--ease-saida),
+      box-shadow var(--dur-media) var(--ease-saida),
+      border-color var(--dur-media) var(--ease-saida),
+      background-position var(--dur-lenta) var(--ease-saida);
+  }
+  .kpi-entrada {
+    animation: kpi-entrada 620ms var(--ease-saida) backwards;
+    animation-delay: calc(var(--i, 0) * 70ms);
+  }
+  .kpi-icone { transition: transform var(--dur-media) var(--ease-saida), background-color var(--dur-media) ease; }
+  .kpi-aneis { transition: transform 900ms var(--ease-saida), opacity var(--dur-media) ease; transform-origin: center; }
+  @media (hover: hover) {
+    .kpi:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--azul-200);
+    }
+    .kpi:hover .kpi-icone { transform: scale(1.08) rotate(-6deg); }
+    .kpi-principal:hover {
+      box-shadow: 0 22px 44px -16px rgba(29, 78, 216, 0.75);
+      background-position: 100% 50%;
+    }
+    .kpi-principal:hover .kpi-aneis { transform: rotate(28deg) scale(1.12); }
+  }
+  /* Cartão principal: azul da marca, degradê sutil dentro do próprio azul (corre um pouco no hover) */
+  .kpi-principal {
+    color: #fff;
+    border-radius: var(--radius);
+    background-image: linear-gradient(120deg, #3a74f5 0%, var(--azul-600) 45%, var(--azul-700) 100%);
+    background-size: 160% 160%;
+    background-position: 0% 50%;
+    box-shadow: var(--shadow-marca);
+    overflow: hidden;
+  }
+
+  /* Faixa de métricas: um bloco com linhas finas entre as células */
   .faixa {
     display: grid;
     overflow: hidden;
     background: var(--areia-card);
     border: 1px solid var(--borda);
     border-radius: var(--radius);
+    box-shadow: var(--shadow-xs);
   }
-  .faixa > * { box-shadow: 1px 0 0 0 var(--borda), 0 1px 0 0 var(--borda); }
+  .faixa > * { box-shadow: 1px 0 0 0 var(--borda), 0 1px 0 0 var(--borda); transition: background-color var(--dur-hover) ease; }
+  @media (hover: hover) {
+    .faixa > *:hover { background: var(--tinta-25); }
+  }
 
-  /* Métricas em cards separados, com espaço entre eles */
-  .metricas-separadas { display: grid; gap: 0.5rem; }
-  @media (min-width: 768px) { .metricas-separadas { gap: 0.75rem; } }
+  /* Métricas em cartões separados: comportam-se como KPI */
+  .metricas-separadas { display: grid; gap: 0.75rem; }
+  @media (min-width: 768px) { .metricas-separadas { gap: 1rem; } }
   .metricas-separadas > * {
     background: var(--areia-card);
     border: 1px solid var(--borda);
     border-radius: var(--radius);
     box-shadow: var(--shadow-xs);
-    transition: box-shadow var(--dur-hover) var(--ease-suave), border-color var(--dur-hover) var(--ease-suave), transform var(--dur-hover) var(--ease-suave);
+    transition: transform var(--dur-media) var(--ease-saida), box-shadow var(--dur-media) var(--ease-saida), border-color var(--dur-media) var(--ease-saida);
+    animation: kpi-entrada 620ms var(--ease-saida) backwards;
   }
-  /* Sobe um pouco ao passar o mouse (só com mouse: no iPad o toque não deixa o estado "grudado") */
+  .metricas-separadas > *:nth-child(2) { animation-delay: 70ms; }
+  .metricas-separadas > *:nth-child(3) { animation-delay: 140ms; }
+  .metricas-separadas > *:nth-child(4) { animation-delay: 210ms; }
   @media (hover: hover) {
     .metricas-separadas > *:hover {
-      box-shadow: var(--shadow-md);
-      border-color: var(--borda-forte);
-      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+      border-color: var(--azul-200);
+      transform: translateY(-4px);
     }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .metricas-separadas > *:hover { transform: none; }
   }
 
   .surface-glass {
@@ -256,127 +438,116 @@ h1, h2, h3, h4, .font-titulo {
     backdrop-filter: blur(10px);
   }
 
-  /* Buttons */
+  /* Botões (classe CSS para quem não usa o componente <Button>) */
   .btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: 0.375rem;
+    height: 2.5rem;
     border-radius: var(--radius-sm);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    padding: 0.5rem 0.875rem;
-    transition: background-color var(--dur-hover) ease, border-color var(--dur-hover) ease, color var(--dur-hover) ease, box-shadow var(--dur-hover) ease, filter var(--dur-hover) ease, transform var(--dur-hover) var(--ease-suave);
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0 1rem;
+    transition: background-color var(--dur-hover) ease, border-color var(--dur-hover) ease, color var(--dur-hover) ease, box-shadow var(--dur-hover) ease, transform var(--dur-hover) var(--ease-suave);
     white-space: nowrap;
   }
   .btn:disabled { opacity: 0.55; cursor: not-allowed; }
-  @media (hover: hover) {
-    .btn-primary:hover:not(:disabled),
-    .btn-accent:hover:not(:disabled) { transform: translateY(-1px); }
-  }
   .btn:active:not(:disabled) { transform: scale(0.97); transition-duration: 80ms; }
-  .btn:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 3px var(--marca-claro);
-  }
-
-  .btn-primary {
-    background: var(--foreground);
-    color: #fff;
-  }
-  .btn-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--foreground) 88%, white); }
-
+  .btn:focus-visible { outline: none; box-shadow: var(--anel-foco); }
+  .btn-primary { background: var(--foreground); color: #fff; }
+  .btn-primary:hover:not(:disabled) { background: var(--tinta-800); }
   .btn-accent {
     background: var(--marca);
     color: #fff;
+    box-shadow: 0 1px 2px rgba(29, 78, 216, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.14);
   }
   .btn-accent:hover:not(:disabled) { background: var(--marca-escuro); }
-
-  .btn-secondary {
-    background: var(--areia-card);
-    color: var(--foreground);
-    border: 1px solid var(--borda-forte);
-  }
-  .btn-secondary:hover:not(:disabled) { background: var(--sidebar-hover-bg); border-color: color-mix(in srgb, var(--foreground) 28%, transparent); }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--foreground-secondary);
-  }
-  .btn-ghost:hover:not(:disabled) { background: var(--sidebar-hover-bg); color: var(--foreground); }
-
-  .btn-danger-ghost {
-    background: transparent;
-    color: var(--foreground-secondary);
-    border: 1px solid var(--borda-forte);
-  }
+  .btn-secondary { background: var(--areia-card); color: var(--foreground); border: 1px solid var(--borda); box-shadow: var(--shadow-xs); }
+  .btn-secondary:hover:not(:disabled) { background: var(--tinta-25); border-color: var(--borda-forte); }
+  .btn-ghost { background: transparent; color: var(--foreground-secondary); }
+  .btn-ghost:hover:not(:disabled) { background: var(--tinta-100); color: var(--foreground); }
+  .btn-danger-ghost { background: transparent; color: var(--foreground-secondary); border: 1px solid var(--borda); }
   .btn-danger-ghost:hover:not(:disabled) { background: var(--danger-soft); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 30%, transparent); }
 
-  /* Form controls */
+  /* Campos */
   .field-label {
     display: block;
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--foreground-secondary);
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.375rem;
   }
-
   .input {
     width: 100%;
-    border-radius: 0.5rem;
-    border: 1px solid var(--borda-forte);
+    min-height: 2.5rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--borda);
     background: var(--areia-card);
-    padding: 0.5rem 0.75rem;
+    padding: 0.5rem 0.875rem;
     font-size: 0.875rem;
     color: var(--foreground);
     outline: none;
-    transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
+    box-shadow: var(--shadow-xs);
+    transition: border-color var(--dur-hover) ease, box-shadow var(--dur-hover) ease, background-color var(--dur-hover) ease;
   }
   @media (hover: hover) {
-    .input:hover:not(:focus):not(:disabled) { border-color: color-mix(in srgb, var(--foreground) 28%, transparent); }
+    .input:hover:not(:focus):not(:disabled) { border-color: var(--borda-forte); }
   }
-  .input:focus {
-    border-color: var(--marca);
-    box-shadow: 0 0 0 3px var(--marca-claro);
+  .input:focus,
+  .input[data-state="open"] {
+    border-color: var(--azul-500);
+    box-shadow: var(--anel-foco);
   }
-  .input::placeholder { color: var(--foreground-muted); }
+  .input:disabled,
+  .input[aria-disabled="true"] { background: var(--tinta-50); color: var(--foreground-muted); box-shadow: none; }
+  .input[aria-invalid="true"] { border-color: var(--danger); }
+  .input[aria-invalid="true"]:focus { box-shadow: 0 0 0 4px color-mix(in srgb, var(--danger) 18%, transparent); }
+  .input::placeholder { color: var(--tinta-500); }
 
-  /* O Safari do iPhone/iPad dá zoom ao focar um campo com fonte menor que 16px.
-     16px em telas pequenas e em qualquer tela de toque (tablet incluído); com mouse fica compacto. */
+  /* O Safari do iPhone/iPad dá zoom ao focar um campo com fonte menor que 16px. */
   @media (max-width: 767px), (pointer: coarse) {
     .input {
       font-size: 1rem;
-      padding: 0.625rem 0.75rem;
+      padding: 0.625rem 0.875rem;
     }
   }
 
-  /* Segmented tab control */
+  /* Controle segmentado: trilho cinza e a opção escolhida em "chip" branco elevado */
   .segmented {
     display: inline-flex;
-    border-radius: 0.5rem;
-    border: 1px solid var(--borda);
-    background: var(--areia-card);
-    padding: 2px;
+    gap: 2px;
+    border-radius: var(--radius-sm);
+    background: var(--tinta-100);
+    padding: 3px;
   }
   .segmented-item {
-    border-radius: 0.4rem;
-    padding: 0.4rem 0.75rem;
+    border-radius: calc(var(--radius-sm) - 3px);
+    padding: 0.4rem 0.85rem;
     font-size: 0.8125rem;
     font-weight: 500;
     color: var(--foreground-secondary);
-    transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease;
+    transition: background-color var(--dur-hover) ease, color var(--dur-hover) ease, box-shadow var(--dur-hover) ease;
   }
   @media (hover: hover) {
-    .segmented-item:not(.active):not([data-state="active"]):hover {
-      background: var(--sidebar-hover-bg);
-      color: var(--foreground);
-    }
+    .segmented-item:not(.active):not([data-state="active"]):hover { color: var(--foreground); background: rgba(255, 255, 255, 0.55); }
   }
-  .segmented-item.active {
-    background: var(--marca);
-    color: #fff;
-    box-shadow: var(--shadow-xs);
+  .segmented-item.active,
+  .segmented-item[data-state="active"] {
+    background: var(--areia-card);
+    color: var(--azul-700);
+    font-weight: 600;
+    box-shadow: var(--shadow-sm);
   }
+}
+
+@keyframes kpi-entrada {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .kpi:hover, .metricas-separadas > *:hover { transform: none; }
+  .kpi:hover .kpi-icone, .kpi-principal:hover .kpi-aneis { transform: none; }
 }
 
 ::-webkit-scrollbar {
@@ -384,7 +555,7 @@ h1, h2, h3, h4, .font-titulo {
   height: 8px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #c3cedf;
+  background: var(--tinta-300);
   border-radius: 8px;
 }
 
@@ -401,7 +572,7 @@ h1, h2, h3, h4, .font-titulo {
   100% { background-position: 300px 0; }
 }
 .skeleton {
-  background: linear-gradient(90deg, var(--borda) 25%, #eef2f9 37%, var(--borda) 63%);
+  background: linear-gradient(90deg, var(--tinta-100) 25%, var(--tinta-50) 37%, var(--tinta-100) 63%);
   background-size: 400px 100%;
   animation: shimmer 1.4s ease-in-out infinite;
   border-radius: var(--radius-sm);

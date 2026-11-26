@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 import {
-  BarChart3, Building, Building2, ClipboardList, FilePlus2, FileUp, Hospital, KeyRound, LayoutDashboard, Receipt, ShieldCheck, UserPlus, UserRound, Wallet,
+  BarChart3, Building, Building2, ClipboardList, FilePlus2, FileUp, Hospital, KeyRound, LayoutDashboard, Palette, Receipt, ShieldCheck, UserPlus, UserRound, Wallet,
 } from "lucide-react";
 import { filtrarOpcoes } from "@/lib/busca";
 import { pode, type PermissaoQualquer } from "@/lib/permissoes";
@@ -69,7 +69,10 @@ export const SECOES: SecaoMenu[] = [
   {
     chave: "conta",
     titulo: "Minha conta",
-    itens: [{ href: "/perfil", label: "Meu perfil", Icone: UserRound }],
+    itens: [
+      { href: "/perfil", label: "Meu perfil", Icone: UserRound },
+      { href: "/design-system", label: "Design system", Icone: Palette },
+    ],
   },
 ];
 

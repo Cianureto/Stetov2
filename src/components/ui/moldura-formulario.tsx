@@ -56,8 +56,8 @@ export function FormTela({ titulo, descricao, rotulo, onFechar, onSubmit, childr
             <ArrowLeft className="size-[18px]" aria-hidden />
           </button>
           <div className="min-w-0">
-            {rotulo && <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--marca)]">{rotulo}</p>}
-            <h1 className="mt-0.5 font-titulo text-2xl font-semibold tracking-tight md:text-[28px]">{titulo}</h1>
+            {rotulo && <p className="texto-sobretitulo">{rotulo}</p>}
+            <h1 className="texto-titulo-1 mt-0.5">{titulo}</h1>
             {descricao && <p className="mt-1 text-sm text-foreground-secondary">{descricao}</p>}
           </div>
         </header>

@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
+import type { CSSProperties } from "react";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
+import { Contador } from "@/components/ui/animado";
 
 export type NumeroHero = {
   valor: number | string | undefined;
@@ -19,13 +21,22 @@ export type NumeroHero = {
 const formatar = (v: number | string | undefined, falhou: boolean) =>
   v === undefined ? (falhou ? "—" : "…") : typeof v === "number" ? v.toLocaleString("pt-BR") : v;
 
+/** Valor do cartão: conta de 0 até o número quando ele chega (e do valor anterior quando muda). */
+function Valor({ n, falhou }: { n: NumeroHero; falhou: boolean }) {
+  if (n.valor === undefined || n.textual) return <>{formatar(n.valor, falhou)}</>;
+  return <Contador valor={typeof n.valor === "number" ? n.valor : n.valor} />;
+}
+
+/** Posição na cascata de entrada dos cartões (cada um entra 70 ms depois do anterior). */
+const ordem = (i: number) => ({ "--i": i }) as CSSProperties;
+
 const PONTO = { marca: "bg-[var(--marca)]", aviso: "bg-[var(--acafrao)]", perigo: "bg-[var(--danger)]" } as const;
 const VALOR = { marca: "", aviso: "text-[var(--aviso)]", perigo: "text-[var(--danger)]" } as const;
 
 /** Anéis finos de enfeite no canto do cartão em destaque (sem brilho nem desfoque). */
 function Aneis({ className }: { className?: string }) {
   return (
-    <svg aria-hidden viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth={1.25} className={cn("pointer-events-none absolute", className)}>
+    <svg aria-hidden viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth={1.25} className={cn("kpi-aneis pointer-events-none absolute", className)}>
       <circle cx="100" cy="100" r="38" />
       <circle cx="100" cy="100" r="62" />
       <circle cx="100" cy="100" r="86" />
@@ -37,10 +48,8 @@ function Aneis({ className }: { className?: string }) {
 export function NumeroPrincipal({ n, falhou, sozinho = false }: { n: NumeroHero; falhou: boolean; sozinho?: boolean }) {
   return (
     <div
-      className={cn(
-        "relative min-w-0 overflow-hidden rounded-[var(--radius)] bg-[linear-gradient(135deg,#2f6bf0_0%,#1d4ed8_55%,#1b44c4_100%)] px-5 py-4 text-white shadow-[0_14px_30px_-16px_rgba(29,78,216,0.75)] md:px-6 md:py-5",
-        sozinho ? "col-span-2 sm:col-span-1" : "col-span-2",
-      )}
+      style={ordem(0)}
+      className={cn("kpi kpi-principal kpi-entrada min-w-0 px-5 py-4 md:px-6 md:py-5", sozinho ? "col-span-2 sm:col-span-1" : "col-span-2")}
     >
       <Aneis className="-right-14 -top-16 size-52 text-white/[0.13]" />
       <Aneis className="-bottom-24 right-24 size-40 text-white/[0.07]" />
@@ -50,10 +59,10 @@ export function NumeroPrincipal({ n, falhou, sozinho = false }: { n: NumeroHero;
           {n.ajuda && <AjudaIndicador escuro indicador={n.rotulo} texto={n.ajuda} />}
         </div>
         <div
-          className={cn("mt-2 font-semibold tracking-tight", n.textual ? "line-clamp-2 text-lg leading-snug md:text-xl" : "text-[28px] leading-none md:text-[34px]")}
+          className={cn("mt-2", n.textual ? "line-clamp-2 text-lg font-semibold leading-snug md:text-xl" : "numero-destaque")}
           title={n.textual && typeof n.valor === "string" ? n.valor : undefined}
         >
-          {formatar(n.valor, falhou)}
+          <Valor n={n} falhou={falhou} />
         </div>
         {n.nota && (
           <div className={cn("mt-3 inline-flex max-w-full truncate rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium", n.notaRuim ? "text-amber-100" : "text-white")}>
@@ -89,8 +98,8 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
     <header className={cn("flex flex-col", compacto ? "gap-4" : "gap-5")}>
       <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
         <div className="min-w-0 max-w-3xl">
-          <p className="text-xs font-semibold uppercase tracking-[0.12em] text-[var(--marca)]">{rotulo}</p>
-          <h1 className={cn("mt-1 font-titulo font-semibold leading-tight tracking-tight text-foreground", compacto ? "text-xl md:text-2xl" : "text-2xl md:text-[28px]")}>{titulo}</h1>
+          <p className="texto-sobretitulo">{rotulo}</p>
+          <h1 className={cn("mt-1 text-foreground", compacto ? "texto-titulo-2" : "texto-titulo-1")}>{titulo}</h1>
           <p className={cn("mt-1 text-sm leading-relaxed text-foreground-secondary", compacto && "max-sm:line-clamp-2")}>{descricao}</p>
         </div>
         {acao}
@@ -109,21 +118,17 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
           )}
         >
           {numeros.map((n, i) => (i === 0 ? <NumeroPrincipal key={n.rotulo} n={n} falhou={falhou} sozinho={numeros.length === 1} /> : (
-            <div key={n.rotulo} className="card min-w-0 px-4 py-3.5 md:px-5 md:py-4">
+            <div key={n.rotulo} style={ordem(i)} className="card kpi kpi-entrada min-w-0 px-4 py-3.5 md:px-5 md:py-4">
               <div className="flex min-w-0 items-center gap-1.5 text-[13px] text-foreground-secondary">
                 {n.tom && <span aria-hidden className={cn("size-2 shrink-0 rounded-full", PONTO[n.tom])} />}
                 <span className="truncate">{n.rotulo}</span>
                 {n.ajuda && <AjudaIndicador indicador={n.rotulo} texto={n.ajuda} />}
               </div>
               <div
-                className={cn(
-                  "mt-1.5 font-semibold tracking-tight text-foreground",
-                  n.textual ? "line-clamp-2 text-base leading-snug md:text-lg" : "text-xl leading-tight md:text-2xl",
-                  n.tom && VALOR[n.tom],
-                )}
+                className={cn("mt-1.5 text-foreground", n.textual ? "line-clamp-2 text-base font-semibold leading-snug md:text-lg" : "numero-kpi", n.tom && VALOR[n.tom])}
                 title={n.textual && typeof n.valor === "string" ? n.valor : undefined}
               >
-                {formatar(n.valor, falhou)}
+                <Valor n={n} falhou={falhou} />
               </div>
               {n.nota && <div className={cn("mt-1 truncate text-xs", n.notaRuim ? "font-medium text-[var(--aviso)]" : "text-foreground-muted")}>{n.nota}</div>}
             </div>

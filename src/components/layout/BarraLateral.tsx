@@ -69,7 +69,7 @@ export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAc
             {rotuloAcao}
           </button>
         )}
-        <nav aria-label="Navegação principal" className="-mx-1 flex-1 space-y-5 overflow-y-auto px-1 [scrollbar-width:none]">
+        <nav aria-label="Navegação principal" className="-mx-1 flex-1 space-y-4 overflow-y-auto px-1 [scrollbar-width:none]">
           {secoes.map((s) => (
             <div key={s.chave}>
               <p className="px-3 pb-1 text-xs font-semibold text-white/60">{s.titulo}</p>

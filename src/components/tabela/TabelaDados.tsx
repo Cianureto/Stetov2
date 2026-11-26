@@ -161,7 +161,7 @@ export function TabelaDados<T>({ tabela, colunas, chaveLinha, onLinha, abrivel, 
       <div className={cn("overflow-x-auto", renderCelular && "max-md:hidden")}>
         <table className="w-full text-left text-sm">
           <thead>
-            <tr className="border-b border-borda text-xs text-foreground-muted">
+            <tr className="border-b border-borda bg-tinta-25 text-[11px] uppercase tracking-[0.06em] text-foreground-muted">
               {selecao && (
                 <th scope="col" className="w-10 py-3 pl-4 pr-0">
                   <CaixaSelecao
@@ -203,7 +203,7 @@ export function TabelaDados<T>({ tabela, colunas, chaveLinha, onLinha, abrivel, 
                 key={chaveLinha(linha)}
                 {...clicavel(linha)}
                 aria-selected={selecao ? selecao.selecionadas.has(chaveLinha(linha)) : undefined}
-                className={cn("transition-colors hover:bg-[var(--sidebar-hover-bg)]/60", abre(linha) && "cursor-pointer outline-none focus-visible:bg-[var(--sidebar-hover-bg)]", selecao?.selecionadas.has(chaveLinha(linha)) && "bg-marca-claro/40", classeLinha?.(linha))}
+                className={cn("transition-colors hover:bg-azul-50/60", abre(linha) && "cursor-pointer outline-none focus-visible:bg-azul-50", selecao?.selecionadas.has(chaveLinha(linha)) && "bg-azul-50", classeLinha?.(linha))}
               >
                 {selecao && (
                   <td className="w-10 py-3 pl-4 pr-0 align-middle">

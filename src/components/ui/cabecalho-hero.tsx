@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import type { CSSProperties } from "react";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
-import { NumeroVeloz } from "@/components/ui/numero-veloz";
+import { BordaTrilha, NumeroAnimado } from "@/components/ui/numero-animado";
 
 export type NumeroHero = {
   valor: number | string | undefined;
@@ -21,10 +21,10 @@ export type NumeroHero = {
 const formatar = (v: number | string | undefined, falhou: boolean) =>
   v === undefined ? (falhou ? "—" : "…") : typeof v === "number" ? v.toLocaleString("pt-BR") : v;
 
-/** Valor do cartão: os algarismos correm até o número quando ele chega (e do valor anterior quando muda). */
+/** Valor do cartão: os caracteres aparecem um de cada vez quando o número chega (e os que mudam, quando muda). */
 function Valor({ n, falhou }: { n: NumeroHero; falhou: boolean }) {
   if (n.valor === undefined || n.textual) return <>{formatar(n.valor, falhou)}</>;
-  return <NumeroVeloz valor={typeof n.valor === "number" ? n.valor : n.valor} />;
+  return <NumeroAnimado valor={typeof n.valor === "number" ? n.valor : n.valor} />;
 }
 
 /** Posição na cascata de entrada dos cartões (cada um entra 70 ms depois do anterior). */
@@ -51,6 +51,7 @@ export function NumeroPrincipal({ n, falhou, sozinho = false }: { n: NumeroHero;
       style={ordem(0)}
       className={cn("kpi kpi-principal kpi-entrada min-w-0 px-5 py-4 md:px-6 md:py-5", sozinho ? "col-span-2 sm:col-span-1" : "col-span-2")}
     >
+      <BordaTrilha clara />
       <Aneis className="-right-14 -top-16 size-52 text-white/[0.13]" />
       <Aneis className="-bottom-24 right-24 size-40 text-white/[0.07]" />
       <div className="relative">
@@ -119,6 +120,7 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
         >
           {numeros.map((n, i) => (i === 0 ? <NumeroPrincipal key={n.rotulo} n={n} falhou={falhou} sozinho={numeros.length === 1} /> : (
             <div key={n.rotulo} style={ordem(i)} className="card kpi kpi-entrada min-w-0 px-4 py-3.5 md:px-5 md:py-4">
+              <BordaTrilha />
               <div className="flex min-w-0 items-center gap-1.5 text-[13px] text-foreground-secondary">
                 {n.tom && <span aria-hidden className={cn("size-2 shrink-0 rounded-full", PONTO[n.tom])} />}
                 <span className="truncate">{n.rotulo}</span>

@@ -541,6 +541,55 @@ h1, h2, h3, h4, .font-titulo {
   }
 }
 
+/* Números dos KPIs: um caractere de cada vez (NumeroAnimado). --i = cartão na cascata, --c = caractere. */
+.numero-char {
+  display: inline-block;
+  animation: numero-char 560ms var(--ease-saida) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms + 140ms + var(--c, 0) * 42ms);
+}
+@keyframes numero-char {
+  from { opacity: 0; transform: translateY(0.45em); filter: blur(6px); }
+  to { opacity: 1; transform: translateY(0); filter: blur(0); }
+}
+
+/* Luz que percorre a borda do cartão (BordaTrilha). Só a faixa da borda aparece: duas máscaras
+   (área interna transparente ∩ caixa inteira) deixam visível apenas o 1px do contorno. */
+.borda-trilha {
+  pointer-events: none;
+  position: absolute;
+  inset: -1px;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  mask-image: linear-gradient(transparent, transparent), linear-gradient(#000, #000);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  -webkit-mask-image: linear-gradient(transparent, transparent), linear-gradient(#000, #000);
+  -webkit-mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in;
+}
+.kpi-principal .borda-trilha { inset: 0; }
+.borda-trilha-ponto {
+  position: absolute;
+  width: 88px;
+  aspect-ratio: 1;
+  offset-path: rect(0 auto auto 0 round 88px);
+  background: linear-gradient(to left, transparent, var(--azul-400), transparent);
+  opacity: 0.75;
+  animation: borda-trilha 9s linear infinite;
+  animation-delay: calc(var(--i, 0) * -2.3s);
+}
+.borda-trilha-clara .borda-trilha-ponto {
+  background: linear-gradient(to left, transparent, rgba(255, 255, 255, 0.85), transparent);
+  opacity: 0.6;
+}
+@keyframes borda-trilha {
+  from { offset-distance: 0%; }
+  to { offset-distance: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .borda-trilha { display: none; }
+}
+
 @keyframes kpi-entrada {
   from { opacity: 0; transform: translateY(14px) scale(0.985); }
   to { opacity: 1; transform: translateY(0) scale(1); }

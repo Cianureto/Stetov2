@@ -3,7 +3,7 @@ import { ArrowDownRight, ArrowUpRight, Minus } from "lucide-react";
 import { Sparkline } from "@/components/relatorios/graficos";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
 import type { CSSProperties } from "react";
-import { NumeroVeloz } from "@/components/ui/numero-veloz";
+import { BordaTrilha, NumeroAnimado } from "@/components/ui/numero-animado";
 import { cn } from "@/lib/cn";
 import { formatarPercentualCurto } from "@/lib/format";
 
@@ -69,6 +69,7 @@ export function CartaoIndicador({
   if (principal) {
     return (
       <section aria-label={titulo} style={estilo} className={cn("kpi kpi-principal kpi-entrada flex min-w-0 flex-col p-5 md:p-6", className)}>
+        <BordaTrilha clara />
         <svg aria-hidden viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth={1.25} className="kpi-aneis pointer-events-none absolute -right-14 -top-16 size-56 text-white/[0.13]">
           <circle cx="100" cy="100" r="38" />
           <circle cx="100" cy="100" r="62" />
@@ -88,7 +89,7 @@ export function CartaoIndicador({
           {titulo}
           {ajuda && <AjudaIndicador escuro indicador={titulo} texto={ajuda} />}
         </div>
-        <div className="numero-destaque relative mt-1"><NumeroVeloz valor={valor} /></div>
+        <div className="numero-destaque relative mt-1"><NumeroAnimado valor={valor} /></div>
         <div className="relative mt-auto flex flex-wrap items-center gap-x-2 gap-y-1 pt-3 text-xs text-white/75">
           <SeloVariacao variacao={variacao} subirEBom={subirEBom} sobreAzul />
           <span>{variacao === null ? "sem dados no período anterior" : comparacao}</span>
@@ -100,6 +101,7 @@ export function CartaoIndicador({
 
   return (
     <section className={cn("card kpi kpi-entrada flex min-w-0 flex-col p-4 md:p-5", className)} style={estilo} aria-label={titulo}>
+      <BordaTrilha />
       <div className="flex items-start justify-between gap-3">
         <span className="kpi-icone grid size-9 place-items-center rounded-xl bg-azul-50 text-azul-600 ring-1 ring-inset ring-azul-100">
           <Icone aria-hidden className="size-[18px]" />
@@ -114,7 +116,7 @@ export function CartaoIndicador({
         {titulo}
         {ajuda && <AjudaIndicador indicador={titulo} texto={ajuda} />}
       </div>
-      <div className="numero-kpi mt-0.5 text-foreground"><NumeroVeloz valor={valor} /></div>
+      <div className="numero-kpi mt-0.5 text-foreground"><NumeroAnimado valor={valor} /></div>
       <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-foreground-muted">
         <SeloVariacao variacao={variacao} subirEBom={subirEBom} />
         <span>{variacao === null ? "sem dados no período anterior" : comparacao}</span>

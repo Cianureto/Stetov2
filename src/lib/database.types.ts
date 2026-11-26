@@ -388,6 +388,8 @@ export type Database = {
       }
       perfis: {
         Row: {
+          ativo: boolean
+          trocar_senha: boolean
           created_at: string
           email: string
           empresa_id: string
@@ -398,6 +400,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          ativo?: boolean
+          trocar_senha?: boolean
           created_at?: string
           email: string
           empresa_id: string
@@ -408,6 +412,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          ativo?: boolean
+          trocar_senha?: boolean
           created_at?: string
           email?: string
           empresa_id?: string

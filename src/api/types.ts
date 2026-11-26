@@ -165,3 +165,8 @@ export type PainelGeral = {
 };
 
 export type Relatorio = { resumo: ResumoRegistros; clientes: LinhaRanking[]; prestadores: LinhaRanking[]; serie: PontoMensal[] };
+
+export type Usuario = { id: string; nome: string; email: string; papel: "admin" | "usuario"; ativo: boolean; trocarSenha: boolean; criadoEm: string; empresa?: { id: string; nome: string } };
+export type ListaUsuarios = { usuarios: Usuario[]; meta: MetaLista };
+export type Empresa = { id: string; nome: string; cnpj: string | null; status: StatusAtivo; isSteto: boolean; criadoEm: string };
+export type ListaEmpresas = { empresas: Empresa[]; meta: MetaLista };

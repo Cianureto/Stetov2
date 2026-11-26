@@ -9,11 +9,14 @@ rota("GET", "/auth/me", async () => {
   if (!sessao.user) throw erroHttp(401, "Sua sessão terminou. Entre de novo para continuar.");
   const { data, error } = await supabase
     .from("perfis")
-    .select("id, nome, email, papel, empresa:empresas(id, nome, is_steto)")
+    // "*": ativo e trocar_senha só existem depois da migration de usuários; sem elas, vale ativo e sem troca.
+    .select("*, empresa:empresas(id, nome, is_steto)")
     .eq("id", sessao.user.id)
     .maybeSingle();
   if (error) throw error;
   if (!data || !data.empresa) throw erroHttp(404, "Sua conta ainda não está vinculada a uma empresa.");
+  const extra = data as { ativo?: boolean; trocar_senha?: boolean };
+  if (extra.ativo === false) throw erroHttp(404, "Sua conta está inativa. Fale com o administrador da sua empresa.");
   const usuario: Usuario = {
     id: data.id,
     nome: data.nome || data.email,
@@ -21,6 +24,7 @@ rota("GET", "/auth/me", async () => {
     papel: data.papel,
     empresa: { id: data.empresa.id, nome: data.empresa.nome, isSteto: data.empresa.is_steto },
     permissoes: permissoesDoPapel(data.papel),
+    trocarSenha: !!extra.trocar_senha,
   };
   return usuario;
 });

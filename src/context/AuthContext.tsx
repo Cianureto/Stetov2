@@ -109,5 +109,5 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setSemVinculo(false);
   }, [aplicar]);
 
-  return <AuthContext.Provider value={{ usuario, carregando, semVinculo, login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ usuario, carregando, semVinculo, login, logout, recarregarUsuario: carregarPerfil }}>{children}</AuthContext.Provider>;
 }

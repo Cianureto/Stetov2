@@ -9,3 +9,4 @@ import "@/api/rotas/contas";
 import "@/api/rotas/categorias";
 import "@/api/rotas/painel";
 import "@/api/rotas/relatorios";
+import "@/api/rotas/usuarios";

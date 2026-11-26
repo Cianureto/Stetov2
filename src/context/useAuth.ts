@@ -10,6 +10,8 @@ export type Usuario = {
   empresa: { id: string; nome: string; isSteto: boolean };
   /** Permissões do perfil (lib/permissoes.ts). Sem lista = acesso total (administrador). */
   permissoes?: string[];
+  /** Senha temporária (criada ou redefinida pelo administrador): a troca é obrigatória antes de usar o app. */
+  trocarSenha?: boolean;
 };
 
 export type AuthContextValue = {
@@ -19,6 +21,8 @@ export type AuthContextValue = {
   semVinculo: boolean;
   login: (email: string, senha: string) => Promise<void>;
   logout: () => Promise<void>;
+  /** Recarrega o usuário (depois de trocar a senha ou o nome). */
+  recarregarUsuario: () => Promise<void>;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);

@@ -226,8 +226,10 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
   return (
     <div className="space-y-6">
       {/* Indicadores principais */}
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 xl:grid-cols-5">
         <CartaoIndicador
+          principal
+          className="sm:col-span-3 xl:col-span-2"
           icone={Receipt}
           titulo="Faturamento (valor das notas)"
           valor={formatarMoeda(a.valorNf)}

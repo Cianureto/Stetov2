@@ -22,9 +22,53 @@ const formatar = (v: number | string | undefined, falhou: boolean) =>
 const PONTO = { marca: "bg-[var(--marca)]", aviso: "bg-[var(--acafrao)]", perigo: "bg-[var(--danger)]" } as const;
 const VALOR = { marca: "", aviso: "text-[var(--aviso)]", perigo: "text-[var(--danger)]" } as const;
 
+/** Anéis finos de enfeite no canto do cartão em destaque (sem brilho nem desfoque). */
+function Aneis({ className }: { className?: string }) {
+  return (
+    <svg aria-hidden viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth={1.25} className={cn("pointer-events-none absolute", className)}>
+      <circle cx="100" cy="100" r="38" />
+      <circle cx="100" cy="100" r="62" />
+      <circle cx="100" cy="100" r="86" />
+    </svg>
+  );
+}
+
+/** O primeiro número do cabeçalho: cartão maior, em azul da marca, com o valor em destaque. */
+export function NumeroPrincipal({ n, falhou, sozinho = false }: { n: NumeroHero; falhou: boolean; sozinho?: boolean }) {
+  return (
+    <div
+      className={cn(
+        "relative min-w-0 overflow-hidden rounded-[var(--radius)] bg-[linear-gradient(135deg,#2f6bf0_0%,#1d4ed8_55%,#1b44c4_100%)] px-5 py-4 text-white shadow-[0_14px_30px_-16px_rgba(29,78,216,0.75)] md:px-6 md:py-5",
+        sozinho ? "col-span-2 sm:col-span-1" : "col-span-2",
+      )}
+    >
+      <Aneis className="-right-14 -top-16 size-52 text-white/[0.13]" />
+      <Aneis className="-bottom-24 right-24 size-40 text-white/[0.07]" />
+      <div className="relative">
+        <div className="flex min-w-0 items-center gap-1.5 text-[13px] font-medium text-white/80">
+          <span className="truncate">{n.rotulo}</span>
+          {n.ajuda && <AjudaIndicador escuro indicador={n.rotulo} texto={n.ajuda} />}
+        </div>
+        <div
+          className={cn("mt-2 font-semibold tracking-tight", n.textual ? "line-clamp-2 text-lg leading-snug md:text-xl" : "text-[28px] leading-none md:text-[34px]")}
+          title={n.textual && typeof n.valor === "string" ? n.valor : undefined}
+        >
+          {formatar(n.valor, falhou)}
+        </div>
+        {n.nota && (
+          <div className={cn("mt-3 inline-flex max-w-full truncate rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium", n.notaRuim ? "text-amber-100" : "text-white")}>
+            {n.nota}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /**
  * Cabeçalho das telas de lista e painel: sobretítulo, título, descrição e a ação principal, sobre o fundo da
- * página, e os números do conjunto inteiro (`undefined` = carregando) em cartões brancos logo abaixo.
+ * página, e os números do conjunto inteiro (`undefined` = carregando) logo abaixo: o primeiro num cartão maior,
+ * em azul (o número principal da tela), os outros em cartões brancos.
  * `aviso` aparece abaixo dos números. `falhou`: a carga deu erro e não há números ("—" em vez de "…");
  * `atualizando`: os números são da carga anterior (ficam esmaecidos).
  */
@@ -55,9 +99,16 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
       {numeros.length > 0 && (
         <div
           aria-busy={atualizando || undefined}
-          className={cn("grid grid-cols-2 gap-3 transition-opacity md:gap-4", numeros.length >= 4 && "lg:grid-cols-4", numeros.length === 3 && "md:grid-cols-3", atualizando && "opacity-60")}
+          className={cn(
+            "grid grid-cols-2 gap-3 transition-opacity md:gap-4",
+            numeros.length === 1 && "sm:grid-cols-2 lg:grid-cols-3",
+            numeros.length === 2 && "md:grid-cols-3",
+            numeros.length === 3 && "md:grid-cols-4",
+            numeros.length >= 4 && "lg:grid-cols-5",
+            atualizando && "opacity-60",
+          )}
         >
-          {numeros.map((n) => (
+          {numeros.map((n, i) => (i === 0 ? <NumeroPrincipal key={n.rotulo} n={n} falhou={falhou} sozinho={numeros.length === 1} /> : (
             <div key={n.rotulo} className="card min-w-0 px-4 py-3.5 md:px-5 md:py-4">
               <div className="flex min-w-0 items-center gap-1.5 text-[13px] text-foreground-secondary">
                 {n.tom && <span aria-hidden className={cn("size-2 shrink-0 rounded-full", PONTO[n.tom])} />}
@@ -76,7 +127,7 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
               </div>
               {n.nota && <div className={cn("mt-1 truncate text-xs", n.notaRuim ? "font-medium text-[var(--aviso)]" : "text-foreground-muted")}>{n.nota}</div>}
             </div>
-          ))}
+          )))}
         </div>
       )}
       {aviso}

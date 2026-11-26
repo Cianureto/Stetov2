@@ -382,7 +382,7 @@ export function GraficoColunas({
 }
 
 /** Mini tendência para os cartões de indicador: meses anteriores em tom apagado, o último em destaque. */
-export function Sparkline({ dados, cor = "#1d4ed8", altura = 36 }: { dados: number[]; cor?: string; altura?: number }) {
+export function Sparkline({ dados, cor = "#1d4ed8", corLinha = "#b7c6dd", corAnel = SUPERFICIE, altura = 36 }: { dados: number[]; cor?: string; corLinha?: string; corAnel?: string; altura?: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const largura = useLargura(ref);
   const max = Math.max(...dados, 0);
@@ -394,8 +394,8 @@ export function Sparkline({ dados, cor = "#1d4ed8", altura = 36 }: { dados: numb
     <div ref={ref} aria-hidden style={{ height: altura }}>
       {largura > 0 && dados.length > 1 && (
         <svg width={largura} height={altura} className="block overflow-visible">
-          <path d={caminhoSuave(pontos)} fill="none" stroke="#b7c6dd" strokeWidth={1.5} strokeLinecap="round" />
-          {ultimo && <circle cx={ultimo.x} cy={ultimo.y} r={3.5} fill={cor} stroke={SUPERFICIE} strokeWidth={2} />}
+          <path d={caminhoSuave(pontos)} fill="none" stroke={corLinha} strokeWidth={1.5} strokeLinecap="round" />
+          {ultimo && <circle cx={ultimo.x} cy={ultimo.y} r={3.5} fill={cor} stroke={corAnel} strokeWidth={2} />}
         </svg>
       )}
     </div>

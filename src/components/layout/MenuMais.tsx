@@ -67,24 +67,49 @@ export function MenuMais({ aberto, onFechar, secoes, pendentes }: { aberto: bool
   );
 }
 
-/** Escolha da ação rápida quando o perfil tem mais de uma. */
+/**
+ * Escolha da ação rápida quando o perfil tem mais de uma. No computador: painel largo com as ações em
+ * cartões (2 por linha), cada um com atalho de teclado (1, 2, 3…). No celular: uma coluna.
+ */
 export function MenuAcoes({ aberto, onFechar, acoes, onEscolher }: { aberto: boolean; onFechar: () => void; acoes: AcaoRapida[]; onEscolher: (a: AcaoRapida) => void }) {
   return (
     <Dialog open={aberto} onOpenChange={(abrir) => !abrir && onFechar()}>
-      <DialogContent className="bg-areia md:max-w-sm">
-        <DialogHeader>
-          <DialogTitle>Novo</DialogTitle>
-          <DialogDescription className="sr-only">Ações rápidas</DialogDescription>
+      <DialogContent
+        className="bg-areia md:max-w-[44rem] md:p-7"
+        onKeyDown={(e) => {
+          const n = Number(e.key);
+          if (Number.isInteger(n) && n >= 1 && n <= acoes.length && !e.metaKey && !e.ctrlKey && !e.altKey) {
+            e.preventDefault();
+            onEscolher(acoes[n - 1]);
+          }
+        }}
+      >
+        <DialogHeader className="mb-1 md:mb-4">
+          <p className="texto-sobretitulo">Ações rápidas</p>
+          <DialogTitle className="text-xl tracking-tight md:text-2xl">O que você quer lançar?</DialogTitle>
+          <DialogDescription className="texto-apoio">
+            Escolha abaixo<span className="hidden md:inline"> ou aperte o número no teclado</span>.
+          </DialogDescription>
         </DialogHeader>
-        <div className={CLASSE_GRUPO}>
+        <div className="grid grid-cols-1 gap-2.5 md:grid-cols-2 md:gap-3.5">
           {acoes.map((a, idx) => (
-            <button key={a.href} type="button" onClick={() => onEscolher(a)} className={cn("flex min-h-13 w-full items-center gap-3 px-4 text-left active:bg-foreground/5", idx > 0 && "border-t border-foreground/[0.06]")}>
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-marca-claro text-marca"><a.Icone width={18} height={18} aria-hidden /></span>
-              <span className="min-w-0 flex-1">
-                <span className="block text-[15px] font-medium">{a.label}</span>
-                <span className="block text-xs text-foreground-muted">{a.descricao}</span>
+            <button
+              key={a.href}
+              type="button"
+              onClick={() => onEscolher(a)}
+              className="group relative flex w-full items-center gap-3.5 rounded-[var(--radius)] border border-borda bg-areia-card p-3.5 text-left shadow-[var(--shadow-xs)] outline-none transition-[transform,box-shadow,border-color] duration-[var(--dur-media)] ease-[var(--ease-saida)] focus-visible:border-azul-500 focus-visible:shadow-[var(--anel-foco)] active:scale-[0.985] md:flex-col md:items-start md:gap-4 md:p-5 md:hover:-translate-y-0.5 md:hover:border-azul-200 md:hover:shadow-[var(--shadow-md)]"
+            >
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-azul-50 text-azul-600 ring-1 ring-inset ring-azul-100 transition-colors duration-[var(--dur-media)] group-hover:bg-azul-600 group-hover:text-white group-hover:ring-azul-600 md:size-12">
+                <a.Icone className="size-5 md:size-6" aria-hidden />
               </span>
-              <ChevronRight className="size-4 text-foreground/30" aria-hidden />
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-semibold text-foreground md:text-base">{a.label}</span>
+                <span className="mt-0.5 block text-[13px] text-foreground-muted">{a.descricao}</span>
+              </span>
+              <ChevronRight className="size-4 shrink-0 text-tinta-400 md:hidden" aria-hidden />
+              <kbd className="absolute right-4 top-4 hidden h-6 min-w-6 place-items-center rounded-md border border-borda bg-tinta-25 px-1.5 font-sans text-[11px] font-semibold text-foreground-muted md:grid">
+                {idx + 1}
+              </kbd>
             </button>
           ))}
         </div>

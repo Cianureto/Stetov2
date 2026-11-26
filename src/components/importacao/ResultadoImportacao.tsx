@@ -24,7 +24,7 @@ export function ResultadoImportacao({ importacao, onOutra }: { importacao: Impor
         <div className="space-y-2">
           <ul className="max-h-64 divide-y divide-borda overflow-y-auto rounded-lg border border-borda text-sm">
             {importacao.erros.slice(0, 100).map((e, i) => (
-              <li key={i} className="flex gap-3 px-3 py-1.5"><span className="w-16 shrink-0 tabular-nums text-foreground-muted">Linha {e.linha}</span><span>{e.erro}</span></li>
+              <li key={i} className="linha-hover flex gap-3 px-3 py-1.5"><span className="w-16 shrink-0 tabular-nums text-foreground-muted">Linha {e.linha}</span><span>{e.erro}</span></li>
             ))}
           </ul>
           <Button variant="secondary" size="sm" onClick={() => baixarErros(importacao)}><Download aria-hidden /> Baixar todos os erros (CSV)</Button>

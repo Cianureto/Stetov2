@@ -145,7 +145,7 @@ export function TabelaDados<T>({ tabela, colunas, chaveLinha, onLinha, abrivel, 
               <li key={`g-${item.chave}`} className="bg-areia/60 px-4 pb-1.5 pt-3">{item.cabecalho}</li>
             ) : (
               <li key={chaveLinha(item.linha)}>
-                <div className={cn("flex items-start gap-3 px-4 py-3.5", selecao?.selecionadas.has(chaveLinha(item.linha)) && "bg-marca-claro/40")}>
+                <div className={cn("linha-hover flex items-start gap-3 px-4 py-3.5", selecao?.selecionadas.has(chaveLinha(item.linha)) && "bg-azul-50")}>
                   {selecao && (
                     <CaixaSelecao className="mt-0.5 shrink-0" marcada={selecao.selecionadas.has(chaveLinha(item.linha))} onChange={() => selecao.alternar(item.linha)} rotulo={`Selecionar ${selecao.nome(item.linha)}`} />
                   )}
@@ -203,7 +203,7 @@ export function TabelaDados<T>({ tabela, colunas, chaveLinha, onLinha, abrivel, 
                 key={chaveLinha(linha)}
                 {...clicavel(linha)}
                 aria-selected={selecao ? selecao.selecionadas.has(chaveLinha(linha)) : undefined}
-                className={cn("transition-colors hover:bg-azul-50/60", abre(linha) && "cursor-pointer outline-none focus-visible:bg-azul-50", selecao?.selecionadas.has(chaveLinha(linha)) && "bg-azul-50", classeLinha?.(linha))}
+                className={cn("linha-hover", abre(linha) && "cursor-pointer outline-none focus-visible:bg-azul-50", selecao?.selecionadas.has(chaveLinha(linha)) && "bg-azul-50", classeLinha?.(linha))}
               >
                 {selecao && (
                   <td className="w-10 py-3 pl-4 pr-0 align-middle">

@@ -88,7 +88,7 @@ export default function PainelPage() {
                   <ul className="divide-y divide-borda">
                     {d.proximasContas.map((c) => (
                       <li key={c.id}>
-                        <Link to={`/contas/${c.id}`} className="flex items-center gap-3 py-2.5 text-sm hover:bg-[var(--areia)]">
+                        <Link to={`/contas/${c.id}`} className="linha-hover -mx-2 flex items-center gap-3 rounded-md px-2 py-2.5 text-sm">
                           <span className="w-20 shrink-0 tabular-nums text-foreground-secondary">{formatarData(c.dataVencimento)}</span>
                           <span className="min-w-0 flex-1 truncate">{c.descricao}</span>
                           <span className="shrink-0 tabular-nums font-medium">{formatarMoeda(c.valor)}</span>

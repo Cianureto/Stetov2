@@ -83,7 +83,7 @@ export default function ImportarXmlPage() {
         <SecaoFormulario titulo={`Notas lidas (${validas.length} de ${lidas.length})`} acao={<Button type="button" size="sm" variant="ghost" onClick={() => setLidas([])}>Limpar</Button>}>
           <ul className="divide-y divide-borda rounded-lg border border-borda text-[13px]">
             {lidas.map((l, i) => (
-              <li key={`${l.arquivo}-${i}`} className="grid gap-1 px-3 py-2 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_7rem] @2xl:items-center">
+              <li key={`${l.arquivo}-${i}`} className="linha-hover grid gap-1 px-3 py-2 @2xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_8rem_7rem] @2xl:items-center">
                 {l.nota ? (
                   <>
                     <div className="min-w-0"><div className="truncate font-medium">{l.nota.clienteNome || formatarDocumento(l.nota.clienteDocumento) || "Tomador não identificado"}</div><div className="truncate text-foreground-muted">NFS {l.nota.numeroNfs || "—"} · {l.arquivo}</div></div>

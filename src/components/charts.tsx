@@ -234,9 +234,9 @@ export function RankedBars({
 }) {
   const max = Math.max(1, ...itens.map((i) => i.valor));
   return (
-    <div className="space-y-2.5">
+    <div className="-mx-2 space-y-0.5">
       {itens.map((item, i) => (
-        <div key={i}>
+        <div key={i} className="linha-hover rounded-lg px-2 py-1.5">
           <div className="flex justify-between items-baseline text-sm mb-1 gap-2">
             <span className="font-medium truncate">{item.label}</span>
             <span className="text-foreground-muted text-xs shrink-0">{formatarValor(item.valor)}</span>

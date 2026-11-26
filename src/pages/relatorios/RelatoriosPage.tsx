@@ -287,7 +287,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
             subirEBom: false,
           },
         ].map((m) => (
-          <div key={m.rotulo} className="flex items-center gap-3 p-4 md:px-5">
+          <div key={m.rotulo} className="flex items-center gap-3 p-4 transition-colors hover:bg-tinta-25 md:px-5">
             <m.icone aria-hidden className="size-5 shrink-0 text-foreground-muted" />
             <div className="min-w-0">
               <div className="truncate text-xs text-foreground-muted">{m.rotulo}</div>
@@ -406,7 +406,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
               { rotulo: "Acréscimos", valor: r.descontos.acrescimo },
               { rotulo: "Repasse aos prestadores", valor: a.repasse, forte: true },
             ].map((l) => (
-              <div key={l.rotulo} className="flex items-center justify-between gap-3 py-2">
+              <div key={l.rotulo} className="linha-hover -mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-2">
                 <dt className={l.forte ? "font-medium text-foreground" : "text-foreground-secondary"}>{l.rotulo}</dt>
                 <dd className={`tabular-nums ${l.forte ? "font-semibold" : ""}`}>
                   {l.valor < 0 ? "− " : !l.forte && l.valor > 0 ? "+ " : ""}
@@ -473,7 +473,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
       {mostrarEmpresas && (
         <Cartao titulo="Por empresa contábil" descricao="Valor das notas e fatia do faturamento">
           <BarrasRotuladas
-            className="grid gap-5 space-y-0 md:grid-cols-2 xl:grid-cols-3"
+            className="grid gap-2 space-y-0 md:grid-cols-2 xl:grid-cols-3"
             formatarValor={formatarMoeda}
             max={a.valorNf}
             itens={r.empresas.map((e) => ({ chave: e.id, rotulo: e.nome, valor: e.valorNf, detalhe: `${formatarPercentualCurto(pct(e.valorNf, a.valorNf))} do total · ${notas(e.quantidade)} · repasse ${formatarMoedaCurta(e.repasse)}` }))}
@@ -499,7 +499,7 @@ function Conteudo({ r, filtrandoEmpresa }: { r: Relatorio; filtrandoEmpresa: boo
             </thead>
             <tbody className="tabular-nums">
               {serie.map((p) => (
-                <tr key={p.competencia} className="border-b border-borda last:border-0">
+                <tr key={p.competencia} className="linha-hover border-b border-borda last:border-0">
                   <th scope="row" className="px-4 py-2 text-left font-medium md:px-5">{competenciaParaTela(p.competencia)}</th>
                   <td className="px-3 py-2 text-right">{p.quantidade}</td>
                   <td className="px-3 py-2 text-right">{formatarMoeda(p.valorNf)}</td>

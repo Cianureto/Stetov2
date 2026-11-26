@@ -424,9 +424,9 @@ export function BarrasRotuladas({
   const escala = max ?? Math.max(0, ...itens.map((i) => i.valor));
   if (!itens.length) return <p className="text-sm text-foreground-muted">{vazio}</p>;
   return (
-    <ul className={cn("space-y-3.5", className)}>
+    <ul className={cn("-mx-2 space-y-1", className)}>
       {itens.map((item, i) => (
-        <li key={item.chave ?? i}>
+        <li key={item.chave ?? i} className="linha-hover rounded-lg px-2 py-2">
           <div className="mb-1.5 flex items-baseline justify-between gap-3 text-sm">
             <span className="min-w-0 truncate font-medium text-foreground">{item.rotulo}</span>
             <span className="shrink-0 tabular-nums font-semibold text-foreground">{formatarValor(item.valor)}</span>

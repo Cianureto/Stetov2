@@ -541,6 +541,31 @@ h1, h2, h3, h4, .font-titulo {
   }
 }
 
+/* ── Hover de linha: fundo azul bem claro e uma barrinha azul à esquerda (tabelas, listas, rankings) ── */
+.linha-hover {
+  transition: background-color var(--dur-rapida) ease, box-shadow var(--dur-rapida) ease;
+}
+@media (hover: hover) {
+  .linha-hover:hover { background-color: color-mix(in srgb, var(--azul-50) 80%, transparent); }
+  .linha-hover:not(tr):hover { box-shadow: inset 3px 0 0 var(--azul-500); }
+  tr.linha-hover:hover > :first-child { box-shadow: inset 3px 0 0 var(--azul-500); }
+}
+
+/* ── Hover de cartão: todo .card ganha borda azul-clara e sombra; os que não são formulário nem tabela
+   sobem 2px. :where() deixa a regra fraca, então KPIs (.kpi) e cartões com hover próprio continuam valendo. ── */
+@media (hover: hover) {
+  :where(.card):hover {
+    border-color: var(--azul-200);
+    box-shadow: var(--shadow-md);
+  }
+  :where(.card:not(form):not(.secao-numerada):not(:has(table)):not(:has(form)):not(:focus-within)):hover {
+    transform: translateY(-2px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  :where(.card):hover { transform: none; }
+}
+
 /* Números dos KPIs: um caractere de cada vez (NumeroAnimado). --i = cartão na cascata, --c = caractere. */
 .numero-char {
   display: inline-block;

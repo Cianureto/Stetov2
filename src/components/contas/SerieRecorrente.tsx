@@ -34,7 +34,7 @@ export function SerieRecorrente({ conta, onMudou }: { conta: ContaDetalhe; onMud
       </div>
       <ul className="mt-3 divide-y divide-borda">
         {conta.serie.map((p) => (
-          <li key={p.id} className="flex items-center justify-between gap-3 py-2 text-sm">
+          <li key={p.id} className="linha-hover -mx-2 flex items-center justify-between gap-3 rounded-md px-2 py-2 text-sm">
             <Link to={`/contas/${p.id}`} replace className={p.id === conta.id ? "font-semibold" : "text-marca hover:underline"} aria-current={p.id === conta.id ? "page" : undefined}>
               {formatarData(p.dataVencimento)}
             </Link>

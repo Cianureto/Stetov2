@@ -30,7 +30,7 @@ export default function EmpresaContabilPage() {
       </button>
       <EstadoCarga carga={carga} esqueleto={<Skeleton className="h-64 w-full rounded-2xl" />}>
         {({ empresa, resumo, clientes, prestadores }) => (
-          <>
+          <div className="space-y-6">
             <CabecalhoHero
               atualizando={carga.carregando}
               rotulo={`Empresa contábil · ${formatarCnpj(empresa.cnpj)}${empresa.status === "inativo" ? " · inativa" : ""}`}
@@ -52,7 +52,7 @@ export default function EmpresaContabilPage() {
               <TabelaRanking titulo="Por cliente" rotuloNome="Cliente" linhas={clientes} vazio="Nenhuma nota lançada por esta empresa." onLinha={(l) => navigate(registrosFiltrados("clienteId", l.id, empresa.id))} />
               <TabelaRanking titulo="Por prestador" rotuloNome="Prestador" linhas={prestadores} vazio="Nenhuma nota lançada por esta empresa." onLinha={(l) => navigate(registrosFiltrados("prestadorId", l.id, empresa.id))} />
             </div>
-          </>
+          </div>
         )}
       </EstadoCarga>
     </div>

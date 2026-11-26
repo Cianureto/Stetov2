@@ -57,8 +57,8 @@ export default function PainelPage() {
 
       <EstadoCarga carga={carga} esqueleto={<Skeleton className="h-80 w-full rounded-2xl" />}>
         {(d) => (
-          <>
-            <Metricas separados>
+          <div className="space-y-6">
+            <Metricas separados className="gap-4 md:gap-6">
               <Metrica titulo="Clientes" valor={d.cadastros.clientes} legenda={<Link to="/clientes" className="hover:underline">ver cadastros</Link>} />
               <Metrica titulo="Prestadores ativos" valor={d.cadastros.prestadores} legenda={<Link to="/prestadores" className="hover:underline">ver cadastros</Link>} />
               <Metrica titulo="Empresas contábeis" valor={d.cadastros.empresasContabeis} legenda={<Link to="/empresas-contabeis" className="hover:underline">ver cadastros</Link>} />
@@ -105,7 +105,7 @@ export default function PainelPage() {
                 {d.topClientes.length ? <RankedBars itens={d.topClientes.map((l) => ({ label: l.nome, sublabel: `${l.quantidade} notas`, valor: l.valorNf }))} corBarra="#2563eb" formatarValor={formatarMoeda} /> : <p className="text-sm text-foreground-muted">Nenhuma nota nos últimos 12 meses.</p>}
               </Cartao>
             </div>
-          </>
+          </div>
         )}
       </EstadoCarga>
     </div>

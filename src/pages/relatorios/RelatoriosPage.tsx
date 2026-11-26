@@ -83,7 +83,7 @@ export default function RelatoriosPage() {
 
       <EstadoCarga carga={carga} esqueleto={<Skeleton className="h-80 w-full rounded-2xl" />}>
         {(d) => (
-          <>
+          <div className="space-y-6">
             {d.serie.length > 1 && (
               <section className="card p-4 md:p-5">
                 <h2 className="mb-3 font-titulo text-[15px] font-semibold">Mês a mês</h2>
@@ -103,7 +103,7 @@ export default function RelatoriosPage() {
               <TabelaRanking titulo="Por prestador" rotuloNome="Prestador" linhas={d.prestadores} vazio="Nenhuma nota no período." />
               <TabelaRanking titulo="Por cliente" rotuloNome="Cliente" linhas={d.clientes} vazio="Nenhuma nota no período." />
             </div>
-          </>
+          </div>
         )}
       </EstadoCarga>
     </div>

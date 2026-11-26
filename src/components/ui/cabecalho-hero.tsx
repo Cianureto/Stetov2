@@ -21,7 +21,7 @@ export type NumeroHero = {
 const formatar = (v: number | string | undefined, falhou: boolean) =>
   v === undefined ? (falhou ? "—" : "…") : typeof v === "number" ? v.toLocaleString("pt-BR") : v;
 
-/** Valor do cartão: os caracteres aparecem um de cada vez quando o número chega (e os que mudam, quando muda). */
+/** Valor do cartão: os caracteres aparecem um de cada vez quando o número chega e de novo quando ele muda. */
 function Valor({ n, falhou }: { n: NumeroHero; falhou: boolean }) {
   if (n.valor === undefined || n.textual) return <>{formatar(n.valor, falhou)}</>;
   return <NumeroAnimado valor={typeof n.valor === "number" ? n.valor : n.valor} />;

@@ -100,10 +100,11 @@ async function carregar(id: string): Promise<ContaDetalhe> {
 
 rota("GET", "/contas", async ({ query }): Promise<ListaContas> => {
   const consulta = lerConsulta(query, CAMPOS_CONTAS, "dataVencimento");
-  const recorte = validar(z.enum(["pagar", "receber", "vencidas", "pagas"]).optional(), query.get("recorte") ?? undefined, "Recorte inválido.");
+  const recorte = validar(z.enum(["abertas", "pagar", "receber", "vencidas", "pagas"]).optional(), query.get("recorte") ?? undefined, "Recorte inválido.");
   const hoje = hojeBrasilia();
   const { itens, meta } = await listarNoBanco(() => {
     const q = supabase.from("contas").select(SELECT, { count: "exact" });
+    if (recorte === "abertas") return q.neq("status", "pago");
     if (recorte === "pagar" || recorte === "receber") return q.eq("tipo", recorte).neq("status", "pago");
     if (recorte === "vencidas") return q.neq("status", "pago").lt("data_vencimento", hoje);
     if (recorte === "pagas") return q.eq("status", "pago");

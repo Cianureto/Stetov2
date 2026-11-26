@@ -48,7 +48,7 @@ export default function EmpresaContabilPage() {
                 { valor: resumo.quantidade, rotulo: "Notas lançadas" },
               ]}
             />
-            <div className="grid gap-6 xl:grid-cols-2">
+            <div className="grid gap-6 min-[1800px]:grid-cols-2">
               <TabelaRanking titulo="Por cliente" rotuloNome="Cliente" linhas={clientes} vazio="Nenhuma nota lançada por esta empresa." onLinha={(l) => navigate(registrosFiltrados("clienteId", l.id, empresa.id))} />
               <TabelaRanking titulo="Por prestador" rotuloNome="Prestador" linhas={prestadores} vazio="Nenhuma nota lançada por esta empresa." onLinha={(l) => navigate(registrosFiltrados("prestadorId", l.id, empresa.id))} />
             </div>

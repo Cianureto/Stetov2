@@ -99,7 +99,7 @@ export default function RelatoriosPage() {
               <Button variant="secondary" disabled={!d.prestadores.length} onClick={() => baixarCsv(`repasses-por-prestador-${de.slice(0, 7)}-a-${ate.slice(0, 7)}`, planilhaRanking(d.prestadores, "Prestador"))}><Download aria-hidden /> Prestadores (CSV)</Button>
               <Button variant="secondary" disabled={!d.clientes.length} onClick={() => baixarCsv(`faturamento-por-cliente-${de.slice(0, 7)}-a-${ate.slice(0, 7)}`, planilhaRanking(d.clientes, "Cliente"))}><Download aria-hidden /> Clientes (CSV)</Button>
             </div>
-            <div className="grid gap-6 xl:grid-cols-2">
+            <div className="grid gap-6 min-[1800px]:grid-cols-2">
               <TabelaRanking titulo="Por prestador" rotuloNome="Prestador" linhas={d.prestadores} vazio="Nenhuma nota no período." />
               <TabelaRanking titulo="Por cliente" rotuloNome="Cliente" linhas={d.clientes} vazio="Nenhuma nota no período." />
             </div>

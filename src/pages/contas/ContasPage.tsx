@@ -40,11 +40,11 @@ const ACOES: AcaoTabela<Conta>[] = [
   },
 ];
 
-const ABAS = ["todas", "pagar", "receber", "vencidas", "pagas"] as const;
+const ABAS = ["abertas", "pagar", "receber", "vencidas", "pagas", "todas"] as const;
 type Aba = (typeof ABAS)[number];
 
 export default function ContasPage() {
-  const [aba, setAba] = useParametroUrl<Aba>("aba", "todas", ABAS);
+  const [aba, setAba] = useParametroUrl<Aba>("aba", "abertas", ABAS);
   const tabela = useTabelaServidor<Conta, ListaContas>(aba === "todas" ? "/contas" : `/contas?recorte=${aba}`, "contas", { ordemPadrao: "dataVencimento", naUrl: "", mensagemFalha: "Não foi possível carregar as contas." });
   const resumo = useDadosApi<ResumoContas>("/contas/resumo");
   const categorias = useDadosApi<Categoria[]>("/categorias-contas");
@@ -94,11 +94,12 @@ export default function ContasPage() {
         ]}
       />
       <AbasContagem rotulo="Recorte" valor={aba} onChange={setAba} abas={[
-        { id: "todas", label: "Todas" },
+        { id: "abertas", label: "Em aberto" },
         { id: "pagar", label: "A pagar" },
         { id: "receber", label: "A receber" },
         { id: "vencidas", label: "Vencidas", total: r?.vencidas },
         { id: "pagas", label: "Pagas" },
+        { id: "todas", label: "Todas" },
       ]} />
       <div className="card overflow-hidden">
         <BarraTabela

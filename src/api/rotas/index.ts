@@ -5,3 +5,5 @@ import "@/api/rotas/clientes";
 import "@/api/rotas/empresasContabeis";
 import "@/api/rotas/prestadores";
 import "@/api/rotas/registros";
+import "@/api/rotas/contas";
+import "@/api/rotas/categorias";

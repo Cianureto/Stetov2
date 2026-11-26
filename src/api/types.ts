@@ -121,3 +121,33 @@ export type Registro = {
   criadoEm: string;
 };
 export type ListaRegistros = { registros: Registro[]; meta: MetaLista };
+
+export type TipoConta = Enums<"tipo_conta">;
+
+export type Conta = {
+  id: string;
+  descricao: string;
+  tipo: TipoConta;
+  categoria: { id: string; nome: string } | null;
+  subcategoria: { id: string; nome: string } | null;
+  empresaContabil: { id: string; nome: string } | null;
+  valorBase: number;
+  ajustes: import("@/lib/contas").Ajuste[];
+  valor: number;
+  /** AAAA-MM-DD */
+  dataVencimento: string;
+  dataPagamento: string | null;
+  /** O banco guarda pendente/pago; "vencida" é calculada (lib/contas.ts). */
+  status: "pendente" | "pago";
+  bancoPagamento: string | null;
+  observacao: string | null;
+  recorrente: boolean;
+  grupoRecorrencia: string | null;
+  criadoEm: string;
+};
+export type ParcelaSerie = { id: string; dataVencimento: string; valor: number; status: "pendente" | "pago" };
+export type ContaDetalhe = Conta & { serie: ParcelaSerie[] };
+export type ListaContas = { contas: Conta[]; meta: MetaLista };
+export type ResumoContas = { aPagar: number; aReceber: number; pagoNoPeriodo: number; vencidas: number; valorVencido: number; vencemEm7Dias: number; total: number };
+
+export type Categoria = { id: string; nome: string; ativo: boolean; subcategorias: { id: string; nome: string; ativo: boolean }[] };

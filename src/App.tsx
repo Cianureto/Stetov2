@@ -9,6 +9,9 @@ import LoginPage from "@/pages/auth/LoginPage";
 import ClientesPage from "@/pages/clientes/ClientesPage";
 import ClientePage from "@/pages/clientes/formularios/ClientePage";
 import EmBreve from "@/pages/EmBreve";
+import ContasPage from "@/pages/contas/ContasPage";
+import ContaPage from "@/pages/contas/formularios/ContaPage";
+import CategoriasPage from "@/pages/contas/CategoriasPage";
 import RegistrosPage from "@/pages/registros/RegistrosPage";
 import RegistroPage from "@/pages/registros/formularios/RegistroPage";
 import EmpresasContabeisPage from "@/pages/empresas-contabeis/EmpresasContabeisPage";
@@ -39,8 +42,10 @@ export default function App() {
               <Route path="/registros" element={<ComPermissao permissao="registros.ver"><RegistrosPage /></ComPermissao>} />
               <Route path="/registros/novo" element={<ComPermissao permissao="registros.gerenciar"><RegistroPage /></ComPermissao>} />
               <Route path="/registros/:id" element={<ComPermissao permissao="registros.gerenciar"><RegistroPage /></ComPermissao>} />
-              <Route path="/contas" element={<ComPermissao permissao="contas.ver"><EmBreve itens={["Contas com vencimento, status e banco", "Categorias e subcategorias", "Ajustes e recorrência"]} /></ComPermissao>} />
-              <Route path="/contas/nova" element={<ComPermissao permissao="contas.gerenciar"><EmBreve itens={["Formulário de conta em tela própria"]} /></ComPermissao>} />
+              <Route path="/contas" element={<ComPermissao permissao="contas.ver"><ContasPage /></ComPermissao>} />
+              <Route path="/contas/categorias" element={<ComPermissao permissao="contas.gerenciar"><CategoriasPage /></ComPermissao>} />
+              <Route path="/contas/nova" element={<ComPermissao permissao="contas.gerenciar"><ContaPage /></ComPermissao>} />
+              <Route path="/contas/:id" element={<ComPermissao permissao="contas.gerenciar"><ContaPage /></ComPermissao>} />
               <Route path="/pendencias" element={<ComPermissao permissao="clientes.gerenciar"><EmBreve itens={["Clientes provisórios criados por importação", "Correção rápida dos dados que faltam"]} /></ComPermissao>} />
 
               <Route path="/clientes" element={<ComPermissao permissao="clientes.gerenciar"><ClientesPage /></ComPermissao>} />

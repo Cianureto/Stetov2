@@ -68,10 +68,18 @@ export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAc
             type="button"
             onClick={onAcaoRapida}
             aria-haspopup={acoes.length > 1 ? "dialog" : undefined}
-            className="mb-4 flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[var(--realce)] px-3 text-sm font-semibold text-[var(--sidebar-bg)] shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            aria-keyshortcuts="N"
+            className="group mb-5 flex h-12 w-full items-center gap-3 rounded-[14px] bg-[linear-gradient(135deg,var(--azul-500),var(--azul-600))] pl-2 pr-3 text-[15px] font-semibold text-white shadow-[0_10px_24px_-10px_rgba(58,110,242,0.9),inset_0_1px_0_rgb(255_255_255/0.22)] transition-[transform,filter,box-shadow] duration-[var(--dur-media)] ease-[var(--ease-saida)] hover:-translate-y-px hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
           >
-            {acoes.length > 1 ? <IconeNovo aberta={pastaAberta} /> : <Plus className="size-4" strokeWidth={2.5} aria-hidden />}
-            {rotuloAcao}
+            {acoes.length > 1 ? (
+              <IconeNovo aberta={pastaAberta} />
+            ) : (
+              <span aria-hidden className="grid size-8 shrink-0 place-items-center rounded-[9px] bg-white/20 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.25)]">
+                <Plus className="size-[18px]" strokeWidth={2.5} />
+              </span>
+            )}
+            <span className="flex-1 text-left">{rotuloAcao}</span>
+            <kbd className="grid h-6 min-w-6 place-items-center rounded-md bg-white/15 px-1.5 font-sans text-[11px] font-semibold text-white/85 ring-1 ring-inset ring-white/20">N</kbd>
           </button>
         )}
         <nav aria-label="Navegação principal" className="-mx-1 flex-1 space-y-4 overflow-y-auto px-1 [scrollbar-width:none]">

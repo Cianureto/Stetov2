@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { WifiOff } from "lucide-react";
 import { useOnline } from "@/hooks/useOnline";
@@ -39,17 +39,37 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
   const online = useOnline();
   useFocoNoConteudoAoNavegar();
 
-  // Atalho global da busca: ⌘K / Ctrl+K.
+  // Atalhos globais: ⌘K / Ctrl+K abre a busca; N abre o menu Novo (fora de campos de texto e de janelas abertas).
+  const abrirNovo = useRef<(() => void) | null>(null);
   useEffect(() => {
     const aoTeclar = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setBuscaAberta((v) => !v);
+        return;
+      }
+      const alvo = e.target as HTMLElement | null;
+      const digitando = !!alvo?.closest("input, textarea, select, [contenteditable='true'], [role='dialog'], [role='listbox']");
+      if (e.key.toLowerCase() === "n" && !e.metaKey && !e.ctrlKey && !e.altKey && !e.repeat && !digitando && abrirNovo.current) {
+        e.preventDefault();
+        abrirNovo.current();
       }
     };
     window.addEventListener("keydown", aoTeclar);
     return () => window.removeEventListener("keydown", aoTeclar);
   }, []);
+
+  // O atalho N abre a partir do botão visível: a barra lateral no computador, o "+" das abas no celular.
+  useEffect(() => {
+    abrirNovo.current =
+      acoes.length === 0
+        ? null
+        : () => {
+            if (acoes.length === 1) return navigate(acoes[0].href);
+            setOrigemAcoes(window.matchMedia("(min-width: 1024px)").matches ? "lateral" : "abas");
+            setAcoesAbertas(true);
+          };
+  }, [acoes, navigate]);
 
   // Avisos flutuantes (versão nova, instalar) sobem acima da barra de abas (`--barra-inferior` no index.css).
   useEffect(() => {

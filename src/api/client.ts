@@ -49,6 +49,9 @@ export function traduzirErro(e: unknown): unknown {
     return erroHttp(401, "Sua sessão terminou. Entre de novo para continuar.");
   }
   if (code === "42501") return erroHttp(403, "Você não tem permissão para esta ação.");
+  // Mensagens escritas para a pessoa pelas funções do banco (validação, regra, limite de pedidos).
+  if (code === "P0429") return erroHttp(429, message ?? "Muitas tentativas. Tente de novo mais tarde.");
+  if ((code === "22023" || code === "P0001") && message) return erroHttp(400, message);
   if (code === "23505") return erroHttp(409, "Já existe um cadastro com estes dados.", e);
   if (code === "23503") return erroHttp(409, "Este registro está em uso em outra parte do sistema.", e);
   if (code === "PGRST116") return erroHttp(404, "Registro não encontrado.");

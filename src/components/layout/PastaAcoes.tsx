@@ -11,10 +11,16 @@ import { idFundoPasta, MOLA_PASTA, type OrigemPasta } from "@/lib/pasta";
  * está aberto, fica só o espaço reservado.
  */
 export function IconeNovo({ aberta }: { aberta: boolean }) {
-  if (aberta) return <span aria-hidden className="block size-5" />;
+  if (aberta) return <span aria-hidden className="block size-8 shrink-0" />;
   return (
-    <motion.span aria-hidden layoutId={idFundoPasta("lateral")} transition={MOLA_PASTA} className="grid size-5 place-items-center" style={{ borderRadius: 6 }}>
-      <Plus className="size-4" strokeWidth={2.5} />
+    <motion.span
+      aria-hidden
+      layoutId={idFundoPasta("lateral")}
+      transition={MOLA_PASTA}
+      className="grid size-8 shrink-0 place-items-center bg-white/20 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.25)] transition-transform duration-[var(--dur-media)] ease-[var(--ease-saida)] group-hover:rotate-90"
+      style={{ borderRadius: 9 }}
+    >
+      <Plus className="size-[18px]" strokeWidth={2.5} />
     </motion.span>
   );
 }
@@ -53,7 +59,7 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
 }) {
   const doCelular = origem === "abas";
   // Cor de partida do painel: a do botão de onde ele sai (azul-céu na barra lateral, azul no "+" do celular).
-  const corOrigem = doCelular ? "rgba(29,78,216,1)" : "rgba(124,196,255,1)";
+  const corOrigem = doCelular ? "rgba(29,78,216,1)" : "rgba(58,110,242,1)";
   const painel = useRef<HTMLDivElement>(null);
   return (
     <MotionConfig transition={MOLA_PASTA} reducedMotion="user">

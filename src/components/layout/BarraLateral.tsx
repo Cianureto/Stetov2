@@ -1,9 +1,9 @@
 import { Link, NavLink } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
 import { MarcaLogo } from "@/components/Marca";
 import { cn } from "@/lib/cn";
-import type { ItemMenu, SecaoMenu } from "@/lib/navegacao";
+import type { AcaoRapida, ItemMenu, SecaoMenu } from "@/lib/navegacao";
+import { MiniPasta } from "@/components/layout/PastaAcoes";
 
 /** Contagem ao lado do item (pedidos de carteira pendentes). */
 export function Contador({ valor, className }: { valor: number; className?: string }) {
@@ -46,12 +46,15 @@ function ItemLateral({ item, pendentes }: { item: ItemMenu; pendentes: number })
 }
 
 /** Barra lateral escura flutuante (a partir de `lg`): marca, ação rápida e seções do menu. */
-export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAcao }: {
+export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAcao, acoes = [], pastaAberta = false }: {
   secoes: SecaoMenu[];
   pendentes: number;
   inicio: string;
   onAcaoRapida?: () => void;
   rotuloAcao?: string;
+  /** Ações do menu Novo: a miniatura da "pasta" no botão mostra os ícones delas. */
+  acoes?: AcaoRapida[];
+  pastaAberta?: boolean;
 }) {
   return (
     <aside className="sticky top-0 hidden h-dvh p-3 pr-0 pt-[calc(env(safe-area-inset-top)+0.75rem)] lg:block">
@@ -63,9 +66,10 @@ export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAc
           <button
             type="button"
             onClick={onAcaoRapida}
-            className="mb-4 flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[var(--realce)] px-3 text-sm font-semibold text-[var(--sidebar-bg)] shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            aria-haspopup={acoes.length > 1 ? "dialog" : undefined}
+            className="mb-4 flex h-11 items-center justify-center gap-2.5 rounded-[12px] bg-[var(--realce)] px-3 text-sm font-semibold text-[var(--sidebar-bg)] shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
-            <Plus className="size-4" strokeWidth={2.5} aria-hidden />
+            <MiniPasta acoes={acoes} aberta={pastaAberta} />
             {rotuloAcao}
           </button>
         )}

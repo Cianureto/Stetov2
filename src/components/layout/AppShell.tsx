@@ -12,7 +12,9 @@ import { cn } from "@/lib/cn";
 import { BarraLateral } from "@/components/layout/BarraLateral";
 import { BarraSuperior } from "@/components/layout/BarraSuperior";
 import { BarraAbas } from "@/components/layout/BarraAbas";
-import { MenuAcoes, MenuMais } from "@/components/layout/MenuMais";
+import { MenuMais } from "@/components/layout/MenuMais";
+import { PastaAcoes } from "@/components/layout/PastaAcoes";
+import type { OrigemPasta } from "@/lib/pasta";
 import { PaletaBusca } from "@/components/layout/PaletaBusca";
 
 /**
@@ -32,6 +34,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
   const abas = itensDaBarraDeAbas(secoes);
   const [maisAberto, setMaisAberto] = useState(false);
   const [acoesAbertas, setAcoesAbertas] = useState(false);
+  const [origemAcoes, setOrigemAcoes] = useState<OrigemPasta>("lateral");
   const [buscaAberta, setBuscaAberta] = useState(false);
   const online = useOnline();
   useFocoNoConteudoAoNavegar();
@@ -65,13 +68,20 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
     setAcoesAbertas(false);
     navigate(a.href);
   };
-  const acaoRapida = acoes.length === 0 ? undefined : () => (acoes.length === 1 ? escolherAcao(acoes[0]) : setAcoesAbertas(true));
+  const acaoRapida =
+    acoes.length === 0
+      ? undefined
+      : (origem: OrigemPasta) => {
+          if (acoes.length === 1) return escolherAcao(acoes[0]);
+          setOrigemAcoes(origem);
+          setAcoesAbertas(true);
+        };
   const rotuloAcao = acoes.length === 1 ? acoes[0].label : "Novo";
 
   return (
     <div className="min-h-dvh bg-areia lg:grid lg:grid-cols-[272px_minmax(0,1fr)]">
       <PularParaConteudo />
-      <BarraLateral secoes={secoes} pendentes={pendentes} inicio={inicio} onAcaoRapida={acaoRapida} rotuloAcao={rotuloAcao} />
+      <BarraLateral secoes={secoes} pendentes={pendentes} inicio={inicio} onAcaoRapida={acaoRapida && (() => acaoRapida("lateral"))} rotuloAcao={rotuloAcao} acoes={acoes} pastaAberta={acoesAbertas && origemAcoes === "lateral"} />
 
       <div className="flex min-w-0 flex-col">
         <BarraSuperior secoes={secoes} inicio={inicio} onBuscar={() => setBuscaAberta(true)} />
@@ -99,12 +109,13 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
         itens={abas}
         maisAtivo={maisAtivo}
         avisoMais={temPedidosForaDasAbas}
-        onAcaoRapida={acaoRapida}
+        onAcaoRapida={acaoRapida && (() => acaoRapida("abas"))}
+        pastaAberta={acoesAbertas && origemAcoes === "abas"}
         rotuloAcao={rotuloAcao}
         onMais={() => setMaisAberto(true)}
       />
       <MenuMais aberto={maisAberto} onFechar={() => setMaisAberto(false)} secoes={secoes} pendentes={pendentes} />
-      <MenuAcoes aberto={acoesAbertas} onFechar={() => setAcoesAbertas(false)} acoes={acoes} onEscolher={escolherAcao} />
+      <PastaAcoes aberta={acoesAbertas} origem={origemAcoes} onFechar={() => setAcoesAbertas(false)} acoes={acoes} onEscolher={escolherAcao} />
       <PaletaBusca aberta={buscaAberta} onFechar={() => setBuscaAberta(false)} secoes={secoes} acoes={acoes} />
     </div>
   );

@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import { MoreHorizontal, Plus } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { ItemMenu } from "@/lib/navegacao";
+import { FundoBotaoAbas } from "@/components/layout/PastaAcoes";
 
 const CLASSE_ABA = "relative mx-auto flex h-13 w-full max-w-20 flex-col items-center justify-center gap-0.5 rounded-full text-[10.5px] font-semibold tracking-[-0.01em] outline-none transition-colors active:scale-95 focus-visible:ring-2 focus-visible:ring-marca";
 
@@ -22,7 +23,7 @@ function Aba({ item }: { item: ItemMenu }) {
  * Barra de abas flutuante do celular e do tablet em pé (padrão revenda): duas abas, o botão central
  * de ação rápida, a terceira aba e "Mais" (abre o menu completo). Some a partir de `lg`.
  */
-export function BarraAbas({ itens, maisAtivo, avisoMais, onAcaoRapida, rotuloAcao, onMais }: {
+export function BarraAbas({ itens, maisAtivo, avisoMais, onAcaoRapida, rotuloAcao, onMais, pastaAberta = false }: {
   itens: ItemMenu[];
   /** A tela atual está no menu "Mais" (não é uma aba). */
   maisAtivo: boolean;
@@ -31,6 +32,8 @@ export function BarraAbas({ itens, maisAtivo, avisoMais, onAcaoRapida, rotuloAca
   onAcaoRapida?: () => void;
   rotuloAcao?: string;
   onMais: () => void;
+  /** O menu Novo está aberto a partir daqui (o fundo do "+" virou o painel). */
+  pastaAberta?: boolean;
 }) {
   return (
     <nav aria-label="Navegação" className="fixed inset-x-3 bottom-0 z-30 mb-[calc(env(safe-area-inset-bottom)+0.75rem)] lg:hidden">
@@ -43,9 +46,11 @@ export function BarraAbas({ itens, maisAtivo, avisoMais, onAcaoRapida, rotuloAca
               type="button"
               onClick={onAcaoRapida}
               aria-label={rotuloAcao}
-              className="grid h-12 w-12 place-items-center rounded-full bg-marca text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25),var(--shadow-glow)] outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-marca focus-visible:ring-offset-2"
+              aria-haspopup="dialog"
+              className="relative grid h-12 w-12 place-items-center rounded-full text-white outline-none transition active:scale-95 focus-visible:ring-2 focus-visible:ring-marca focus-visible:ring-offset-2"
             >
-              <Plus className="size-6" strokeWidth={2.5} aria-hidden />
+              <FundoBotaoAbas aberta={pastaAberta} />
+              <Plus className={cn("relative size-6 transition-opacity", pastaAberta && "opacity-0")} strokeWidth={2.5} aria-hidden />
             </button>
           )}
         </div>

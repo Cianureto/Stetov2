@@ -28,17 +28,21 @@ function ItemLateral({ item, pendentes }: { item: ItemMenu; pendentes: number })
             <motion.span
               layoutId="menu-lateral-ativo"
               className="absolute inset-0 rounded-[10px] bg-[var(--sidebar-active-bg)] shadow-[inset_0_1px_0_rgb(255_255_255/0.08)] before:absolute before:inset-y-2.5 before:-left-1 before:w-1 before:rounded-full before:bg-[var(--realce)]"
-              transition={{ type: "spring", stiffness: 500, damping: 40 }}
+              // Mesma mola das abas e segmentos: o destaque desliza até o item novo com um leve balanço.
+              transition={{ type: "spring", bounce: 0.2, visualDuration: 0.35 }}
             />
           )}
           <item.Icone
-            className={cn("relative shrink-0", isActive ? "text-realce" : "text-[var(--sidebar-fg)] group-hover:text-white")}
+            className={cn(
+              "relative shrink-0 transition-[transform,color] duration-[var(--dur-media)] ease-[var(--ease-saida)] group-hover:-rotate-12 group-hover:scale-110",
+              isActive ? "text-realce" : "text-[var(--sidebar-fg)] group-hover:text-white",
+            )}
             width={18}
             height={18}
             strokeWidth={isActive ? 2.1 : 1.8}
             aria-hidden
           />
-          <span className={cn("relative truncate", isActive ? "font-semibold text-white" : "text-white/85 group-hover:text-white")}>{item.label}</span>
+          <span className={cn("relative truncate transition-[transform,color] duration-[var(--dur-media)] ease-[var(--ease-saida)] group-hover:translate-x-0.5", isActive ? "font-semibold text-white" : "text-white/85 group-hover:text-white")}>{item.label}</span>
           {item.contador === "pedidos" && <Contador valor={pendentes} className="relative ml-auto" />}
         </>
       )}

@@ -1,8 +1,9 @@
-import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode, type RefObject } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type PointerEvent, type ReactNode, type RefObject } from "react";
+import { AnimatePresence, animate, motion, useMotionValue, useSpring, useTransform, type MotionValue } from "framer-motion";
 import { gsap, reduzMovimento, useGSAP } from "@/lib/gsap";
 import { Barra } from "@/components/ui/animado";
 import { cn } from "@/lib/cn";
-import { caminhoFatia, caminhoSuave, marcasEixo } from "@/lib/graficos";
+import { caminhoSuave, marcasEixo } from "@/lib/graficos";
 
 // Gráficos da tela Relatórios, desenhados em SVG com coordenadas em pixels (mede a largura do contêiner),
 // para os traços e cantos arredondados não deformarem. Regras: um eixo só, linhas de 2px, grade fina e sólida,
@@ -142,9 +143,40 @@ function RotulosX({ categorias, x, altura, largura }: { categorias: string[]; x:
   );
 }
 
+const MOLA_CURSOR = { type: "spring", bounce: 0, visualDuration: 0.3 } as const;
+
+/** Valor de uma série numa posição fracionária (entre dois meses, interpola em linha reta). */
+function valorEm(dados: number[], p: number) {
+  if (!dados.length) return 0;
+  const i = Math.max(0, Math.min(dados.length - 1, p));
+  const a = Math.floor(i);
+  const b = Math.min(dados.length - 1, a + 1);
+  return (dados[a] ?? 0) + ((dados[b] ?? 0) - (dados[a] ?? 0)) * (i - a);
+}
+
+/** Ponto do cursor sobre a linha de uma série: desliza junto com o cursor. */
+function PontoCursor({ serie, posicao, x, y }: { serie: SerieGrafico; posicao: MotionValue<number>; x: (i: number) => number; y: (v: number) => number }) {
+  const cx = useTransform(posicao, (p) => x(p));
+  const cy = useTransform(posicao, (p) => y(valorEm(serie.dados, p)));
+  return <motion.circle cx={cx} cy={cy} r={5} fill={serie.cor} stroke={SUPERFICIE} strokeWidth={2.5} />;
+}
+
+/** Valor de uma série no balão do cursor: os números rolam enquanto o cursor anda de um mês ao outro. */
+function ValorCursor({ serie, posicao, formatarValor }: { serie: SerieGrafico; posicao: MotionValue<number>; formatarValor: (v: number) => string }) {
+  const texto = useTransform(posicao, (p) => formatarValor(valorEm(serie.dados, p)));
+  return (
+    <div className="flex items-center gap-2 whitespace-nowrap">
+      <span aria-hidden className="h-0.5 w-3 shrink-0 rounded-full" style={{ background: serie.cor }} />
+      <motion.span className="font-semibold tabular-nums text-foreground">{texto}</motion.span>
+      <span className="text-foreground-muted">{serie.rotulo}</span>
+    </div>
+  );
+}
+
 /**
- * Áreas sobrepostas com degradê (a primeira série fica atrás). Para valores de mesma unidade ao longo dos meses:
- * a cruz vertical acha o mês mais próximo do ponteiro e a dica mostra todas as séries daquele mês.
+ * Áreas sobrepostas com degradê (a primeira série fica atrás). As linhas se desenham ao entrar. Com o mouse
+ * (ou as setas), um cursor desliza até o mês mais próximo — a linha vertical, os pontos e o balão andam juntos
+ * e os valores rolam até os do mês (como o gráfico de linha do Motion).
  */
 export function GraficoArea({
   titulo,
@@ -162,7 +194,6 @@ export function GraficoArea({
   formatarEixo: (v: number) => string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
   const largura = useLargura(ref);
   const [ativo, setAtivo] = useState<number | null>(null);
   const id = useId().replace(/:/g, "");
@@ -174,18 +205,27 @@ export function GraficoArea({
   const x = (i: number) => MARGEM.esq + (n > 1 ? (i * w) / (n - 1) : w / 2);
   const y = (v: number) => MARGEM.topo + h - (v / topo) * h;
   const base = y(0);
+  const chaveDados = JSON.stringify(series.map((s) => s.dados));
   const caminhos = series.map((s) => {
     const linha = caminhoSuave(s.dados.map((v, i) => ({ x: x(i), y: y(v) })));
     return { s, linha, area: n ? `${linha} L${x(n - 1)},${base} L${x(0)},${base} Z` : "" };
   });
 
-  useGSAP(
-    () => {
-      if (!svgRef.current || reduzMovimento() || !largura) return;
-      gsap.fromTo(svgRef.current.querySelector("[data-desenho]"), { clipPath: "inset(0 100% 0 0)" }, { clipPath: "inset(0 0% 0 0)", duration: 1.1, ease: "power2.out", clearProps: "clipPath" });
-    },
-    { dependencies: [JSON.stringify(series.map((s) => s.dados)), largura > 0], revertOnUpdate: true },
-  );
+  // Posição do cursor (índice fracionário): pula na primeira vez e desliza com mola entre os meses.
+  const posicao = useSpring(0, MOLA_CURSOR);
+  const anterior = useRef<number | null>(null);
+  useEffect(() => {
+    if (ativo === null) {
+      anterior.current = null;
+      return;
+    }
+    if (anterior.current === null) posicao.jump(ativo);
+    else posicao.set(ativo);
+    anterior.current = ativo;
+  }, [ativo, posicao]);
+  const cursorX = useTransform(posicao, (p) => x(p));
+  const balaoX = useTransform(posicao, (p) => Math.max(90, Math.min(largura - 90, x(p))));
+  const balaoY = useTransform(posicao, (p) => Math.min(...series.map((s) => y(valorEm(s.dados, p)))) - 14);
 
   function aoMover(e: PointerEvent<SVGSVGElement>) {
     if (!n) return;
@@ -201,7 +241,6 @@ export function GraficoArea({
       <div ref={ref} className="relative min-w-0" style={{ height: altura }}>
         {largura > 0 && (
           <svg
-            ref={svgRef}
             width={largura}
             height={altura}
             role="img"
@@ -224,31 +263,60 @@ export function GraficoArea({
               ))}
             </defs>
             <Eixos marcas={marcas} y={y} largura={largura} formatarEixo={formatarEixo} />
-            <g data-desenho>
-              {caminhos.map(({ s, area }) => <path key={`a-${s.chave}`} d={area} fill={`url(#${id}-${s.chave})`} />)}
-              {caminhos.map(({ s, linha }) => (
-                <path key={`l-${s.chave}`} d={linha} fill="none" stroke={s.cor} strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
+            <g key={chaveDados}>
+              {caminhos.map(({ s, area }) => (
+                <motion.path key={`a-${s.chave}`} d={area} fill={`url(#${id}-${s.chave})`} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6, delay: 0.35 }} />
+              ))}
+              {caminhos.map(({ s, linha }, i) => (
+                <motion.path
+                  key={`l-${s.chave}`}
+                  d={linha}
+                  fill="none"
+                  stroke={s.cor}
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0 }}
+                  animate={{ pathLength: 1 }}
+                  transition={{ duration: 1.1, ease: [0.65, 0, 0.35, 1], delay: i * 0.12 }}
+                />
               ))}
             </g>
-            {ativo !== null && (
-              <g pointerEvents="none">
-                <line x1={x(ativo)} x2={x(ativo)} y1={MARGEM.topo} y2={base} stroke="#9fb0c9" strokeWidth={1} shapeRendering="crispEdges" />
-                {series.map((s) => (
-                  <circle key={s.chave} cx={x(ativo)} cy={y(s.dados[ativo] ?? 0)} r={4.5} fill={s.cor} stroke={SUPERFICIE} strokeWidth={2} />
-                ))}
-              </g>
-            )}
+            <AnimatePresence>
+              {ativo !== null && (
+                <motion.g key="cursor" pointerEvents="none" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
+                  <motion.line x1={cursorX} x2={cursorX} y1={MARGEM.topo} y2={base} stroke="#9fb0c9" strokeWidth={1} strokeDasharray="0" />
+                  {series.map((s) => (
+                    <PontoCursor key={`${s.chave}-${largura}`} serie={s} posicao={posicao} x={x} y={y} />
+                  ))}
+                </motion.g>
+              )}
+            </AnimatePresence>
             <RotulosX categorias={categorias} x={x} altura={altura} largura={largura} />
           </svg>
         )}
-        {ativo !== null && largura > 0 && (
-          <Dica
-            titulo={categorias[ativo]}
-            x={x(ativo)}
-            largura={largura}
-            linhas={series.map((s) => ({ rotulo: s.rotulo, cor: s.cor, valor: formatarValor(s.dados[ativo] ?? 0) }))}
-          />
-        )}
+        <AnimatePresence>
+          {ativo !== null && largura > 0 && (
+            <motion.div
+              key="balao"
+              initial={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
+              animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+              exit={{ opacity: 0, scale: 0.92, filter: "blur(4px)" }}
+              transition={{ duration: 0.18 }}
+              className="pointer-events-none absolute left-0 top-0 z-10"
+              style={{ x: balaoX, y: balaoY }}
+            >
+              <div className="-translate-x-1/2 -translate-y-full rounded-xl border border-borda bg-areia-card/95 px-3 py-2 text-xs shadow-[0_10px_24px_-10px_rgba(11,27,54,0.3)] backdrop-blur">
+                <div className="mb-1 font-semibold text-foreground">{categorias[ativo]}</div>
+                <div className="space-y-0.5">
+                  {series.map((s) => (
+                    <ValorCursor key={`${s.chave}-${largura}`} serie={s} posicao={posicao} formatarValor={formatarValor} />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
@@ -471,11 +539,28 @@ export function BarraSegmentada({ partes, rotulo }: { partes: { rotulo: string; 
   );
 }
 
+/** Número que rola até o valor novo (mola), formatado a cada quadro — para o centro da pizza. */
+function NumeroRolando({ valor, formatar, className }: { valor: number; formatar: (v: number) => string; className?: string }) {
+  const mv = useMotionValue(valor);
+  const texto = useTransform(mv, formatar);
+  useEffect(() => {
+    if (reduzMovimento()) {
+      mv.set(valor);
+      return;
+    }
+    const c = animate(mv, valor, { type: "spring", bounce: 0, visualDuration: 0.45 });
+    return () => c.stop();
+  }, [valor, mv]);
+  return <motion.span className={className}>{texto}</motion.span>;
+}
+
+const MOLA_FATIA = { type: "spring", bounce: 0.25, visualDuration: 0.35 } as const;
+
 /**
- * Pizza em rosca (parte de um todo, até ~5 fatias): total no centro, legenda ao lado com valor e fatia. O conjunto
- * fica centralizado no espaço que tiver (vertical e horizontal).
- * Passar o mouse (ou focar com o teclado) numa fatia ou na legenda destaca a fatia — ela sai um pouco do
- * círculo e o centro mostra o valor dela. Entra girando até fechar a volta. 2px de folga branca entre fatias.
+ * Pizza em rosca no estilo "Revenue Mix" (evilcharts): fatias com folga entre si e pontas arredondadas, cada
+ * uma em degradê da própria cor; no meio, um círculo tracejado com o total; legenda ao lado. As fatias se
+ * desenham ao entrar. Passar o mouse (ou focar) numa fatia ou na legenda engrossa a fatia, apaga as outras e o
+ * centro rola até o valor dela; clicar fixa a escolha (clicar de novo solta).
  */
 export function GraficoPizza({
   titulo,
@@ -485,40 +570,45 @@ export function GraficoPizza({
   tamanho = 200,
 }: {
   titulo: string;
-  fatias: { chave: string; rotulo: string; valor: number; cor: string; detalhe?: string }[];
+  fatias: { chave: string; rotulo: string; valor: number; cor: string; corClara?: string; detalhe?: string }[];
   formatarValor: (v: number) => string;
   /** Texto sob o total, no centro (ex.: "retido no mês"). */
   rotuloTotal: string;
   tamanho?: number;
 }) {
-  const [ativa, setAtiva] = useState<number | null>(null);
-  const [progresso, setProgresso] = useState(() => (reduzMovimento() ? 1 : 0));
+  const id = useId().replace(/:/g, "");
+  const [sobre, setSobre] = useState<number | null>(null);
+  const [fixa, setFixa] = useState<number | null>(null);
+  const ativa = sobre ?? fixa;
   const total = fatias.reduce((t, f) => t + Math.max(0, f.valor), 0);
   const chaveDados = fatias.map((f) => f.valor).join("|");
 
-  useGSAP(
-    () => {
-      if (reduzMovimento()) return setProgresso(1);
-      const estado = { p: 0 };
-      gsap.to(estado, { p: 1, duration: 1.1, ease: "power3.out", onUpdate: () => setProgresso(estado.p) });
-    },
-    { dependencies: [chaveDados] },
-  );
-
+  // Geometria: as fatias são arcos traçados no raio do meio, com a espessura do anel e pontas redondas.
   const c = tamanho / 2;
-  const rExt = c - 8;
-  const rInt = rExt * 0.62;
-  const angulos = fatias.map((f) => (total ? (Math.max(0, f.valor) / total) * Math.PI * 2 * progresso : 0));
+  const rExt = c * 0.92;
+  const rInt = c * 0.62;
+  const espessura = rExt - rInt;
+  const rMeio = (rExt + rInt) / 2;
+  const folgaPx = 5;
+  const corte = (espessura / 2 + folgaPx / 2) / rMeio; // ângulo que cada ponta "come" (tampa redonda + folga)
+  const ponto = (a: number) => [c + rMeio * Math.sin(a), c - rMeio * Math.cos(a)] as const;
+  const angulos = fatias.map((f) => (total ? (Math.max(0, f.valor) / total) * Math.PI * 2 : 0));
   const arcos = fatias.map((f, i) => {
     const angulo = angulos[i];
-    const a0 = angulos.slice(0, i).reduce((t, x) => t + x, 0);
+    const a0 = angulos.slice(0, i).reduce((t, v) => t + v, 0);
+    const inicio = a0 + corte;
+    const fim = a0 + angulo - corte;
+    const curta = fim - inicio < 0.02;
     const meio = a0 + angulo / 2;
-    const destaque = ativa === i ? 6 : 0;
-    return { f, i, a0, a1: a0 + angulo, dx: Math.sin(meio) * destaque, dy: -Math.cos(meio) * destaque };
+    const [x0, y0] = ponto(curta ? meio : inicio);
+    const [x1, y1] = ponto(curta ? meio + 0.001 : fim);
+    const grande = fim - inicio > Math.PI ? 1 : 0;
+    return { f, i, angulo, d: `M${x0},${y0} A${rMeio},${rMeio} 0 ${grande} 1 ${x1},${y1}`, x0, y0, x1, y1 };
   });
   const pct = (v: number) => (total ? (v / total) * 100 : 0);
   const fmtPct = (v: number) => `${pct(v).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
   const foco = ativa !== null ? fatias[ativa] : null;
+  const alternar = (i: number) => setFixa((f) => (f === i ? null : i));
 
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-5 sm:flex-row sm:gap-8">
@@ -536,61 +626,83 @@ export function GraficoPizza({
           </tbody>
         </table>
       </div>
+
       <div className="relative shrink-0" style={{ width: tamanho, height: tamanho }} aria-hidden>
         <svg width={tamanho} height={tamanho} className="block overflow-visible">
-          <circle cx={c} cy={c} r={(rExt + rInt) / 2} fill="none" stroke="var(--tinta-100)" strokeWidth={rExt - rInt} />
-          {total > 0 &&
-            arcos.map(({ f, i, a0, a1, dx, dy }) =>
-              a1 - a0 > 0.0005 ? (
-                <path
-                  key={f.chave}
-                  d={caminhoFatia(c, c, rExt, rInt, a0, a1)}
-                  fill={f.cor}
-                  stroke={SUPERFICIE}
-                  strokeWidth={2}
-                  strokeLinejoin="round"
-                  onPointerEnter={() => setAtiva(i)}
-                  onPointerLeave={() => setAtiva(null)}
-                  style={{
-                    transform: `translate(${dx}px, ${dy}px)`,
-                    opacity: ativa !== null && ativa !== i ? 0.4 : 1,
-                    transition: "transform 280ms cubic-bezier(0.16,1,0.3,1), opacity 200ms ease",
-                    cursor: "pointer",
-                  }}
-                />
-              ) : null,
-            )}
+          <defs>
+            {arcos.map(({ f, x0, y0, x1, y1 }) => (
+              <linearGradient key={f.chave} id={`${id}-${f.chave}`} gradientUnits="userSpaceOnUse" x1={x0} y1={y0} x2={x1} y2={y1}>
+                <stop offset="0%" stopColor={f.cor} />
+                <stop offset="100%" stopColor={f.corClara ?? f.cor} />
+              </linearGradient>
+            ))}
+          </defs>
+          {total === 0 && <circle cx={c} cy={c} r={rMeio} fill="none" stroke="var(--tinta-100)" strokeWidth={espessura} />}
+          <g key={chaveDados}>
+            {total > 0 &&
+              arcos.map(({ f, i, angulo, d }) =>
+                angulo > 0 ? (
+                  <motion.path
+                    key={f.chave}
+                    d={d}
+                    fill="none"
+                    stroke={`url(#${id}-${f.chave})`}
+                    strokeLinecap="round"
+                    initial={{ pathLength: 0, opacity: 0, strokeWidth: espessura }}
+                    animate={{
+                      pathLength: 1,
+                      opacity: ativa !== null && ativa !== i ? 0.32 : 1,
+                      strokeWidth: ativa === i ? espessura + 7 : espessura,
+                    }}
+                    transition={{
+                      pathLength: { duration: 0.9, ease: [0.65, 0, 0.35, 1], delay: 0.1 + i * 0.12 },
+                      opacity: { duration: 0.2 },
+                      strokeWidth: MOLA_FATIA,
+                    }}
+                    onPointerEnter={() => setSobre(i)}
+                    onPointerLeave={() => setSobre(null)}
+                    onClick={() => alternar(i)}
+                    style={{ cursor: "pointer" }}
+                  />
+                ) : null,
+              )}
+          </g>
         </svg>
-        <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
-          <div className="max-w-[60%]">
-            <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-foreground-muted">{foco ? foco.rotulo : "Total"}</div>
-            <div className="mt-0.5 text-lg font-semibold leading-tight tracking-tight text-foreground">{formatarValor(foco ? foco.valor : total)}</div>
-            <div className="mt-0.5 text-[11px] text-foreground-muted">{foco ? `${fmtPct(foco.valor)} do total` : rotuloTotal}</div>
+        {/* Centro: círculo tracejado com o total (ou o valor da fatia escolhida), rolando até o número. */}
+        <div className="pointer-events-none absolute inset-0 grid place-items-center">
+          <div className="grid aspect-square w-[54%] place-items-center rounded-full border border-dashed border-tinta-300 text-center">
+            <div className="max-w-[88%]">
+              <div className="text-[10px] font-semibold uppercase tracking-[0.1em] text-foreground-muted">{foco ? foco.rotulo : "Total"}</div>
+              <NumeroRolando valor={foco ? foco.valor : total} formatar={formatarValor} className="mt-0.5 block text-[15px] font-semibold leading-tight tracking-tight text-foreground tabular-nums sm:text-base" />
+              <div className="mt-0.5 text-[10px] text-foreground-muted">{foco ? `${fmtPct(foco.valor)} do total` : rotuloTotal}</div>
+            </div>
           </div>
         </div>
       </div>
 
-      <ul className="w-full min-w-0 space-y-1 sm:max-w-[21rem] sm:flex-1">
+      <ul className="w-full min-w-0 sm:max-w-[21rem] sm:flex-1">
         {fatias.map((f, i) => (
           <li key={f.chave}>
             <button
               type="button"
-              onPointerEnter={() => setAtiva(i)}
-              onPointerLeave={() => setAtiva(null)}
-              onFocus={() => setAtiva(i)}
-              onBlur={() => setAtiva(null)}
+              onPointerEnter={() => setSobre(i)}
+              onPointerLeave={() => setSobre(null)}
+              onFocus={() => setSobre(i)}
+              onBlur={() => setSobre(null)}
+              onClick={() => alternar(i)}
+              aria-pressed={fixa === i}
               aria-label={`${f.rotulo}: ${formatarValor(f.valor)}, ${fmtPct(f.valor)} do total`}
               className={cn(
-                "linha-hover flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left outline-none focus-visible:shadow-[var(--anel-foco)]",
-                ativa === i && "bg-azul-50/80",
+                "flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left outline-none transition-[opacity,background-color] duration-200 hover:bg-tinta-50 focus-visible:shadow-[var(--anel-foco)] sm:py-2.5",
+                ativa !== null && ativa !== i && "opacity-40",
               )}
             >
-              <span aria-hidden className="size-2.5 shrink-0 rounded-[3px]" style={{ background: f.cor }} />
+              <span aria-hidden className="size-2.5 shrink-0 rounded-[3px]" style={{ background: `linear-gradient(135deg, ${f.cor}, ${f.corClara ?? f.cor})` }} />
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-medium text-foreground">{f.rotulo}</span>
+                <span className="block text-sm text-foreground-secondary">{f.rotulo}</span>
                 {f.detalhe && <span className="block text-xs leading-snug text-foreground-muted">{f.detalhe}</span>}
               </span>
-              <span className="shrink-0 text-right">
+              <span className="ml-auto shrink-0 text-right">
                 <span className="block text-sm font-semibold tabular-nums text-foreground">{formatarValor(f.valor)}</span>
                 <span className="block text-xs tabular-nums text-foreground-muted">{fmtPct(f.valor)}</span>
               </span>

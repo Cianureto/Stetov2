@@ -101,9 +101,18 @@ export function PaletaBusca({ aberta, origem, onFechar, secoes, acoes }: { abert
                             type="button"
                             onClick={() => abrir(r)}
                             onMouseMove={() => setAtivo(i)}
-                            className={cn("flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left transition-colors", i === ativo && "bg-azul-50 shadow-[inset_3px_0_0_var(--azul-500)]")}
+                            className="relative isolate flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left"
                           >
-                            <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg transition-colors", i === ativo ? "bg-azul-600 text-white" : "bg-tinta-50 text-azul-600")}>
+                            {/* Destaque claro que desliza até a opção sob o mouse ou escolhida pelas setas. */}
+                            {i === ativo && (
+                              <motion.span
+                                aria-hidden
+                                layoutId="busca-opcao-ativa"
+                                transition={{ type: "spring", bounce: 0.15, visualDuration: 0.22 }}
+                                className="absolute inset-0 -z-10 rounded-xl bg-tinta-100"
+                              />
+                            )}
+                            <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg bg-areia-card text-azul-600 ring-1 ring-inset transition-[transform,box-shadow] duration-[var(--dur-media)] ease-[var(--ease-saida)]", i === ativo ? "scale-105 ring-azul-200 shadow-[var(--shadow-xs)]" : "ring-borda")}>
                               <r.Icone width={17} height={17} aria-hidden />
                             </span>
                             <span className="min-w-0 flex-1">

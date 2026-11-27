@@ -546,13 +546,13 @@ h1, h2, h3, h4, .font-titulo {
   }
 }
 
-/* ── Hover de linha: fundo azul bem claro e uma barrinha azul à esquerda (tabelas, listas, rankings) ── */
+/* ── Hover de linha: fundo azul bem claro (tabelas, listas, rankings); nas linhas de tabela, também uma
+   barrinha azul à esquerda (em itens arredondados ela ficaria torta, então lá é só o fundo). ── */
 .linha-hover {
   transition: background-color var(--dur-rapida) ease, box-shadow var(--dur-rapida) ease;
 }
 @media (hover: hover) {
   .linha-hover:hover { background-color: color-mix(in srgb, var(--azul-50) 80%, transparent); }
-  .linha-hover:not(tr):hover { box-shadow: inset 3px 0 0 var(--azul-500); }
   tr.linha-hover:hover > :first-child { box-shadow: inset 3px 0 0 var(--azul-500); }
 }
 

@@ -109,9 +109,9 @@ export default function PainelPage() {
                   tamanho={224}
                   formatarValor={formatarMoeda}
                   fatias={[
-                    { chave: "iss", rotulo: "ISS", valor: d.retencoesMes.iss, cor: "#1d4ed8", detalhe: "recolhido ao município" },
-                    { chave: "ir", rotulo: "IRRF", valor: d.retencoesMes.ir, cor: "#22b8cf", detalhe: "imposto de renda na fonte" },
-                    { chave: "csrf", rotulo: "CSRF", valor: d.retencoesMes.csrf, cor: "#7c5ce0", detalhe: "PIS, COFINS e CSLL" },
+                    { chave: "iss", rotulo: "ISS", valor: d.retencoesMes.iss, cor: "#1d4ed8", corClara: "#5b8cf5", detalhe: "recolhido ao município" },
+                    { chave: "ir", rotulo: "IRRF", valor: d.retencoesMes.ir, cor: "#0ea5c6", corClara: "#5fd3e6", detalhe: "imposto de renda na fonte" },
+                    { chave: "csrf", rotulo: "CSRF", valor: d.retencoesMes.csrf, cor: "#6d48dc", corClara: "#a48cf0", detalhe: "PIS, COFINS e CSLL" },
                   ]}
                 />
               </Cartao>

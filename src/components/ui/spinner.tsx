@@ -46,3 +46,18 @@ export function Carregando({ mensagem = "Carregando...", telaCheia = false, escu
     </div>
   );
 }
+
+/** Indicador de 12 barrinhas (estilo iOS/Clerk), para dentro de botões: herda a cor do texto. */
+export function SpinnerBarras({ tamanho = 14, className }: { tamanho?: number; className?: string }) {
+  return (
+    <span aria-hidden className={cn("relative inline-block shrink-0", className)} style={{ width: tamanho, height: tamanho }}>
+      {Array.from({ length: 12 }, (_, i) => (
+        <span
+          key={i}
+          className="spinner-barra absolute left-[46%] top-[4%] h-[24%] w-[8%] rounded-[6px] bg-current"
+          style={{ transform: `rotate(${i * 30}deg)`, transformOrigin: "50% 190%", animationDelay: `${-(1.2 - i * 0.1)}s` }}
+        />
+      ))}
+    </span>
+  );
+}

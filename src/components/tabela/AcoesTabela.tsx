@@ -3,22 +3,14 @@ import { Spinner } from "@/components/ui/spinner";
 import type { ControleAcoes } from "@/hooks/useAcoesTabela";
 import type { Tabela } from "@/hooks/useTabela";
 import { cn } from "@/lib/cn";
+import { CaixaMarcar } from "@/components/ui/caixa-marcar";
 
 /** Caixa de seleção de uma linha (ou de "todas da página"), com alvo de toque confortável. */
 export function CaixaSelecao({ marcada, parcial, onChange, rotulo, className }: { marcada: boolean; parcial?: boolean; onChange: () => void; rotulo: string; className?: string }) {
   return (
-    <label className={cn("alvo-toque inline-grid cursor-pointer place-items-center", className)} onClick={(e) => e.stopPropagation()}>
-      <input
-        type="checkbox"
-        checked={marcada}
-        ref={(el) => {
-          if (el) el.indeterminate = !!parcial && !marcada;
-        }}
-        onChange={onChange}
-        aria-label={rotulo}
-        className="size-4 cursor-pointer accent-[var(--marca)]"
-      />
-    </label>
+    <span className={cn("alvo-toque inline-grid place-items-center", className)} onClick={(e) => e.stopPropagation()}>
+      <CaixaMarcar marcada={marcada} parcial={parcial} onChange={onChange} rotulo={rotulo} />
+    </span>
   );
 }
 

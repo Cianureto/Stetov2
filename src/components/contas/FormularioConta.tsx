@@ -15,6 +15,7 @@ import { useDadosApi } from "@/hooks/useDadosApi";
 import { BANCOS, rotuloBanco } from "@/lib/bancos";
 import { hojeBrasilia, valorFinalConta, type Ajuste } from "@/lib/contas";
 import { formatarMoeda } from "@/lib/format";
+import { CaixaMarcar } from "@/components/ui/caixa-marcar";
 
 const OPCOES_STATUS = [{ valor: "pendente", rotulo: "Pendente" }, { valor: "pago", rotulo: "Paga" }];
 
@@ -149,7 +150,7 @@ export function FormularioConta({ modo, conta, onFechar, onSalvo }: PropsFormula
         </div>
         {!conta && (
           <label className="flex items-start gap-2.5 text-sm">
-            <input type="checkbox" className="mt-0.5 accent-[var(--marca)]" checked={recorrente} onChange={(e) => setRecorrente(e.target.checked)} />
+            <CaixaMarcar className="mt-0.5" marcada={recorrente} onChange={setRecorrente} />
             <span>
               <span className="font-medium">Conta recorrente</span>
               <span className="block text-xs text-foreground-muted">Cria 12 parcelas mensais a partir do vencimento. Cada parcela pode ser editada depois.</span>

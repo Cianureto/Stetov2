@@ -3,6 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { filtrarOpcoes, type OpcaoSeletor } from "@/lib/busca";
 import { cn } from "@/lib/cn";
+import { CaixaMarcar } from "@/components/ui/caixa-marcar";
 
 type Props = {
   id?: string;
@@ -76,7 +77,7 @@ export function SeletorMultiplo({ id, opcoes, selecionados, onAplicar, vazio, pl
         <div className="max-h-64 overflow-y-auto py-1">
           {visiveis.map((opcao) => (
             <label key={opcao.valor} className="flex cursor-pointer items-center gap-2.5 px-3 py-2 text-[13px] hover:bg-[var(--areia)]">
-              <input type="checkbox" checked={rascunho.includes(opcao.valor)} onChange={() => alternar(opcao.valor)} className="accent-[var(--marca)]" />
+              <CaixaMarcar marcada={rascunho.includes(opcao.valor)} onChange={() => alternar(opcao.valor)} />
               <span className="min-w-0">
                 <span className="block truncate">{opcao.rotulo}</span>
                 {opcao.descricao && <span className="block truncate text-[12px] text-foreground-muted">{opcao.descricao}</span>}

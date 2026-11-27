@@ -14,6 +14,7 @@ import { useVoltar } from "@/hooks/useVoltar";
 import { lerPlanilha, type Planilha } from "@/lib/importacao/arquivo";
 import { CAMPOS, mapearAutomatico, ROTULO_TIPO, type TipoImportacao } from "@/lib/importacao/campos";
 import { texto } from "@/lib/importacao/normalizar";
+import { CaixaMarcar } from "@/components/ui/caixa-marcar";
 
 const OPCOES_TIPO = Object.entries(ROTULO_TIPO).map(([valor, rotulo]) => ({ valor, rotulo }));
 
@@ -116,7 +117,7 @@ export default function ImportarPlanilhaPage() {
           </div>
           {tipo === "registros_financeiros" && (
             <label className="flex items-start gap-2.5 text-sm">
-              <input type="checkbox" className="mt-0.5 accent-[var(--marca)]" checked={criarFaltantes} onChange={(e) => setCriarFaltantes(e.target.checked)} />
+              <CaixaMarcar className="mt-0.5" marcada={criarFaltantes} onChange={setCriarFaltantes} />
               <span><span className="font-medium">Criar cadastros que faltam</span><span className="block text-xs text-foreground-muted">Clientes, prestadores e empresas não encontrados (por documento ou nome) entram como provisórios para revisar em Pendências.</span></span>
             </label>
           )}

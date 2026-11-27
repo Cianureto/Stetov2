@@ -72,7 +72,7 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
                   className="fixed inset-0 z-40 bg-tinta-900/30 backdrop-blur-md"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1, transition: { duration: 0.25 } }}
-                  exit={{ opacity: 0, transition: { duration: 0.22 } }}
+                  exit={{ opacity: 0, pointerEvents: "none", transition: { duration: 0.22 } }}
                 />
               </DialogPrimitive.Overlay>
               <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-4">
@@ -101,7 +101,7 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
                     style={{ borderRadius: 28 }}
                     initial={{ backgroundColor: corOrigem }}
                     animate={{ backgroundColor: "rgba(243,246,251,0.96)" }}
-                    exit={{ backgroundColor: corOrigem }}
+                    exit={{ backgroundColor: corOrigem, pointerEvents: "none" }}
                   >
                     <motion.div {...aparecer(0)} className="mb-4 pr-10 md:mb-5">
                       <p className="texto-sobretitulo">Ações rápidas</p>

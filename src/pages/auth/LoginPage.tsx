@@ -1,8 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useLayoutEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { AnimatePresence, LayoutGroup, motion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, MotionConfig, motion } from "framer-motion";
 import { toast } from "sonner";
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle2, Lock, Mail } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Lock, Mail } from "lucide-react";
 import { api } from "@/api/client";
 import { useAuth } from "@/context/useAuth";
 import { useAcao } from "@/hooks/useAcao";
@@ -17,6 +17,7 @@ import { CampoMascara } from "@/components/ui/campo-mascara";
 import { Input, Textarea } from "@/components/ui/input";
 import { InputSenha } from "@/components/ui/input-senha";
 import { Label } from "@/components/ui/label";
+import { SpinnerBarras } from "@/components/ui/spinner";
 
 // Login em tela dividida (formulário de um lado, foto com a frase do outro). Ao ir para "Pedir acesso", a
 // foto troca de lado com o formulário numa transição de layout, e o formulário muda deslizando.
@@ -120,79 +121,186 @@ function FormLogin({ onPedir }: { onPedir: () => void }) {
   );
 }
 
+const MOLA_CADASTRO = { type: "spring", bounce: 0.3, visualDuration: 0.4 } as const;
+const TEXTO_TROCA = {
+  initial: { opacity: 0, filter: "blur(10px)", y: -10 },
+  animate: { opacity: 1, filter: "blur(0px)", y: 0 },
+  exit: { opacity: 0, filter: "blur(10px)", y: 10 },
+};
+const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+
+/** Campo que aparece abrindo espaço: a altura anima até a medida do conteúdo (e fecha até 0). */
+function CampoCondicional({ aberto, children }: { aberto: boolean; children: ReactNode }) {
+  const conteudo = useRef<HTMLDivElement>(null);
+  const [altura, setAltura] = useState(0);
+  useLayoutEffect(() => {
+    const el = conteudo.current;
+    if (!el) return;
+    const obs = new ResizeObserver(([e]) => setAltura(e.borderBoxSize?.[0]?.blockSize ?? e.contentRect.height));
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [aberto]);
+  return (
+    <motion.div initial={false} animate={{ height: aberto ? altura : 0 }} className="overflow-hidden" style={{ willChange: "height" }}>
+      <AnimatePresence mode="popLayout" initial={false}>
+        {aberto && (
+          <motion.div ref={conteudo} key="campo" initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 0 }} className="space-y-4 pt-4">
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
+  );
+}
+
+/**
+ * Pedido de acesso no estilo do cadastro do Clerk: primeiro só nome e e-mail; "Continuar" troca o título
+ * (desfoque) e abre os campos opcionais (altura animada); ao enviar, o formulário recua e o cartão de
+ * confirmação sobe por cima. Esc volta à primeira etapa sem perder o que foi digitado.
+ */
 function FormPedido({ onEntrar }: { onEntrar: () => void }) {
   const [dados, setDados] = useState({ nome: "", email: "", telefone: "", mensagem: "" });
+  const [etapa, setEtapa] = useState<"dados" | "detalhes">("dados");
   const [enviado, setEnviado] = useState(false);
+  const [aviso, setAviso] = useState<string | null>(null);
   const { pendente, erro, executar } = useAcao("Não foi possível enviar o pedido. Tente de novo.");
   const campo = (k: keyof typeof dados) => (v: string) => setDados((d) => ({ ...d, [k]: v }));
+  const detalhes = etapa === "detalhes";
 
   async function enviar(e: FormEvent) {
     e.preventDefault();
+    if (!detalhes) {
+      if (dados.nome.trim().length < 2) return setAviso("Informe o seu nome.");
+      if (!emailOk(dados.email)) return setAviso("Informe um e-mail válido.");
+      setAviso(null);
+      return setEtapa("detalhes");
+    }
     const ok = await executar(() => api.post("/pedidos-acesso", { ...dados, telefone: dados.telefone || undefined, mensagem: dados.mensagem || undefined }));
     if (ok) setEnviado(true);
   }
 
-  if (enviado) {
-    return (
-      <motion.div key="enviado" {...troca("pedido")} className="text-center">
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--sucesso-soft)] text-[var(--sucesso)] ring-1 ring-inset ring-[var(--sucesso)]/20">
-          <CheckCircle2 className="size-7" aria-hidden />
-        </span>
-        <h1 className="texto-titulo-1 mt-5 text-[30px]">Pedido enviado</h1>
-        <p className="texto-apoio mx-auto mt-2 max-w-xs">
-          Um administrador da Steto vai analisar. Quando aprovar, ele te passa uma senha temporária para o primeiro acesso.
-        </p>
-        <Button type="button" variant="secondary" size="lg" className="mt-8 w-full" onClick={onEntrar}>
-          <ArrowLeft className="size-4" aria-hidden /> Voltar para entrar
-        </Button>
-      </motion.div>
-    );
-  }
-
+  const mensagemErro = aviso ?? erro;
   return (
-    <motion.div key="pedido" {...troca("pedido")}>
-      <h1 className="texto-titulo-1 text-[30px]">Pedir acesso</h1>
-      <p className="texto-apoio mt-2">Preencha seus dados. Um administrador vai analisar o pedido.</p>
+    <motion.div key="pedido" {...troca("pedido")} className="relative">
+      <MotionConfig transition={MOLA_CADASTRO}>
+        <motion.div
+          animate={enviado ? { opacity: 0.55, scale: 0.95, y: -10 } : { opacity: 1, scale: 1, y: 0 }}
+          style={{ transformOrigin: "top center" }}
+          inert={enviado}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && detalhes && !pendente) {
+              e.stopPropagation();
+              setEtapa("dados");
+            }
+          }}
+        >
+          <div className="relative">
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.h1 key={etapa} {...TEXTO_TROCA} className="texto-titulo-1 text-[30px]">
+                {detalhes ? "Quase lá" : "Pedir acesso"}
+              </motion.h1>
+            </AnimatePresence>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.p key={etapa} {...TEXTO_TROCA} className="texto-apoio mt-2">
+                {detalhes ? "Se quiser, conte quem você é. Isso ajuda o administrador a aprovar mais rápido." : "Informe seu nome e e-mail. Um administrador vai analisar o pedido."}
+              </motion.p>
+            </AnimatePresence>
+          </div>
 
-      <form onSubmit={enviar} className="mt-8 space-y-4">
-        {erro && (
-          <p role="alert" className="flex items-start gap-2 rounded-xl border border-[var(--danger)]/20 bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]">
-            <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
-            {erro}
+          <form onSubmit={enviar} noValidate className="mt-8">
+            <AnimatePresence initial={false}>
+              {mensagemErro && (
+                <motion.p
+                  role="alert"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4 flex items-start gap-2 overflow-hidden rounded-xl border border-[var(--danger)]/20 bg-[var(--danger-soft)] px-4 py-3 text-sm text-[var(--danger)]"
+                >
+                  <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+                  {mensagemErro}
+                </motion.p>
+              )}
+            </AnimatePresence>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="pedido-nome">Nome completo</Label>
+                <Input id="pedido-nome" autoFocus autoComplete="name" maxLength={120} value={dados.nome} onChange={(e) => { campo("nome")(e.target.value); setAviso(null); }} placeholder="Seu nome" />
+              </div>
+              <div>
+                <Label htmlFor="pedido-email">E-mail</Label>
+                <CampoMascara id="pedido-email" tipo="email" rotulo="O e-mail" valor={dados.email} onChange={(v) => { campo("email")(v); setAviso(null); }} placeholder="voce@empresa.com.br" />
+              </div>
+            </div>
+
+            <CampoCondicional aberto={detalhes}>
+              <div>
+                <Label htmlFor="pedido-telefone">
+                  Telefone <span className="font-normal text-foreground-muted">(opcional)</span>
+                </Label>
+                <CampoMascara id="pedido-telefone" tipo="telefone" rotulo="O telefone" autoFocus valor={dados.telefone} onChange={campo("telefone")} />
+              </div>
+              <div>
+                <Label htmlFor="pedido-mensagem">
+                  Quem é você? <span className="font-normal text-foreground-muted">(opcional)</span>
+                </Label>
+                <Textarea id="pedido-mensagem" rows={3} maxLength={500} value={dados.mensagem} onChange={(e) => campo("mensagem")(e.target.value)} placeholder="Ex.: sou da equipe financeira do Hospital X" />
+              </div>
+            </CampoCondicional>
+
+            <Button type="submit" variant="accent" size="lg" className="mt-6 w-full overflow-hidden" disabled={pendente}>
+              <AnimatePresence mode="popLayout" initial={false}>
+                {pendente ? (
+                  <motion.span key="enviando" {...TEXTO_TROCA} className="flex items-center gap-2">
+                    <SpinnerBarras /> Enviando
+                  </motion.span>
+                ) : (
+                  <motion.span key={etapa} {...TEXTO_TROCA} className="flex items-center gap-2">
+                    {detalhes ? "Enviar pedido" : "Continuar"} <ArrowRight className="size-4" aria-hidden />
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </Button>
+            {detalhes && (
+              <button type="button" onClick={() => setEtapa("dados")} className="mt-3 w-full text-center text-[13px] font-medium text-foreground-muted hover:text-foreground">
+                Voltar (Esc)
+              </button>
+            )}
+          </form>
+
+          <p className="mt-8 text-center text-sm text-foreground-secondary">
+            Já tem conta?{" "}
+            <button type="button" onClick={onEntrar} className="font-semibold text-marca hover:underline">
+              Entrar
+            </button>
           </p>
-        )}
-        <div>
-          <Label htmlFor="pedido-nome">Nome completo</Label>
-          <Input id="pedido-nome" required minLength={2} maxLength={120} autoComplete="name" value={dados.nome} onChange={(e) => campo("nome")(e.target.value)} placeholder="Seu nome" />
-        </div>
-        <div>
-          <Label htmlFor="pedido-email">E-mail</Label>
-          <CampoMascara id="pedido-email" tipo="email" obrigatorio rotulo="O e-mail" valor={dados.email} onChange={campo("email")} placeholder="voce@empresa.com.br" />
-        </div>
-        <div>
-          <Label htmlFor="pedido-telefone">
-            Telefone <span className="font-normal text-foreground-muted">(opcional)</span>
-          </Label>
-          <CampoMascara id="pedido-telefone" tipo="telefone" rotulo="O telefone" valor={dados.telefone} onChange={campo("telefone")} />
-        </div>
-        <div>
-          <Label htmlFor="pedido-mensagem">
-            Quem é você? <span className="font-normal text-foreground-muted">(opcional)</span>
-          </Label>
-          <Textarea id="pedido-mensagem" rows={3} maxLength={500} value={dados.mensagem} onChange={(e) => campo("mensagem")(e.target.value)} placeholder="Ex.: sou da equipe financeira do Hospital X" />
-        </div>
-        <Button type="submit" variant="accent" size="lg" className="w-full" disabled={pendente}>
-          {pendente ? "Enviando..." : "Enviar pedido"}
-          {!pendente && <ArrowRight className="size-4" aria-hidden />}
-        </Button>
-      </form>
+        </motion.div>
 
-      <p className="mt-8 text-center text-sm text-foreground-secondary">
-        Já tem conta?{" "}
-        <button type="button" onClick={onEntrar} className="font-semibold text-marca hover:underline">
-          Entrar
-        </button>
-      </p>
+        <AnimatePresence>
+          {enviado && (
+            <motion.div
+              role="status"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 100 }}
+              className="absolute inset-x-0 top-6 z-10 rounded-[28px] border border-borda bg-areia-card px-7 py-9 text-center shadow-[0_24px_60px_-20px_rgba(11,27,54,0.35),inset_0_0_0_1px_#fff]"
+            >
+              <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-[var(--sucesso-soft)] text-[var(--sucesso)] ring-1 ring-inset ring-[var(--sucesso)]/20">
+                <svg viewBox="0 0 24 24" className="size-7" fill="none" stroke="currentColor" strokeWidth={2.4} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <motion.path d="M5 12.5 L10 17.5 L19 7" initial={{ pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.45, ease: [0.65, 0, 0.35, 1], delay: 0.25 }} />
+                </svg>
+              </span>
+              <h2 className="texto-titulo-2 mt-5">Pedido enviado</h2>
+              <p className="texto-apoio mx-auto mt-2 max-w-xs">
+                Um administrador da Steto vai analisar. Quando aprovar, ele te passa uma senha temporária para o primeiro acesso.
+              </p>
+              <Button type="button" variant="secondary" size="lg" className="mt-7 w-full" onClick={onEntrar}>
+                <ArrowLeft className="size-4" aria-hidden /> Voltar para entrar
+              </Button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </MotionConfig>
     </motion.div>
   );
 }

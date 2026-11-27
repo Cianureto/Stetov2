@@ -12,6 +12,7 @@ import { useVoltar } from "@/hooks/useVoltar";
 import { formatarDocumento, formatarMoeda } from "@/lib/format";
 import { lerNfse, type NotaXml } from "@/lib/importacao/nfse";
 import { competenciaCurta } from "@/lib/repasse";
+import { CaixaMarcar } from "@/components/ui/caixa-marcar";
 
 type Lida = { arquivo: string; nota?: NotaXml; erro?: string };
 
@@ -75,7 +76,7 @@ export default function ImportarXmlPage() {
       <SecaoFormulario titulo="Arquivos">
         <CampoArquivo aceita=".xml" multiplo onArquivos={(f) => void ler(f)} texto="Escolher arquivos XML" ajuda="Dá para escolher vários de uma vez" />
         <label className="flex items-start gap-2.5 text-sm">
-          <input type="checkbox" className="mt-0.5 accent-[var(--marca)]" checked={criarFaltantes} onChange={(e) => setCriarFaltantes(e.target.checked)} />
+          <CaixaMarcar className="mt-0.5" marcada={criarFaltantes} onChange={setCriarFaltantes} />
           <span><span className="font-medium">Criar cadastros que faltam</span><span className="block text-xs text-foreground-muted">Tomadores, médicos e empresas não encontrados entram como provisórios para revisar em Pendências.</span></span>
         </label>
       </SecaoFormulario>

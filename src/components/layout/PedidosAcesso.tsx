@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { toast } from "sonner";
-import { Check, Copy, KeyRound, UserPlus, X } from "lucide-react";
+import { Check, KeyRound, UserPlus, X } from "lucide-react";
+import { BotaoCopiar } from "@/components/ui/botao-copiar";
 import { api } from "@/api/client";
 import type { PedidoAcesso } from "@/api/types";
 import { useDadosApi } from "@/hooks/useDadosApi";
@@ -34,7 +35,6 @@ type Decidido = { tipo: "aceito"; senha: string } | { tipo: "recusado" };
 
 function Pedido({ p, decidido, onDecidir }: { p: PedidoAcesso; decidido?: Decidido; onDecidir: (p: PedidoAcesso, acao: "aceitar" | "recusar") => Promise<void> }) {
   const [enviando, setEnviando] = useState<"aceitar" | "recusar" | null>(null);
-  const [copiada, setCopiada] = useState(false);
   const decidir = async (acao: "aceitar" | "recusar") => {
     setEnviando(acao);
     try {
@@ -89,16 +89,7 @@ function Pedido({ p, decidido, onDecidir }: { p: PedidoAcesso; decidido?: Decidi
           <p className="mt-1">Passe a senha temporária para {p.nome.split(" ")[0]}; ela troca no primeiro acesso.</p>
           <div className="mt-1.5 flex items-center gap-1.5">
             <code className="min-w-0 flex-1 truncate rounded-md bg-areia-card px-2 py-1 font-mono text-[12px] text-foreground ring-1 ring-borda">{decidido.senha}</code>
-            <button
-              type="button"
-              onClick={async () => {
-                await navigator.clipboard.writeText(decidido.senha).catch(() => {});
-                setCopiada(true);
-              }}
-              className="inline-flex h-7 items-center gap-1 rounded-md bg-areia-card px-2 text-xs font-medium ring-1 ring-borda hover:bg-tinta-25"
-            >
-              {copiada ? <Check className="size-3.5" aria-hidden /> : <Copy className="size-3.5" aria-hidden />} {copiada ? "Copiada" : "Copiar"}
-            </button>
+            <BotaoCopiar tamanho="sm" texto={`E-mail: ${p.email}\nSenha temporária: ${decidido.senha}`} />
           </div>
         </div>
       )}

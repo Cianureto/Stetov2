@@ -615,6 +615,13 @@ h1, h2, h3, h4, .font-titulo {
   .borda-trilha { display: none; }
 }
 
+/* Barrinhas do SpinnerBarras: cada uma some e volta, defasadas (o "giro" é a onda de opacidade). */
+.spinner-barra { animation: spinner-barra 1.2s linear infinite; }
+@keyframes spinner-barra {
+  from { opacity: 1; }
+  to { opacity: 0.15; }
+}
+
 @keyframes kpi-entrada {
   from { opacity: 0; transform: translateY(14px) scale(0.985); }
   to { opacity: 1; transform: translateY(0) scale(1); }

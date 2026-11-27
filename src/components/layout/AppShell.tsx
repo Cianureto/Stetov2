@@ -14,7 +14,7 @@ import { BarraSuperior } from "@/components/layout/BarraSuperior";
 import { BarraAbas } from "@/components/layout/BarraAbas";
 import { MenuMais } from "@/components/layout/MenuMais";
 import { PastaAcoes } from "@/components/layout/PastaAcoes";
-import type { OrigemPasta } from "@/lib/pasta";
+import type { OrigemBusca, OrigemPasta } from "@/lib/pasta";
 import { PaletaBusca } from "@/components/layout/PaletaBusca";
 
 /**
@@ -36,6 +36,12 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
   const [acoesAbertas, setAcoesAbertas] = useState(false);
   const [origemAcoes, setOrigemAcoes] = useState<OrigemPasta>("lateral");
   const [buscaAberta, setBuscaAberta] = useState(false);
+  const [origemBusca, setOrigemBusca] = useState<OrigemBusca>("pc");
+  // A busca cresce a partir do que está na tela: o campo do cabeçalho no computador, a lupa no celular.
+  const abrirBusca = () => {
+    setOrigemBusca(window.matchMedia("(min-width: 1024px)").matches ? "pc" : "cel");
+    setBuscaAberta(true);
+  };
   const online = useOnline();
   useFocoNoConteudoAoNavegar();
 
@@ -45,6 +51,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
     const aoTeclar = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
+        setOrigemBusca(window.matchMedia("(min-width: 1024px)").matches ? "pc" : "cel");
         setBuscaAberta((v) => !v);
         return;
       }
@@ -104,7 +111,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
       <BarraLateral secoes={secoes} pendentes={pendentes} inicio={inicio} onAcaoRapida={acaoRapida && (() => acaoRapida("lateral"))} rotuloAcao={rotuloAcao} acoes={acoes} pastaAberta={acoesAbertas && origemAcoes === "lateral"} />
 
       <div className="flex min-w-0 flex-col">
-        <BarraSuperior secoes={secoes} inicio={inicio} onBuscar={() => setBuscaAberta(true)} />
+        <BarraSuperior secoes={secoes} inicio={inicio} onBuscar={abrirBusca} buscaAberta={buscaAberta} origemBusca={origemBusca} />
         {!online && (
           <div role="status" className="mx-3 mt-3 flex items-start gap-2.5 rounded-xl bg-[var(--sidebar-bg)] px-3.5 py-2.5 text-[13px] font-medium text-white shadow-[var(--shadow-md)] lg:mx-10 2xl:mx-14">
             <WifiOff className="mt-0.5 size-4 shrink-0 text-[var(--acafrao)]" aria-hidden />
@@ -136,7 +143,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
       />
       <MenuMais aberto={maisAberto} onFechar={() => setMaisAberto(false)} secoes={secoes} pendentes={pendentes} />
       <PastaAcoes aberta={acoesAbertas} origem={origemAcoes} onFechar={() => setAcoesAbertas(false)} acoes={acoes} onEscolher={escolherAcao} />
-      <PaletaBusca aberta={buscaAberta} onFechar={() => setBuscaAberta(false)} secoes={secoes} acoes={acoes} />
+      <PaletaBusca aberta={buscaAberta} origem={origemBusca} onFechar={() => setBuscaAberta(false)} secoes={secoes} acoes={acoes} />
     </div>
   );
 }

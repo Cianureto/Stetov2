@@ -2,6 +2,8 @@ import { Link, useLocation } from "react-router-dom";
 import { Command, Search } from "lucide-react";
 import { MarcaLogo } from "@/components/Marca";
 import { MenuUsuario } from "@/components/layout/MenuUsuario";
+import { PedidosAcesso } from "@/components/layout/PedidosAcesso";
+import { usePermissao } from "@/hooks/usePermissao";
 import { cn } from "@/lib/cn";
 import { trilhaPara, type SecaoMenu } from "@/lib/navegacao";
 
@@ -12,6 +14,7 @@ import { trilhaPara, type SecaoMenu } from "@/lib/navegacao";
 export function BarraSuperior({ secoes, inicio, onBuscar }: { secoes: SecaoMenu[]; inicio: string; onBuscar: () => void }) {
   const { pathname } = useLocation();
   const trilha = trilhaPara(pathname, secoes);
+  const podeVerPedidos = usePermissao("acessos.gerenciar");
   return (
     <header className="sticky top-0 z-30 border-b border-foreground/[0.06] bg-[var(--areia)]/75 pt-[env(safe-area-inset-top)] backdrop-blur-2xl backdrop-saturate-200 lg:mx-auto lg:w-full lg:max-w-[1600px] lg:border-transparent lg:bg-[linear-gradient(to_bottom,var(--areia)_70%,transparent)] lg:px-10 lg:pb-2 lg:backdrop-blur-none 2xl:px-14">
       <div className="flex h-14 items-center gap-1.5 px-3 lg:vidro lg:mt-3 lg:h-[52px] lg:rounded-2xl lg:pl-5 lg:pr-2">
@@ -52,6 +55,7 @@ export function BarraSuperior({ secoes, inicio, onBuscar }: { secoes: SecaoMenu[
             <Command className="size-2.5" aria-hidden />K
           </kbd>
         </button>
+        {podeVerPedidos && <PedidosAcesso />}
         <MenuUsuario />
       </div>
     </header>

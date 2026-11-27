@@ -3,7 +3,8 @@ import { motion } from "framer-motion";
 import { MarcaLogo } from "@/components/Marca";
 import { cn } from "@/lib/cn";
 import type { AcaoRapida, ItemMenu, SecaoMenu } from "@/lib/navegacao";
-import { MiniPasta } from "@/components/layout/PastaAcoes";
+import { Plus } from "lucide-react";
+import { IconeNovo } from "@/components/layout/PastaAcoes";
 
 /** Contagem ao lado do item (pedidos de carteira pendentes). */
 export function Contador({ valor, className }: { valor: number; className?: string }) {
@@ -52,7 +53,7 @@ export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAc
   inicio: string;
   onAcaoRapida?: () => void;
   rotuloAcao?: string;
-  /** Ações do menu Novo: a miniatura da "pasta" no botão mostra os ícones delas. */
+  /** Ações do menu Novo (com mais de uma, o painel cresce a partir do "+"). */
   acoes?: AcaoRapida[];
   pastaAberta?: boolean;
 }) {
@@ -67,9 +68,9 @@ export function BarraLateral({ secoes, pendentes, inicio, onAcaoRapida, rotuloAc
             type="button"
             onClick={onAcaoRapida}
             aria-haspopup={acoes.length > 1 ? "dialog" : undefined}
-            className="mb-4 flex h-11 items-center justify-center gap-2.5 rounded-[12px] bg-[var(--realce)] px-3 text-sm font-semibold text-[var(--sidebar-bg)] shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
+            className="mb-4 flex h-10 items-center justify-center gap-2 rounded-[10px] bg-[var(--realce)] px-3 text-sm font-semibold text-[var(--sidebar-bg)] shadow-[inset_0_1px_0_rgb(255_255_255/0.3)] transition hover:brightness-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60"
           >
-            <MiniPasta acoes={acoes} aberta={pastaAberta} />
+            {acoes.length > 1 ? <IconeNovo aberta={pastaAberta} /> : <Plus className="size-4" strokeWidth={2.5} aria-hidden />}
             {rotuloAcao}
           </button>
         )}

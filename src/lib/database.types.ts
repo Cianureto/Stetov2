@@ -770,6 +770,45 @@ export type Database = {
           },
         ]
       }
+      solicitacoes_acesso: {
+        Row: {
+          criado_em: string
+          decidido_em: string | null
+          decidido_por: string | null
+          email: string
+          empresa_id: string
+          id: string
+          mensagem: string | null
+          nome: string
+          status: string
+          telefone: string | null
+        }
+        Insert: {
+          criado_em?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          email: string
+          empresa_id: string
+          id?: string
+          mensagem?: string | null
+          nome: string
+          status?: string
+          telefone?: string | null
+        }
+        Update: {
+          criado_em?: string
+          decidido_em?: string | null
+          decidido_por?: string | null
+          email?: string
+          empresa_id?: string
+          id?: string
+          mensagem?: string | null
+          nome?: string
+          status?: string
+          telefone?: string | null
+        }
+        Relationships: []
+      }
       subcategorias_contas: {
         Row: {
           ativo: boolean
@@ -842,6 +881,10 @@ export type Database = {
       relatorio_periodo: {
         Args: { p_ate: string; p_de: string; p_empresa_contabil?: string }
         Returns: Json
+      }
+      solicitar_acesso: {
+        Args: { p_email: string; p_mensagem?: string; p_nome: string; p_telefone?: string }
+        Returns: undefined
       }
       resumo_contas: {
         Args: { p_ate?: string; p_de?: string }

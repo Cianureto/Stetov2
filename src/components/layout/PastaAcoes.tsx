@@ -4,34 +4,17 @@ import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { AcaoRapida } from "@/lib/navegacao";
-import { idFundoPasta, idIconePasta, MOLA_PASTA, type OrigemPasta } from "@/lib/pasta";
+import { idFundoPasta, MOLA_PASTA, type OrigemPasta } from "@/lib/pasta";
 
 /**
- * Miniatura da pasta dentro do botão "Novo" da barra lateral: os ícones das ações num quadradinho. Enquanto o
- * painel está aberto, fica só o espaço reservado (os elementos "voaram" para o painel pelo layoutId).
+ * O "+" do botão "Novo" da barra lateral. É dele que o painel cresce ao abrir (layoutId); enquanto o painel
+ * está aberto, fica só o espaço reservado.
  */
-export function MiniPasta({ acoes, aberta }: { acoes: AcaoRapida[]; aberta: boolean }) {
-  if (acoes.length <= 1) return <Plus className="size-4" strokeWidth={2.5} aria-hidden />;
-  if (aberta) return <span aria-hidden className="block size-7" />;
+export function IconeNovo({ aberta }: { aberta: boolean }) {
+  if (aberta) return <span aria-hidden className="block size-5" />;
   return (
-    <motion.span
-      aria-hidden
-      layoutId={idFundoPasta("lateral")}
-      transition={MOLA_PASTA}
-      className="grid size-7 grid-cols-2 gap-[2px] bg-white/55 p-[3px] shadow-[inset_0_0_0_1px_rgb(255_255_255/0.5)]"
-      style={{ borderRadius: 8 }}
-    >
-      {acoes.slice(0, 4).map((a, i) => (
-        <motion.span
-          key={a.href}
-          layoutId={idIconePasta("lateral", i)}
-          transition={MOLA_PASTA}
-          className="grid place-items-center bg-white text-azul-600"
-          style={{ borderRadius: 3 }}
-        >
-          <a.Icone className="size-[7px]" strokeWidth={3} />
-        </motion.span>
-      ))}
+    <motion.span aria-hidden layoutId={idFundoPasta("lateral")} transition={MOLA_PASTA} className="grid size-5 place-items-center" style={{ borderRadius: 6 }}>
+      <Plus className="size-4" strokeWidth={2.5} />
     </motion.span>
   );
 }
@@ -57,9 +40,9 @@ const aparecer = (i: number) => ({
 });
 
 /**
- * Menu "Novo" no estilo pasta do iOS: abre a partir do botão que foi tocado (barra lateral ou "+" do
- * celular), com o fundo desfocado; cada ícone sai da miniatura e vai para o seu cartão. Fecha fazendo o
- * caminho de volta. Atalhos 1–4 no teclado. Quem pede menos movimento vê o painel abrir sem a viagem.
+ * Menu "Novo" no estilo pasta do iOS: o painel cresce a partir do "+" que foi tocado (barra lateral ou
+ * barra de abas do celular), com o fundo desfocado, e os ícones dos cartões aparecem crescendo em sequência.
+ * Fecha fazendo o caminho de volta. Atalhos 1–4 no teclado. Quem pede menos movimento vê o painel abrir sem a viagem.
  */
 export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
   aberta: boolean;
@@ -69,6 +52,8 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
   onEscolher: (a: AcaoRapida) => void;
 }) {
   const doCelular = origem === "abas";
+  // Cor de partida do painel: a do botão de onde ele sai (azul-céu na barra lateral, azul no "+" do celular).
+  const corOrigem = doCelular ? "rgba(29,78,216,1)" : "rgba(124,196,255,1)";
   const painel = useRef<HTMLDivElement>(null);
   return (
     <MotionConfig transition={MOLA_PASTA} reducedMotion="user">
@@ -108,9 +93,9 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
                     layoutId={idFundoPasta(origem)}
                     className="pointer-events-auto relative w-full max-w-[44rem] overflow-hidden p-5 shadow-[0_30px_80px_-20px_rgba(11,27,54,0.45)] outline-none md:p-7"
                     style={{ borderRadius: 28 }}
-                    initial={{ backgroundColor: doCelular ? "rgba(29,78,216,1)" : "rgba(255,255,255,0.7)" }}
+                    initial={{ backgroundColor: corOrigem }}
                     animate={{ backgroundColor: "rgba(243,246,251,0.96)" }}
-                    exit={{ backgroundColor: doCelular ? "rgba(29,78,216,1)" : "rgba(255,255,255,0.7)" }}
+                    exit={{ backgroundColor: corOrigem }}
                   >
                     <motion.div {...aparecer(0)} className="mb-4 pr-10 md:mb-5">
                       <p className="texto-sobretitulo">Ações rápidas</p>
@@ -141,10 +126,9 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
                             className="fundo-cartao absolute inset-0 rounded-[var(--radius)] border border-borda bg-areia-card shadow-[var(--shadow-xs)] transition-[border-color,box-shadow,translate] duration-[var(--dur-media)] group-hover:-translate-y-0.5 group-hover:border-azul-200 group-hover:shadow-[var(--shadow-md)]"
                           />
                           <motion.span
-                            layoutId={doCelular ? undefined : idIconePasta("lateral", i)}
-                            initial={doCelular ? { opacity: 0, scale: 0.4 } : undefined}
-                            animate={doCelular ? { opacity: 1, scale: 1, transition: { ...MOLA_PASTA, delay: 0.08 + i * 0.05 } } : undefined}
-                            exit={doCelular ? { opacity: 0, scale: 0.4, transition: { duration: 0.12 } } : undefined}
+                            initial={{ opacity: 0, scale: 0.4 }}
+                            animate={{ opacity: 1, scale: 1, transition: { ...MOLA_PASTA, delay: 0.1 + i * 0.05 } }}
+                            exit={{ opacity: 0, scale: 0.4, transition: { duration: 0.12 } }}
                             className="relative grid size-11 shrink-0 place-items-center bg-azul-50 text-azul-600 ring-1 ring-inset ring-azul-100 transition-colors duration-[var(--dur-media)] group-hover:bg-azul-600 group-hover:text-white md:size-12"
                             style={{ borderRadius: 12 }}
                           >

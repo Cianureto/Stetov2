@@ -220,6 +220,9 @@ export type Relatorio = {
   };
 };
 
+/** Pedido de acesso feito na tela de login, aguardando um administrador. */
+export type PedidoAcesso = { id: string; nome: string; email: string; telefone: string | null; mensagem: string | null; criadoEm: string };
+
 export type Usuario = { id: string; nome: string; email: string; papel: "admin" | "usuario"; ativo: boolean; trocarSenha: boolean; criadoEm: string; empresa?: { id: string; nome: string } };
 export type ListaUsuarios = { usuarios: Usuario[]; meta: MetaLista };
 export type Empresa = { id: string; nome: string; cnpj: string | null; status: StatusAtivo; isSteto: boolean; criadoEm: string };

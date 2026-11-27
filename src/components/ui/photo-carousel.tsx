@@ -12,10 +12,13 @@ export function PhotoCarousel({
   imagens,
   intervalo = 5000,
   className,
+  posicaoControles = "bottom-5 left-1/2 -translate-x-1/2",
 }: {
   imagens: FotoCarrossel[];
   intervalo?: number;
   className?: string;
+  /** Onde ficam os pontinhos de navegação (classes de posição). */
+  posicaoControles?: string;
 }) {
   const [indice, setIndice] = useState(0);
 
@@ -49,7 +52,7 @@ export function PhotoCarousel({
       </AnimatePresence>
 
       {imagens.length > 1 && (
-        <div className="absolute bottom-5 left-1/2 z-20 flex -translate-x-1/2 gap-1.5" role="group" aria-label="Fotos">
+        <div className={cn("absolute z-20 flex gap-1.5", posicaoControles)} role="group" aria-label="Fotos">
           {imagens.map((_, i) => (
             <button
               key={i}

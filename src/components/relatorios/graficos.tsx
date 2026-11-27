@@ -472,7 +472,8 @@ export function BarraSegmentada({ partes, rotulo }: { partes: { rotulo: string; 
 }
 
 /**
- * Pizza em rosca (parte de um todo, até ~5 fatias): total no centro, legenda ao lado com valor e fatia.
+ * Pizza em rosca (parte de um todo, até ~5 fatias): total no centro, legenda ao lado com valor e fatia. O conjunto
+ * fica centralizado no espaço que tiver (vertical e horizontal).
  * Passar o mouse (ou focar com o teclado) numa fatia ou na legenda destaca a fatia — ela sai um pouco do
  * círculo e o centro mostra o valor dela. Entra girando até fechar a volta. 2px de folga branca entre fatias.
  */
@@ -520,7 +521,7 @@ export function GraficoPizza({
   const foco = ativa !== null ? fatias[ativa] : null;
 
   return (
-    <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-7">
+    <div className="flex flex-1 flex-col items-center justify-center gap-5 sm:flex-row sm:gap-8">
       <div className="sr-only">
         <table>
           <caption>{titulo}</caption>
@@ -569,7 +570,7 @@ export function GraficoPizza({
         </div>
       </div>
 
-      <ul className="w-full min-w-0 flex-1 space-y-1">
+      <ul className="w-full min-w-0 space-y-1 sm:max-w-[21rem] sm:flex-1">
         {fatias.map((f, i) => (
           <li key={f.chave}>
             <button
@@ -587,7 +588,7 @@ export function GraficoPizza({
               <span aria-hidden className="size-2.5 shrink-0 rounded-[3px]" style={{ background: f.cor }} />
               <span className="min-w-0 flex-1">
                 <span className="block text-sm font-medium text-foreground">{f.rotulo}</span>
-                {f.detalhe && <span className="block truncate text-xs text-foreground-muted">{f.detalhe}</span>}
+                {f.detalhe && <span className="block text-xs leading-snug text-foreground-muted">{f.detalhe}</span>}
               </span>
               <span className="shrink-0 text-right">
                 <span className="block text-sm font-semibold tabular-nums text-foreground">{formatarValor(f.valor)}</span>

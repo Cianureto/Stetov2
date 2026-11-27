@@ -18,12 +18,13 @@ const moedaCurta = formatarMoedaCurta;
 
 function Cartao({ titulo, acao, children }: { titulo: string; acao?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="card min-w-0 p-4 md:p-5">
+    <section className="card flex min-w-0 flex-col p-4 md:p-5">
       <div className="mb-3 flex items-center justify-between gap-2">
         <h2 className="texto-titulo-3">{titulo}</h2>
         {acao}
       </div>
-      {children}
+      {/* Ocupa a altura que sobra do cartão (que acompanha o vizinho da mesma linha). */}
+      <div className="flex min-h-0 flex-1 flex-col">{children}</div>
     </section>
   );
 }

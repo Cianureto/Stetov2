@@ -2,7 +2,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Plus } from "lucide-react";
 import type { PainelGeral } from "@/api/types";
 import { RankedBars } from "@/components/charts";
-import { BarrasRotuladas, GraficoColunas } from "@/components/relatorios/graficos";
+import { GraficoColunas, GraficoPizza } from "@/components/relatorios/graficos";
 import { rotuloMesEixo } from "@/lib/graficos";
 import { BadgeSituacaoConta } from "@/components/contas/BadgeSituacaoConta";
 import { EstadoCarga } from "@/components/EstadoCarga";
@@ -103,15 +103,15 @@ export default function PainelPage() {
 
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <Cartao titulo="Retenções do mês" acao={<Link to="/relatorios" className="text-sm font-medium text-marca hover:underline">Ver relatório</Link>}>
-                <p className="mb-4 text-[22px] font-semibold tracking-tight">{formatarMoeda(d.retencoesMes.iss + d.retencoesMes.ir + d.retencoesMes.csrf)}</p>
-                <BarrasRotuladas
+                <GraficoPizza
+                  titulo="Retenções do mês por tipo"
+                  rotuloTotal="retido no mês"
+                  tamanho={224}
                   formatarValor={formatarMoeda}
-                  max={d.retencoesMes.iss + d.retencoesMes.ir + d.retencoesMes.csrf}
-                  vazio="Nenhuma retenção nas notas do mês."
-                  itens={[
-                    { chave: "iss", rotulo: "ISS", valor: d.retencoesMes.iss, detalhe: "recolhido ao município" },
-                    { chave: "ir", rotulo: "IRRF", valor: d.retencoesMes.ir, detalhe: "imposto de renda retido na fonte" },
-                    { chave: "csrf", rotulo: "CSRF", valor: d.retencoesMes.csrf, detalhe: "PIS, COFINS e CSLL" },
+                  fatias={[
+                    { chave: "iss", rotulo: "ISS", valor: d.retencoesMes.iss, cor: "#1d4ed8", detalhe: "recolhido ao município" },
+                    { chave: "ir", rotulo: "IRRF", valor: d.retencoesMes.ir, cor: "#22b8cf", detalhe: "imposto de renda na fonte" },
+                    { chave: "csrf", rotulo: "CSRF", valor: d.retencoesMes.csrf, cor: "#7c5ce0", detalhe: "PIS, COFINS e CSLL" },
                   ]}
                 />
               </Cartao>

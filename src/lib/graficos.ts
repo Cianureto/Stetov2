@@ -53,3 +53,20 @@ export function rotuloPeriodo(de: string, ate: string): string {
 
 /** Rótulo do mês no eixo: "nov" quando o período é de um ano só; "nov/26" quando atravessa anos. */
 export const rotuloMesEixo = (iso: string, variosAnos: boolean) => (variosAnos ? `${mesDe(iso)}/${iso.slice(2, 4)}` : mesDe(iso));
+
+/**
+ * Fatia de pizza/rosca em SVG: ângulos em radianos, 0 no topo, sentido horário. `rInt` 0 = pizza cheia.
+ * Uma fatia de volta inteira é desenhada como duas metades (um arco só de 360° não aparece no SVG).
+ */
+export function caminhoFatia(cx: number, cy: number, rExt: number, rInt: number, a0: number, a1: number): string {
+  const volta = Math.PI * 2;
+  if (a1 - a0 >= volta - 1e-6) {
+    const meio = a0 + Math.PI;
+    return `${caminhoFatia(cx, cy, rExt, rInt, a0, meio)} ${caminhoFatia(cx, cy, rExt, rInt, meio, a0 + volta)}`;
+  }
+  const ponto = (r: number, a: number) => `${(cx + r * Math.sin(a)).toFixed(3)},${(cy - r * Math.cos(a)).toFixed(3)}`;
+  const grande = a1 - a0 > Math.PI ? 1 : 0;
+  const externo = `M${ponto(rExt, a0)} A${rExt},${rExt} 0 ${grande} 1 ${ponto(rExt, a1)}`;
+  if (rInt <= 0) return `${externo} L${cx},${cy} Z`;
+  return `${externo} L${ponto(rInt, a1)} A${rInt},${rInt} 0 ${grande} 0 ${ponto(rInt, a0)} Z`;
+}

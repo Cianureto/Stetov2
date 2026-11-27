@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { caminhoSuave, marcasEixo, rotuloMesEixo, rotuloPeriodo, somarMeses } from "@/lib/graficos";
+import { caminhoFatia, caminhoSuave, marcasEixo, rotuloMesEixo, rotuloPeriodo, somarMeses } from "@/lib/graficos";
 
 describe("marcasEixo", () => {
   it("cobre o máximo com passos redondos", () => {
@@ -44,5 +44,22 @@ describe("períodos", () => {
   it("rótulo do mês no eixo", () => {
     expect(rotuloMesEixo("2026-03-01", false)).toBe("mar");
     expect(rotuloMesEixo("2026-03-01", true)).toBe("mar/26");
+  });
+});
+
+describe("caminhoFatia", () => {
+  it("quarto de rosca: começa no topo e vai até a direita", () => {
+    const d = caminhoFatia(100, 100, 80, 50, 0, Math.PI / 2);
+    expect(d.startsWith("M100.000,20.000 A80,80 0 0 1 180.000,100.000")).toBe(true);
+    expect(d).toContain("L150.000,100.000 A50,50 0 0 0 100.000,50.000 Z");
+  });
+  it("mais de meia volta usa o arco grande", () => {
+    expect(caminhoFatia(0, 0, 10, 5, 0, Math.PI * 1.5)).toContain("A10,10 0 1 1");
+  });
+  it("volta inteira vira duas metades (o SVG não desenha um arco de 360°)", () => {
+    expect(caminhoFatia(0, 0, 10, 5, 0, Math.PI * 2).match(/M/g)).toHaveLength(2);
+  });
+  it("pizza cheia fecha no centro", () => {
+    expect(caminhoFatia(50, 50, 40, 0, 0, 1)).toMatch(/L50,50 Z$/);
   });
 });

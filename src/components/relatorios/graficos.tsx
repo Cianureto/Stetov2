@@ -2,7 +2,7 @@ import { useId, useLayoutEffect, useRef, useState, type KeyboardEvent, type Poin
 import { gsap, reduzMovimento, useGSAP } from "@/lib/gsap";
 import { Barra } from "@/components/ui/animado";
 import { cn } from "@/lib/cn";
-import { caminhoSuave, marcasEixo } from "@/lib/graficos";
+import { caminhoFatia, caminhoSuave, marcasEixo } from "@/lib/graficos";
 
 // Gráficos da tela Relatórios, desenhados em SVG com coordenadas em pixels (mede a largura do contêiner),
 // para os traços e cantos arredondados não deformarem. Regras: um eixo só, linhas de 2px, grade fina e sólida,
@@ -467,6 +467,136 @@ export function BarraSegmentada({ partes, rotulo }: { partes: { rotulo: string; 
         })}
       </div>
       <div className="mt-2.5"><Legenda series={visiveis.map((p) => ({ rotulo: p.rotulo, cor: p.cor }))} /></div>
+    </div>
+  );
+}
+
+/**
+ * Pizza em rosca (parte de um todo, até ~5 fatias): total no centro, legenda ao lado com valor e fatia.
+ * Passar o mouse (ou focar com o teclado) numa fatia ou na legenda destaca a fatia — ela sai um pouco do
+ * círculo e o centro mostra o valor dela. Entra girando até fechar a volta. 2px de folga branca entre fatias.
+ */
+export function GraficoPizza({
+  titulo,
+  fatias,
+  formatarValor,
+  rotuloTotal,
+  tamanho = 200,
+}: {
+  titulo: string;
+  fatias: { chave: string; rotulo: string; valor: number; cor: string; detalhe?: string }[];
+  formatarValor: (v: number) => string;
+  /** Texto sob o total, no centro (ex.: "retido no mês"). */
+  rotuloTotal: string;
+  tamanho?: number;
+}) {
+  const [ativa, setAtiva] = useState<number | null>(null);
+  const [progresso, setProgresso] = useState(() => (reduzMovimento() ? 1 : 0));
+  const total = fatias.reduce((t, f) => t + Math.max(0, f.valor), 0);
+  const chaveDados = fatias.map((f) => f.valor).join("|");
+
+  useGSAP(
+    () => {
+      if (reduzMovimento()) return setProgresso(1);
+      const estado = { p: 0 };
+      gsap.to(estado, { p: 1, duration: 1.1, ease: "power3.out", onUpdate: () => setProgresso(estado.p) });
+    },
+    { dependencies: [chaveDados] },
+  );
+
+  const c = tamanho / 2;
+  const rExt = c - 8;
+  const rInt = rExt * 0.62;
+  const angulos = fatias.map((f) => (total ? (Math.max(0, f.valor) / total) * Math.PI * 2 * progresso : 0));
+  const arcos = fatias.map((f, i) => {
+    const angulo = angulos[i];
+    const a0 = angulos.slice(0, i).reduce((t, x) => t + x, 0);
+    const meio = a0 + angulo / 2;
+    const destaque = ativa === i ? 6 : 0;
+    return { f, i, a0, a1: a0 + angulo, dx: Math.sin(meio) * destaque, dy: -Math.cos(meio) * destaque };
+  });
+  const pct = (v: number) => (total ? (v / total) * 100 : 0);
+  const fmtPct = (v: number) => `${pct(v).toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`;
+  const foco = ativa !== null ? fatias[ativa] : null;
+
+  return (
+    <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-center sm:gap-7">
+      <div className="sr-only">
+        <table>
+          <caption>{titulo}</caption>
+          <tbody>
+            {fatias.map((f) => (
+              <tr key={f.chave}>
+                <th scope="row">{f.rotulo}</th>
+                <td>{formatarValor(f.valor)}</td>
+                <td>{fmtPct(f.valor)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="relative shrink-0" style={{ width: tamanho, height: tamanho }} aria-hidden>
+        <svg width={tamanho} height={tamanho} className="block overflow-visible">
+          <circle cx={c} cy={c} r={(rExt + rInt) / 2} fill="none" stroke="var(--tinta-100)" strokeWidth={rExt - rInt} />
+          {total > 0 &&
+            arcos.map(({ f, i, a0, a1, dx, dy }) =>
+              a1 - a0 > 0.0005 ? (
+                <path
+                  key={f.chave}
+                  d={caminhoFatia(c, c, rExt, rInt, a0, a1)}
+                  fill={f.cor}
+                  stroke={SUPERFICIE}
+                  strokeWidth={2}
+                  strokeLinejoin="round"
+                  onPointerEnter={() => setAtiva(i)}
+                  onPointerLeave={() => setAtiva(null)}
+                  style={{
+                    transform: `translate(${dx}px, ${dy}px)`,
+                    opacity: ativa !== null && ativa !== i ? 0.4 : 1,
+                    transition: "transform 280ms cubic-bezier(0.16,1,0.3,1), opacity 200ms ease",
+                    cursor: "pointer",
+                  }}
+                />
+              ) : null,
+            )}
+        </svg>
+        <div className="pointer-events-none absolute inset-0 grid place-items-center text-center">
+          <div className="max-w-[60%]">
+            <div className="text-[11px] font-medium uppercase tracking-[0.08em] text-foreground-muted">{foco ? foco.rotulo : "Total"}</div>
+            <div className="mt-0.5 text-lg font-semibold leading-tight tracking-tight text-foreground">{formatarValor(foco ? foco.valor : total)}</div>
+            <div className="mt-0.5 text-[11px] text-foreground-muted">{foco ? `${fmtPct(foco.valor)} do total` : rotuloTotal}</div>
+          </div>
+        </div>
+      </div>
+
+      <ul className="w-full min-w-0 flex-1 space-y-1">
+        {fatias.map((f, i) => (
+          <li key={f.chave}>
+            <button
+              type="button"
+              onPointerEnter={() => setAtiva(i)}
+              onPointerLeave={() => setAtiva(null)}
+              onFocus={() => setAtiva(i)}
+              onBlur={() => setAtiva(null)}
+              aria-label={`${f.rotulo}: ${formatarValor(f.valor)}, ${fmtPct(f.valor)} do total`}
+              className={cn(
+                "linha-hover flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left outline-none focus-visible:shadow-[var(--anel-foco)]",
+                ativa === i && "bg-azul-50/80",
+              )}
+            >
+              <span aria-hidden className="size-2.5 shrink-0 rounded-[3px]" style={{ background: f.cor }} />
+              <span className="min-w-0 flex-1">
+                <span className="block text-sm font-medium text-foreground">{f.rotulo}</span>
+                {f.detalhe && <span className="block truncate text-xs text-foreground-muted">{f.detalhe}</span>}
+              </span>
+              <span className="shrink-0 text-right">
+                <span className="block text-sm font-semibold tabular-nums text-foreground">{formatarValor(f.valor)}</span>
+                <span className="block text-xs tabular-nums text-foreground-muted">{fmtPct(f.valor)}</span>
+              </span>
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

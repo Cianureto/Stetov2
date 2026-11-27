@@ -16,6 +16,8 @@ import { MenuMais } from "@/components/layout/MenuMais";
 import { PastaAcoes } from "@/components/layout/PastaAcoes";
 import type { OrigemBusca, OrigemPasta } from "@/lib/pasta";
 import { PaletaBusca } from "@/components/layout/PaletaBusca";
+import { RevelarAoRolar } from "@/components/layout/RevelarAoRolar";
+import { useRolagemSuave } from "@/hooks/useRolagemSuave";
 
 /**
  * Estrutura comum das áreas do gestor e do consultor (padrão do projeto revenda, mobile first):
@@ -43,6 +45,8 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
     setBuscaAberta(true);
   };
   const online = useOnline();
+  const conteudo = useRef<HTMLElement>(null);
+  useRolagemSuave();
   useFocoNoConteudoAoNavegar();
 
   // Atalhos globais: ⌘K / Ctrl+K abre a busca; N abre o menu Novo (fora de campos de texto e de janelas abertas).
@@ -119,6 +123,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
           </div>
         )}
         <main
+          ref={conteudo}
           id={ID_CONTEUDO}
           tabIndex={-1}
           className={cn(
@@ -129,6 +134,7 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
           <PageTransition key={pathname}>
             <Outlet />
           </PageTransition>
+          <RevelarAoRolar raiz={conteudo} />
         </main>
       </div>
 

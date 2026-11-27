@@ -571,6 +571,18 @@ h1, h2, h3, h4, .font-titulo {
   :where(.card):hover { transform: none; }
 }
 
+/* ── Animação de rolagem (RevelarAoRolar): o que está abaixo da dobra espera invisível e, ao chegar na tela,
+   sobe 22px e aparece. Usa `translate` (não `transform`), então o hover dos cartões continua funcionando. ── */
+.revelar { opacity: 0; }
+.revelar.revelado { animation: revelar-rolagem 0.6s var(--ease-saida) both; }
+@keyframes revelar-rolagem {
+  from { opacity: 0; translate: 0 22px; }
+  to { opacity: 1; translate: 0 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .revelar { opacity: 1; }
+}
+
 /* Números dos KPIs: um caractere de cada vez (NumeroAnimado). --i = cartão na cascata, --c = caractere. */
 .numero-char {
   display: inline-block;

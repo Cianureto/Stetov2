@@ -12,7 +12,8 @@ import { mensagemErro } from "@/lib/erros";
 import { iniciais } from "@/lib/format";
 
 // Botão de pedidos de acesso no cabeçalho, no estilo do "user button" do Clerk: um botão redondo que, ao
-// clicar, cresce até virar um cartão ancorado no mesmo canto (layoutId), com o conteúdo entrando desfocado.
+// clicar, cresce até virar um cartão (layoutId), com o conteúdo entrando desfocado. O cartão abre logo abaixo da
+// barra do cabeçalho: alinhado à direita dela no computador, centralizado com margem no celular.
 
 const MOLA = { type: "spring", bounce: 0.15, visualDuration: 0.25 } as const;
 const ENTRA = {
@@ -158,7 +159,7 @@ export function PedidosAcesso() {
   const rotulo = aguardando ? `Pedidos de acesso: ${aguardando} aguardando` : "Pedidos de acesso";
 
   return (
-    <div ref={raiz} className="relative size-11 shrink-0 lg:size-10">
+    <div ref={raiz} className="size-11 shrink-0 lg:size-10">
       <AnimatePresence initial={false}>
         {!aberto ? (
           <motion.button
@@ -171,7 +172,7 @@ export function PedidosAcesso() {
             aria-haspopup="dialog"
             aria-expanded={false}
             title="Pedidos de acesso"
-            className="absolute right-0 top-0 grid size-11 place-items-center bg-[linear-gradient(to_bottom,#fff,var(--tinta-50))] text-foreground-secondary shadow-[0_6px_10px_-4px_rgba(11,27,54,0.12),0_0_0_0.5px_rgba(11,27,54,0.12),inset_0_0_0_1px_#fff] outline-none transition-colors hover:text-foreground focus-visible:shadow-[var(--anel-foco)] lg:size-10"
+            className="relative grid size-11 place-items-center bg-[linear-gradient(to_bottom,#fff,var(--tinta-50))] text-foreground-secondary shadow-[0_6px_10px_-4px_rgba(11,27,54,0.12),0_0_0_0.5px_rgba(11,27,54,0.12),inset_0_0_0_1px_#fff] outline-none transition-colors hover:text-foreground focus-visible:shadow-[var(--anel-foco)] lg:size-10"
             style={{ borderRadius: 99 }}
           >
             <motion.span layoutId="pedidos-acesso-icone" transition={MOLA} className="grid size-6 place-items-center" style={{ borderRadius: 8 }}>
@@ -194,7 +195,7 @@ export function PedidosAcesso() {
             aria-label="Pedidos de acesso"
             layoutId="pedidos-acesso"
             transition={MOLA}
-            className="absolute right-0 top-0 z-50 w-[min(23rem,calc(100vw-1.5rem))] overflow-hidden bg-tinta-50 p-0.5 shadow-[0_0_32px_-8px_rgba(11,27,54,0.12),0_16px_20px_-6px_rgba(11,27,54,0.1),0_6px_7px_-6px_rgba(11,27,54,0.2),0_0_0_0.5px_rgba(11,27,54,0.12),inset_0_0_0_1px_#fff]"
+            className="absolute left-3 right-3 top-[calc(100%+8px)] z-50 mx-auto max-w-[26rem] overflow-hidden bg-tinta-50 p-0.5 lg:left-auto lg:right-0 lg:mx-0 lg:w-[23rem] shadow-[0_0_32px_-8px_rgba(11,27,54,0.12),0_16px_20px_-6px_rgba(11,27,54,0.1),0_6px_7px_-6px_rgba(11,27,54,0.2),0_0_0_0.5px_rgba(11,27,54,0.12),inset_0_0_0_1px_#fff]"
             style={{ borderRadius: 18 }}
           >
             <div className="flex items-center gap-3 p-3.5">

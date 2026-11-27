@@ -39,6 +39,16 @@ export function FundoBotaoAbas({ aberta }: { aberta: boolean }) {
   );
 }
 
+/** Toque no ícone (celular): afunda e volta com mola, como no iPhone. */
+const MOLA_TOQUE = { type: "spring", bounce: 0.4, visualDuration: 0.2 } as const;
+/** Degradês dos ícones "de app" (celular), nas cores das séries validadas do app. */
+const ICONE_APP = [
+  "linear-gradient(160deg, #3a6ef2, #1d4ed8)",
+  "linear-gradient(160deg, #3fcbe0, #0e9fbf)",
+  "linear-gradient(160deg, #9a80f0, #6d48dc)",
+  "linear-gradient(160deg, #7cb8f8, #3a86e6)",
+];
+
 const aparecer = (i: number) => ({
   initial: { opacity: 0, y: 6 },
   animate: { opacity: 1, y: 0, transition: { delay: 0.12 + i * 0.045, duration: 0.28, ease: [0.16, 1, 0.3, 1] as const } },
@@ -69,13 +79,68 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
             <DialogPrimitive.Portal forceMount>
               <DialogPrimitive.Overlay asChild forceMount>
                 <motion.div
-                  className="fixed inset-0 z-40 bg-tinta-900/30 backdrop-blur-md"
+                  className={cn("fixed inset-0 z-40", doCelular ? "bg-tinta-100/40 backdrop-blur-2xl" : "bg-tinta-900/30 backdrop-blur-md")}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1, transition: { duration: 0.25 } }}
                   exit={{ opacity: 0, pointerEvents: "none", transition: { duration: 0.22 } }}
                 />
               </DialogPrimitive.Overlay>
-              <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-4">
+              <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center p-4 pb-[calc(env(safe-area-inset-bottom)+5rem)] md:pb-4">
+                {doCelular ? (
+                <DialogPrimitive.Content
+                  asChild
+                  forceMount
+                  aria-describedby={undefined}
+                  onOpenAutoFocus={(e) => {
+                    e.preventDefault();
+                    painel.current?.focus();
+                  }}
+                >
+                  {/* Celular: pasta do iPhone — título grande, painel de vidro e as ações como ícones de app. */}
+                  <div className="pointer-events-none flex w-full flex-col items-center outline-none">
+                    <motion.div {...aparecer(0)}>
+                      <DialogPrimitive.Title className="mb-5 text-center font-titulo text-[30px] font-semibold tracking-tight text-foreground">Novo</DialogPrimitive.Title>
+                    </motion.div>
+                    <motion.div
+                      ref={painel}
+                      tabIndex={-1}
+                      layoutId={idFundoPasta(origem)}
+                      className="pointer-events-auto w-[min(19.5rem,calc(100vw-3rem))] px-5 pb-6 pt-6 shadow-[0_30px_70px_-24px_rgba(11,27,54,0.55),inset_0_0_0_1px_rgba(255,255,255,0.6)] outline-none backdrop-blur-2xl"
+                      style={{ borderRadius: 38 }}
+                      initial={{ backgroundColor: corOrigem }}
+                      animate={{ backgroundColor: "rgba(255,255,255,0.74)" }}
+                      exit={{ backgroundColor: corOrigem, pointerEvents: "none" }}
+                    >
+                      <div className="grid grid-cols-2 gap-x-3 gap-y-6">
+                        {acoes.map((a, i) => (
+                          <motion.button
+                            key={a.href}
+                            type="button"
+                            onClick={() => onEscolher(a)}
+                            initial={{ opacity: 0, scale: 0.4 }}
+                            animate={{ opacity: 1, scale: 1, transition: { ...MOLA_PASTA, delay: 0.1 + i * 0.05 } }}
+                            exit={{ opacity: 0, scale: 0.4, transition: { duration: 0.12 } }}
+                            whileTap={{ scale: 0.86, transition: MOLA_TOQUE }}
+                            className="flex flex-col items-center gap-2 rounded-2xl outline-none focus-visible:shadow-[var(--anel-foco)]"
+                          >
+                            <span
+                              aria-hidden
+                              className="grid size-[68px] place-items-center rounded-[20px] text-white shadow-[0_10px_20px_-10px_rgba(11,27,54,0.55),inset_0_1px_0_rgba(255,255,255,0.35)]"
+                              style={{ background: ICONE_APP[i % ICONE_APP.length] }}
+                            >
+                              <a.Icone className="size-8" strokeWidth={1.9} />
+                            </span>
+                            <span className="max-w-[8rem] text-center text-[13px] font-medium leading-tight text-foreground">{a.label}</span>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                    <motion.p {...aparecer(5)} className="mt-6 text-[13px] font-medium text-foreground-secondary">
+                      Toque fora para fechar
+                    </motion.p>
+                  </div>
+                </DialogPrimitive.Content>
+                ) : (
                 <DialogPrimitive.Content
                   asChild
                   forceMount
@@ -155,6 +220,7 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
                     </div>
                   </motion.div>
                 </DialogPrimitive.Content>
+                )}
               </div>
             </DialogPrimitive.Portal>
           )}

@@ -141,7 +141,17 @@ export function AppShell({ pendentes = 0, telaCheia = false }: { pendentes?: num
         rotuloAcao={rotuloAcao}
         onMais={() => setMaisAberto(true)}
       />
-      <MenuMais aberto={maisAberto} onFechar={() => setMaisAberto(false)} secoes={secoes} pendentes={pendentes} />
+      <MenuMais
+        aberto={maisAberto}
+        onFechar={() => setMaisAberto(false)}
+        onBuscar={() => {
+          setMaisAberto(false);
+          setOrigemBusca("cel");
+          setBuscaAberta(true);
+        }}
+        secoes={secoes}
+        pendentes={pendentes}
+      />
       <PastaAcoes aberta={acoesAbertas} origem={origemAcoes} onFechar={() => setAcoesAbertas(false)} acoes={acoes} onEscolher={escolherAcao} />
       <PaletaBusca aberta={buscaAberta} origem={origemBusca} onFechar={() => setBuscaAberta(false)} secoes={secoes} acoes={acoes} />
     </div>

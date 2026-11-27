@@ -4,7 +4,7 @@ import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/cn";
 import type { AcaoRapida } from "@/lib/navegacao";
-import { idFundoPasta, MOLA_PASTA, type OrigemPasta } from "@/lib/pasta";
+import { GRADIENTES_APP, idFundoPasta, MOLA_PASTA, type OrigemPasta } from "@/lib/pasta";
 
 /**
  * O "+" do botão "Novo" da barra lateral. É dele que o painel cresce ao abrir (layoutId); enquanto o painel
@@ -41,13 +41,6 @@ export function FundoBotaoAbas({ aberta }: { aberta: boolean }) {
 
 /** Toque no ícone (celular): afunda e volta com mola, como no iPhone. */
 const MOLA_TOQUE = { type: "spring", bounce: 0.4, visualDuration: 0.2 } as const;
-/** Degradês dos ícones "de app" (celular), nas cores das séries validadas do app. */
-const ICONE_APP = [
-  "linear-gradient(160deg, #3a6ef2, #1d4ed8)",
-  "linear-gradient(160deg, #3fcbe0, #0e9fbf)",
-  "linear-gradient(160deg, #9a80f0, #6d48dc)",
-  "linear-gradient(160deg, #7cb8f8, #3a86e6)",
-];
 
 const aparecer = (i: number) => ({
   initial: { opacity: 0, y: 6 },
@@ -126,7 +119,7 @@ export function PastaAcoes({ aberta, origem, acoes, onFechar, onEscolher }: {
                             <span
                               aria-hidden
                               className="grid size-[68px] place-items-center rounded-[20px] text-white shadow-[0_10px_20px_-10px_rgba(11,27,54,0.55),inset_0_1px_0_rgba(255,255,255,0.35)]"
-                              style={{ background: ICONE_APP[i % ICONE_APP.length] }}
+                              style={{ background: GRADIENTES_APP[i % GRADIENTES_APP.length] }}
                             >
                               <a.Icone className="size-8" strokeWidth={1.9} />
                             </span>

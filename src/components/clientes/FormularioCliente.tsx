@@ -15,6 +15,7 @@ import { useAcao } from "@/hooks/useAcao";
 import { formatarDocumento, lerNumeroBR, percentualParaCampo } from "@/lib/format";
 import { REGIME_LABEL, STATUS_CLIENTE_LABEL, TIPO_PESSOA_LABEL } from "@/lib/labels";
 import { validarCampos } from "@/lib/mascaras";
+import { PilulaDeslizante } from "@/components/ui/pilula-deslizante";
 
 const OPCOES_REGIME = Object.entries(REGIME_LABEL).map(([valor, rotulo]) => ({ valor, rotulo }));
 const OPCOES_STATUS = Object.entries(STATUS_CLIENTE_LABEL).map(([valor, rotulo]) => ({ valor, rotulo }));
@@ -95,6 +96,7 @@ export function FormularioCliente({ modo, cliente, onFechar, onSalvo }: PropsFor
                 setDocumento("");
               }}
             >
+              {tipoPessoa === t && <PilulaDeslizante grupo="tipo-pessoa" className="rounded-[7px] bg-areia-card shadow-[var(--shadow-sm)]" />}
               {TIPO_PESSOA_LABEL[t]}
             </button>
           ))}

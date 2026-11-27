@@ -522,6 +522,8 @@ h1, h2, h3, h4, .font-titulo {
     padding: 3px;
   }
   .segmented-item {
+    position: relative;
+    isolation: isolate;
     border-radius: calc(var(--radius-sm) - 3px);
     padding: 0.4rem 0.85rem;
     font-size: 0.8125rem;
@@ -534,9 +536,12 @@ h1, h2, h3, h4, .font-titulo {
   }
   .segmented-item.active,
   .segmented-item[data-state="active"] {
-    background: var(--areia-card);
     color: var(--azul-700);
     font-weight: 600;
+  }
+  /* Abas do Radix (sem a pílula que desliza): o fundo fica no próprio item. */
+  .segmented-item[data-state="active"] {
+    background: var(--areia-card);
     box-shadow: var(--shadow-sm);
   }
 }

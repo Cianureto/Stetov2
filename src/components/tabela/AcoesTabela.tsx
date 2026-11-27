@@ -132,12 +132,19 @@ export function AcoesEmLinha<T>({ controle, linha, so, comRotulo = true }: { con
               controle.executar(acao, [linha]);
             }}
             className={cn(
-              "inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-sm)] border border-[var(--borda-forte)] px-2.5 text-xs font-medium text-foreground-secondary transition-colors disabled:opacity-50 pointer-coarse:h-11",
-              acao.perigo ? "hover:border-[var(--danger)]/30 hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]" : "hover:bg-[var(--sidebar-hover-bg)] hover:text-foreground",
+              // Mesmo movimento do botão Novo (sem o azul): sobe 1px com sombra e o ícone gira de leve.
+              "group/acao inline-flex h-8 items-center gap-1.5 rounded-[var(--radius-sm)] border border-borda bg-areia-card px-2.5 text-xs font-medium text-foreground-secondary shadow-[var(--shadow-xs)] transition-[transform,box-shadow,border-color,background-color,color] duration-[var(--dur-media)] ease-[var(--ease-saida)] hover:-translate-y-px hover:shadow-[var(--shadow-md)] active:scale-95 disabled:pointer-events-none disabled:opacity-50 pointer-coarse:h-11",
+              acao.perigo ? "hover:border-[var(--danger)]/30 hover:bg-[var(--danger-soft)] hover:text-[var(--danger)]" : "hover:border-azul-200 hover:bg-azul-50 hover:text-azul-700",
               !comRotulo && "w-8 justify-center px-0 pointer-coarse:w-11",
             )}
           >
-            <acao.Icone className="size-3.5" aria-hidden />
+            <acao.Icone
+              className={cn(
+                "size-3.5 transition-transform duration-[var(--dur-media)] ease-[var(--ease-saida)] group-hover/acao:scale-[1.18]",
+                acao.perigo ? "group-hover/acao:rotate-12" : "group-hover/acao:-rotate-[20deg]",
+              )}
+              aria-hidden
+            />
             {comRotulo && acao.rotulo}
           </button>
         );

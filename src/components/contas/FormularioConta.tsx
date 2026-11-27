@@ -16,6 +16,7 @@ import { BANCOS, rotuloBanco } from "@/lib/bancos";
 import { hojeBrasilia, valorFinalConta, type Ajuste } from "@/lib/contas";
 import { formatarMoeda } from "@/lib/format";
 import { CaixaMarcar } from "@/components/ui/caixa-marcar";
+import { PilulaDeslizante } from "@/components/ui/pilula-deslizante";
 
 const OPCOES_STATUS = [{ valor: "pendente", rotulo: "Pendente" }, { valor: "pago", rotulo: "Paga" }];
 
@@ -85,6 +86,7 @@ export function FormularioConta({ modo, conta, onFechar, onSalvo }: PropsFormula
         <div className="segmented" role="radiogroup" aria-label="Tipo da conta">
           {(["pagar", "receber"] as const).map((t) => (
             <button key={t} type="button" role="radio" aria-checked={tipo === t} className={`segmented-item ${tipo === t ? "active" : ""}`} onClick={() => setTipo(t)}>
+              {tipo === t && <PilulaDeslizante grupo="tipo-conta" className="rounded-[7px] bg-areia-card shadow-[var(--shadow-sm)]" />}
               {t === "pagar" ? "A pagar" : "A receber"}
             </button>
           ))}

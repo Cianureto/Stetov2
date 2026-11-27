@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ban, Plus, RotateCcw } from "lucide-react";
+import { Ban, RotateCcw } from "lucide-react";
 import type { Empresa, ListaEmpresas } from "@/api/types";
 import { BadgeAtivo } from "@/components/comum/BadgeAtivo";
 import { AcoesEmLinha } from "@/components/tabela/AcoesTabela";
 import { BarraTabela } from "@/components/tabela/BarraTabela";
 import { TabelaDados } from "@/components/tabela/TabelaDados";
 import { Badge } from "@/components/ui/badge";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { useAcoesTabela } from "@/hooks/useAcoesTabela";
 import { useTabelaServidor } from "@/hooks/useTabelaServidor";
 import { api } from "@/api/client";
@@ -55,7 +55,7 @@ export default function EmpresasPage() {
         rotulo="Administração"
         titulo="Empresas"
         descricao="Empresas que usam o Steto. Os dados de cada uma ficam separados; abra uma para ver e criar os usuários dela."
-        acao={<button type="button" onClick={() => navigate("/empresas/nova")} className={classeAcaoHero}><Plus className="size-4" strokeWidth={2.5} aria-hidden /> Nova empresa</button>}
+        acao={<button type="button" onClick={() => navigate("/empresas/nova")} className={classeAcaoHero}><ChipIconeAcao /> Nova empresa</button>}
         numeros={[{ valor: tabela.resposta?.meta.total, rotulo: "Empresas" }]}
       />
       <div className="card overflow-hidden">

@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ban, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Ban, RotateCcw, Trash2 } from "lucide-react";
 import type { EmpresaContabil, ListaEmpresasContabeis, ResumoEmpresasContabeis } from "@/api/types";
 import { BadgeAtivo } from "@/components/comum/BadgeAtivo";
 import { AcoesEmLinha } from "@/components/tabela/AcoesTabela";
 import { AbasContagem } from "@/components/tabela/AbasContagem";
 import { BarraTabela } from "@/components/tabela/BarraTabela";
 import { TabelaDados } from "@/components/tabela/TabelaDados";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { useAcoesTabela } from "@/hooks/useAcoesTabela";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { useParametroUrl } from "@/hooks/useParametroUrl";
@@ -87,7 +87,7 @@ export default function EmpresasContabeisPage() {
         descricao="Empresas pelas quais as notas são emitidas. Abra uma para ver os repasses por cliente e por prestador."
         acao={podeGerenciar ? (
           <button type="button" onClick={() => navigate("/empresas-contabeis/nova")} className={classeAcaoHero}>
-            <Plus className="size-4" strokeWidth={2.5} aria-hidden /> Nova empresa
+            <ChipIconeAcao /> Nova empresa
           </button>
         ) : undefined}
         numeros={[

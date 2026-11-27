@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/cn";
 import type { CSSProperties } from "react";
+import { Plus, type LucideIcon } from "lucide-react";
 import { AjudaIndicador } from "@/components/ui/ajuda-indicador";
 import { BordaTrilha, NumeroAnimado } from "@/components/ui/numero-animado";
 
@@ -142,6 +143,25 @@ export function CabecalhoHero({ rotulo, titulo, descricao, acao, numeros = [], a
   );
 }
 
-/** Botão principal do cabeçalho (azul da marca). */
+/**
+ * Botão principal do cabeçalho (Novo registro, Nova conta…): mesmo desenho e mesmo hover do botão "Novo" da
+ * barra lateral — azul da marca em degradê, sobe 1px e clareia; o ícone fica num quadradinho que gira.
+ * Use com <ChipIconeAcao /> como primeiro filho.
+ */
 export const classeAcaoHero =
-  "inline-flex h-10 shrink-0 items-center gap-2 rounded-xl bg-[var(--marca)] px-4 text-sm font-semibold text-white shadow-[0_1px_2px_rgba(11,27,54,0.12)] transition hover:bg-[var(--marca-escuro)] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--marca)] focus-visible:ring-offset-2";
+  "group inline-flex h-11 shrink-0 items-center gap-2.5 rounded-[14px] bg-[linear-gradient(135deg,var(--azul-500),var(--azul-600))] pl-1.5 pr-4 text-sm font-semibold text-white shadow-[0_10px_24px_-10px_rgba(58,110,242,0.9),inset_0_1px_0_rgb(255_255_255/0.22)] transition-[transform,filter,box-shadow] duration-[var(--dur-media)] ease-[var(--ease-saida)] hover:-translate-y-px hover:brightness-110 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-azul-300 focus-visible:ring-offset-2";
+
+/** Quadradinho do ícone dos botões de ação: o "+" gira 90° no hover; outros ícones (`giro="leve"`) inclinam de leve. */
+export function ChipIconeAcao({ icone: Icone = Plus, giro = "volta" }: { icone?: LucideIcon; giro?: "volta" | "leve" }) {
+  return (
+    <span
+      aria-hidden
+      className={cn(
+        "grid size-8 shrink-0 place-items-center rounded-[9px] bg-white/20 shadow-[inset_0_0_0_1px_rgb(255_255_255/0.25)] transition-transform duration-[var(--dur-media)] ease-[var(--ease-saida)]",
+        giro === "volta" ? "group-hover:rotate-90" : "group-hover:-rotate-12 group-hover:scale-110",
+      )}
+    >
+      <Icone className="size-[18px]" strokeWidth={2.5} />
+    </span>
+  );
+}

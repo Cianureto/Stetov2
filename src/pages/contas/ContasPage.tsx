@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Download, FolderTree, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { CheckCircle2, Download, FolderTree, RotateCcw, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import type { Categoria, Conta, ListaContas, ResumoContas } from "@/api/types";
 import { BadgeSituacaoConta } from "@/components/contas/BadgeSituacaoConta";
@@ -9,7 +9,7 @@ import { AbasContagem } from "@/components/tabela/AbasContagem";
 import { BarraTabela } from "@/components/tabela/BarraTabela";
 import { TabelaDados } from "@/components/tabela/TabelaDados";
 import { Button } from "@/components/ui/button";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { useAcoesTabela } from "@/hooks/useAcoesTabela";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { useParametroUrl } from "@/hooks/useParametroUrl";
@@ -83,7 +83,7 @@ export default function ContasPage() {
         descricao="Despesas e recebimentos da empresa, com vencimento, ajustes e recorrência."
         acao={podeGerenciar ? (
           <button type="button" onClick={() => navigate("/contas/nova")} className={classeAcaoHero}>
-            <Plus className="size-4" strokeWidth={2.5} aria-hidden /> Nova conta
+            <ChipIconeAcao /> Nova conta
           </button>
         ) : undefined}
         numeros={[

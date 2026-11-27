@@ -1,12 +1,11 @@
 import { Link, useNavigate } from "react-router-dom";
-import { Plus } from "lucide-react";
 import type { PainelGeral } from "@/api/types";
 import { RankedBars } from "@/components/charts";
 import { GraficoColunas, GraficoPizza } from "@/components/relatorios/graficos";
 import { rotuloMesEixo } from "@/lib/graficos";
 import { BadgeSituacaoConta } from "@/components/contas/BadgeSituacaoConta";
 import { EstadoCarga } from "@/components/EstadoCarga";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { Metrica, Metricas } from "@/components/ui/metricas";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDadosApi } from "@/hooks/useDadosApi";
@@ -47,7 +46,7 @@ export default function PainelPage() {
         descricao="Notas da competência atual, repasses em aberto e contas que pedem atenção."
         acao={podeLancar ? (
           <button type="button" onClick={() => navigate("/registros/novo")} className={classeAcaoHero}>
-            <Plus className="size-4" strokeWidth={2.5} aria-hidden /> Novo registro
+            <ChipIconeAcao /> Novo registro
           </button>
         ) : undefined}
         numeros={[

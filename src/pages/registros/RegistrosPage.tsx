@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Download, Plus, RotateCcw, Trash2, XCircle } from "lucide-react";
+import { CheckCircle2, Download, RotateCcw, Trash2, XCircle } from "lucide-react";
 import { toast } from "sonner";
 import type { ListaRegistros, OpcaoApi, Registro, ResumoRegistros } from "@/api/types";
 import { BadgeSituacao } from "@/components/registros/BadgeSituacao";
@@ -9,7 +9,7 @@ import { AbasContagem } from "@/components/tabela/AbasContagem";
 import { BarraTabela } from "@/components/tabela/BarraTabela";
 import { TabelaDados } from "@/components/tabela/TabelaDados";
 import { Button } from "@/components/ui/button";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { useAcoesTabela } from "@/hooks/useAcoesTabela";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { useParametroUrl } from "@/hooks/useParametroUrl";
@@ -101,7 +101,7 @@ export default function RegistrosPage() {
         descricao="Notas emitidas para os clientes e o repasse de cada uma ao prestador."
         acao={podeGerenciar ? (
           <button type="button" onClick={() => navigate("/registros/novo")} className={classeAcaoHero}>
-            <Plus className="size-4" strokeWidth={2.5} aria-hidden /> Novo registro
+            <ChipIconeAcao /> Novo registro
           </button>
         ) : undefined}
         numeros={[

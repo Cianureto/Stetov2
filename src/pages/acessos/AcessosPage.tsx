@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Ban, KeyRound, Plus, RotateCcw, ShieldCheck, UserRound } from "lucide-react";
+import { Ban, KeyRound, RotateCcw, ShieldCheck, UserRound } from "lucide-react";
 import { toast } from "sonner";
 import { api } from "@/api/client";
 import type { ListaUsuarios, Usuario } from "@/api/types";
@@ -10,7 +10,7 @@ import { BarraTabela } from "@/components/tabela/BarraTabela";
 import { TabelaDados } from "@/components/tabela/TabelaDados";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { confirmar } from "@/components/ui/confirmar";
 import { useAuth } from "@/context/useAuth";
 import { useAcoesTabela } from "@/hooks/useAcoesTabela";
@@ -110,7 +110,7 @@ export default function AcessosPage() {
         rotulo="Administração"
         titulo={empresaId ? "Usuários da empresa" : "Usuários e acessos"}
         descricao="Quem entra no sistema e com qual papel. Contas novas recebem uma senha temporária."
-        acao={<button type="button" onClick={() => navigate(novoCaminho)} className={classeAcaoHero}><Plus className="size-4" strokeWidth={2.5} aria-hidden /> Novo usuário</button>}
+        acao={<button type="button" onClick={() => navigate(novoCaminho)} className={classeAcaoHero}><ChipIconeAcao /> Novo usuário</button>}
         numeros={[{ valor: total, rotulo: "Usuários" }]}
       />
       <div className="card overflow-hidden">

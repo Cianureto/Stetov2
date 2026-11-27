@@ -3,7 +3,7 @@ import { ArrowLeft, Pencil } from "lucide-react";
 import type { PainelEmpresaContabil } from "@/api/types";
 import { EstadoCarga } from "@/components/EstadoCarga";
 import { TabelaRanking } from "@/components/relatorios/TabelaRanking";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { usePermissao } from "@/hooks/usePermissao";
@@ -38,7 +38,7 @@ export default function EmpresaContabilPage() {
               descricao={empresa.nomeFantasia ? empresa.razaoSocial : "Totais de todas as notas emitidas por esta empresa."}
               acao={podeGerenciar ? (
                 <button type="button" onClick={() => navigate(`/empresas-contabeis/${empresa.id}/editar`)} className={classeAcaoHero}>
-                  <Pencil className="size-4" aria-hidden /> Editar
+                  <ChipIconeAcao icone={Pencil} giro="leve" /> Editar
                 </button>
               ) : undefined}
               numeros={[

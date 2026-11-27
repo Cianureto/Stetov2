@@ -1,13 +1,13 @@
 import { useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Ban, Plus, RotateCcw, Trash2 } from "lucide-react";
+import { Ban, RotateCcw, Trash2 } from "lucide-react";
 import type { Cliente, ListaClientes, ResumoClientes } from "@/api/types";
 import { CartaoCliente } from "@/components/clientes/CartaoCliente";
 import { colunasClientes } from "@/components/clientes/colunasClientes";
 import { AbasContagem } from "@/components/tabela/AbasContagem";
 import { BarraTabela } from "@/components/tabela/BarraTabela";
 import { TabelaDados } from "@/components/tabela/TabelaDados";
-import { CabecalhoHero, classeAcaoHero } from "@/components/ui/cabecalho-hero";
+import { CabecalhoHero, ChipIconeAcao, classeAcaoHero } from "@/components/ui/cabecalho-hero";
 import { useAcoesTabela } from "@/hooks/useAcoesTabela";
 import { useDadosApi } from "@/hooks/useDadosApi";
 import { useParametroUrl } from "@/hooks/useParametroUrl";
@@ -94,7 +94,7 @@ export default function ClientesPage() {
         acao={
           podeGerenciar ? (
             <button type="button" onClick={() => navigate("/clientes/novo")} className={classeAcaoHero}>
-              <Plus className="size-4" strokeWidth={2.5} aria-hidden /> Novo cliente
+              <ChipIconeAcao /> Novo cliente
             </button>
           ) : undefined
         }
